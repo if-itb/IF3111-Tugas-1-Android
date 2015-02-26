@@ -20,7 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-public class MainActivity extends Activity implements SensorEventListener,LocationListener {
+public class MainActivity extends Activity implements SensorEventListener {
 
     private ImageView image;
 
@@ -29,6 +29,7 @@ public class MainActivity extends Activity implements SensorEventListener,Locati
 
     TextView tvHeading;
     TextView txtLatLong;
+    TextView txtTimer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +41,33 @@ public class MainActivity extends Activity implements SensorEventListener,Locati
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        LocationListener locationListener = new LocationListener() {
+            /* Bagian GPS */
+            @Override
+            public void onLocationChanged(Location loc){
+                loc.getLongitude();
+                loc.getLatitude();
+                String Text = "Latitude: " +loc.getLatitude() + " " + "Longitude: " + loc.getLongitude();
+                Toast.makeText(getApplicationContext(),Text,Toast.LENGTH_SHORT).show();
+                txtLatLong.setText(Text);
+            }
+            @Override
+            public void onProviderDisabled(String provider){
+                Toast.makeText(getApplicationContext(),"Gps Disabled", Toast.LENGTH_SHORT).show();
+                txtTimer.setText("GPS Disabled");
 
+            }
+            @Override
+            public void onProviderEnabled(String provider){
+                Toast.makeText(getApplicationContext(),"Gps Enabled", Toast.LENGTH_SHORT).show();
+                txtTimer.setText("GPS Enabled");
+            }
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras){
+
+            }
+        };
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
     }
 
 
@@ -95,25 +122,5 @@ public class MainActivity extends Activity implements SensorEventListener,Locati
 
     }
 
-    /* Bagian GPS */
-    @Override
-    public void onLocationChanged(Location loc){
-        loc.getLongitude();
-        loc.getLatitude();
-        String Text = "Latitude: " +loc.getLatitude() + " " + "Longitude: " + loc.getLongitude();
-        Toast.makeText(getApplicationContext(),Text,Toast.LENGTH_SHORT).show();
-        txtLatLong.setText(Text);
-    }
-    @Override
-    public void onProviderDisabled(String provider){
-        Toast.makeText(getApplicationContext(),"Gps Disabled", Toast.LENGTH_SHORT).show();
-    }
-    @Override
-    public void onProviderEnabled(String provider){
-        Toast.makeText(getApplicationContext(),"Gps Enabled", Toast.LENGTH_SHORT).show();
-    }
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras){
 
-    }
 }
