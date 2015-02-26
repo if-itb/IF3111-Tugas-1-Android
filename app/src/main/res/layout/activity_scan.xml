@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button android:id="@+id/Scan"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:text="@string/scan"
+        android:layout_alignTop="@+id/Direction"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:textColor="@color/activeActivityColor" />
+
+    <Button android:id="@+id/Direction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/directionButton"
+        android:onClick="changeToDirectionActivity"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="false"
+        android:layout_toLeftOf="@+id/Scan"
+        android:layout_toStartOf="@+id/Scan" />
+
+    <TextView android:text="@string/qr_scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Scan"
+        android:id="@+id/textView" />
+
+</RelativeLayout>
