@@ -1,10 +1,14 @@
 package adwisatya.jerrytracker;
 
 import android.app.Activity;
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.support.v7.app.ActionBarActivity;
@@ -13,10 +17,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
-
-public class MainActivity extends Activity implements SensorEventListener {
+public class MainActivity extends Activity implements SensorEventListener,LocationListener {
 
     private ImageView image;
 
@@ -24,6 +28,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private SensorManager mSensorManager;
 
     TextView tvHeading;
+    TextView txtLatLong;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,7 +36,10 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         image = (ImageView) findViewById(R.id.imageViewCompass);
         tvHeading = (TextView) findViewById(R.id.tvHeading);
+        txtLatLong = (TextView) findViewById(R.id.txtLatLong);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
     }
 
@@ -84,6 +92,28 @@ public class MainActivity extends Activity implements SensorEventListener {
         currentDegree = -degree;
     }
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    /* Bagian GPS */
+    @Override
+    public void onLocationChanged(Location loc){
+        loc.getLongitude();
+        loc.getLatitude();
+        String Text = "Latitude: " +loc.getLatitude() + " " + "Longitude: " + loc.getLongitude();
+        Toast.makeText(getApplicationContext(),Text,Toast.LENGTH_SHORT).show();
+        txtLatLong.setText(Text);
+    }
+    @Override
+    public void onProviderDisabled(String provider){
+        Toast.makeText(getApplicationContext(),"Gps Disabled", Toast.LENGTH_SHORT).show();
+    }
+    @Override
+    public void onProviderEnabled(String provider){
+        Toast.makeText(getApplicationContext(),"Gps Enabled", Toast.LENGTH_SHORT).show();
+    }
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras){
 
     }
 }
