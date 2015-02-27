@@ -5,14 +5,20 @@ import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -28,6 +34,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -40,24 +47,29 @@ import java.util.concurrent.TimeUnit;
 public class MainActivity extends ActionBarActivity implements OnMapReadyCallback{
 
     private static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
-    double latitude = 0;
-    double longitude = 0;
-    SupportMapFragment mapFragment;
-    GoogleMap maps;
-    ImageView compassArrow;
-    Compass compass;
-    Button scannerButton;
-
+    private double latitude = 0;
+    private double longitude = 0;
+    private SupportMapFragment mapFragment;
+    private GoogleMap maps;
+    private ImageView compassArrow;
+    private Compass compass;
+    private TextView scannerButton;
+    private Toolbar toolbar;
+    private ProgressBar proggresBar;
+    private TextView retryButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        toolbar = (Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         compassArrow = (ImageView) findViewById(R.id.compass_arrow);
         compass = new Compass(this, compassArrow);
 
-        scannerButton = (Button) findViewById(R.id.button_scanner);
+        scannerButton = (TextView) findViewById(R.id.button_scanner);
         scannerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,36 +77,23 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             }
         });
 
+        proggresBar = (ProgressBar) findViewById(R.id.action_bar_proggress);
+
+        retryButton = (TextView)findViewById(R.id.retry);
+        retryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                retryButton.setVisibility(View.GONE);
+                proggresBar.setVisibility(View.VISIBLE);
+                getMapData();
+            }
+        });
+
         mapFragment = SupportMapFragment.newInstance();
         mapFragment.getMapAsync(this);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, mapFragment)
-                    .commit();
-        }
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-
-        return super.onOptionsItemSelected(item);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, mapFragment)
+                .commit();
     }
 
     @Override
@@ -112,17 +111,19 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         String url ="http://167.205.32.46/pbd/api/track?nim=13512045";
         // Request a string response from the provided URL.
         StringRequest req = new StringRequest(Request.Method.GET, url,
-                new Response.Listener() {
+                new Response.Listener<String>() {
                     @Override
-                    public void onResponse(Object response) {
+                    public void onResponse(String response) {
                         // Display the first 500 characters of the response string.
                         try {
-                            JSONObject json = new JSONObject(response.toString());
+                            proggresBar.setVisibility(View.GONE);
+                            JSONObject json = new JSONObject(response);
                             latitude = Double.valueOf(json.getString("lat"));
                             longitude = Double.valueOf(json.getString("long"));
                             maps.addMarker(new MarkerOptions()
                                     .position(new LatLng(latitude, longitude))
-                                    .title("Jerry's Location"));
+                                    .title("Jerry's Location")
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.jerry)));
                             if(maps.getMyLocation() != null){
                                 maps.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(
                                         maps.getMyLocation().getLatitude(),
@@ -136,12 +137,15 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                 }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            System.out.println("Error parsing from server");
+                            retryButton.setVisibility(View.VISIBLE);
+                            proggresBar.setVisibility(View.GONE);
+                            Toast.makeText(getBaseContext(), "An error occured\nTap retry to continue", Toast.LENGTH_LONG).show();
                         }
                 }
         );
-        req.setRetryPolicy(new DefaultRetryPolicy((int) TimeUnit.SECONDS.toMillis(20), 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        req.setRetryPolicy(new DefaultRetryPolicy((int) TimeUnit.SECONDS.toMillis(3), 10, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         // Add the request to the RequestQueue.
+        proggresBar.setVisibility(View.VISIBLE);
         queue.add(req);
     }
 
@@ -174,6 +178,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         });
         downloadDialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialogInterface, int i) {
+
             }
         });
         return downloadDialog.show();
@@ -182,13 +187,12 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
             if (resultCode == Activity.RESULT_OK) {
-                //get the extras that are returned from the intent
+
                 final String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                //Toast toast = Toast.makeText((Activity)getActivity(), "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
-                //toast.show();
                 RequestQueue queue = Volley.newRequestQueue(this);
                 String url = "http://167.205.32.46/pbd/api/catch";
+
                 final JSONObject obj = new JSONObject();
                 try {
                     obj.put("nim", "13512045");
@@ -197,12 +201,12 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                     e.printStackTrace();
                 }
 
-                //params.put("nim", "13512045");
-                //params.put("token", contents);
                 StringRequest req = new StringRequest(Request.Method.POST, url,
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
+                                proggresBar.setVisibility(View.GONE);
+                                retryButton.setVisibility(View.GONE);
                                 Toast.makeText(getBaseContext(), "Success!\nReceived data : " +
                                         response.toString(), Toast.LENGTH_LONG).show();
                             }
@@ -226,7 +230,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                         return "application/json";
                     }
                 };
-                req.setRetryPolicy(new DefaultRetryPolicy((int) TimeUnit.SECONDS.toMillis(20), 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                req.setRetryPolicy(new DefaultRetryPolicy((int) TimeUnit.SECONDS.toMillis(3), 10, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                proggresBar.setVisibility(View.VISIBLE);
                 queue.add(req);
             }
         }

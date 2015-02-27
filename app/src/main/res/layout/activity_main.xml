@@ -9,43 +9,44 @@
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingTop="?attr/actionBarSize">
 
     </FrameLayout>
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical|center_horizontal"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="5dp">
+        android:gravity="center_vertical"
+        android:paddingTop="?attr/actionBarSize">
 
-        <ImageView
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:id="@+id/compass_background"
-            android:src="@drawable/compass_background"/>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="5dp">
 
-        <ImageView
-            android:layout_width="75dp"
-            android:layout_height="75dp"
-            android:id="@+id/compass_arrow"
-            android:src="@drawable/compass_arrow"/>
+            <ImageView
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:id="@+id/compass_background"
+                android:src="@drawable/compass_background"/>
 
-    </RelativeLayout>
+            <ImageView
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:id="@+id/compass_arrow"
+                android:src="@drawable/compass_arrow"/>
 
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+    <include
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Scan QR Code"
-        android:id="@+id/button_scanner"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:background="#AA272822"
-        android:textColor="#FFFFFF"/>
+        layout="@layout/toolbar" />
 
 </RelativeLayout>
