@@ -15,8 +15,24 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.gilang.jerrytracker.MainActivity;
 import com.gilang.jerrytracker.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Gilang on 2/24/2015.
@@ -113,10 +129,50 @@ public class ScannerFragment extends Fragment {
         if (requestCode == 0) {
             if (resultCode == Activity.RESULT_OK) {
                 //get the extras that are returned from the intent
-                String contents = intent.getStringExtra("SCAN_RESULT");
+                final String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
                 //Toast toast = Toast.makeText((Activity)getActivity(), "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
                 //toast.show();
+                RequestQueue queue = Volley.newRequestQueue(getActivity());
+                String url = "http://167.205.32.46/pbd/api/catch";
+                final JSONObject obj = new JSONObject();
+                try {
+                    obj.put("nim", "13512045");
+                    obj.put("token", contents);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                //params.put("nim", "13512045");
+                //params.put("token", contents);
+                StringRequest req = new StringRequest(Request.Method.POST, url,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                System.out.println("success" + response.toString());
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                System.out.println("error" + error.toString());
+                            }
+                        }
+                ){
+
+                    @Override
+                    public byte[] getBody() throws AuthFailureError {
+                        return obj.toString().getBytes();
+                    }
+
+                    @Override
+                    public String getBodyContentType() {
+                        return "application/json";
+                    }
+                };
+                req.setRetryPolicy(new DefaultRetryPolicy((int) TimeUnit.SECONDS.toMillis(20), 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                queue.add(req);
+
                 textResult.setText("Scan Result: " + contents);
             }
         }
