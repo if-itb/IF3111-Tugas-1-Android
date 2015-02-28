@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.CountDownTimer;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -30,8 +31,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.gilang.fragment.ScannerFragment;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -40,7 +46,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 
@@ -57,6 +67,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     private Toolbar toolbar;
     private ProgressBar proggresBar;
     private TextView retryButton;
+    private TextView timeText;
+    private AlertDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +101,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             }
         });
 
+        timeText = (TextView) findViewById(R.id.text_time);
+
         mapFragment = SupportMapFragment.newInstance();
         mapFragment.getMapAsync(this);
         getSupportFragmentManager().beginTransaction()
@@ -106,17 +120,15 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
     public void getMapData(){
-        // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
         String url ="http://167.205.32.46/pbd/api/track?nim=13512045";
-        // Request a string response from the provided URL.
+
         StringRequest req = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Display the first 500 characters of the response string.
                         try {
-                            proggresBar.setVisibility(View.GONE);
+                            // Add new marker for jerry's location
                             JSONObject json = new JSONObject(response);
                             latitude = Double.valueOf(json.getString("lat"));
                             longitude = Double.valueOf(json.getString("long"));
@@ -124,12 +136,48 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                                     .position(new LatLng(latitude, longitude))
                                     .title("Jerry's Location")
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.jerry)));
+
+                            // Move camera to my location
                             if(maps.getMyLocation() != null){
                                 maps.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(
                                         maps.getMyLocation().getLatitude(),
                                         maps.getMyLocation().getLongitude()
                                 )));
                             }
+
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            //format.setTimeZone(TimeZone.getTimeZone("UTC"));
+                            String time = format.format(new Date());
+                            //String time2 = format.format(new Date(Long.valueOf(json.getString("valid_until"))));
+                            String time2 = format.format(new Date());
+                            //timeText.setText("Now : " + System.currentTimeMillis() + " " + "Exp time : " + time2);
+                            long timeDiff = 120000;
+                            new CountDownTimer(timeDiff, 1000){
+
+                                @Override
+                                public void onTick(long millisUntilFinished) {
+                                    String seconds = String.valueOf((millisUntilFinished/1000)%60);
+                                    String minutes = String.valueOf((millisUntilFinished/1000)/60%60);
+                                    String hours = String.valueOf((millisUntilFinished/1000)/60/60%60);
+                                    if(seconds.length() == 1)
+                                        seconds = "0" + seconds;
+                                    if(minutes.length() == 1)
+                                        minutes = "0" + minutes;
+                                    if(hours.length() == 1)
+                                        hours = "0" + hours;
+
+
+                                    timeText.setText("TIme left: " + hours + ":" + minutes + ":" + seconds);
+                                }
+
+                                @Override
+                                public void onFinish() {
+                                    getMapData();
+                                }
+                            }.start();
+
+                            proggresBar.setVisibility(View.GONE);
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -143,10 +191,10 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                         }
                 }
         );
+        // if error occurred, try to reconnect after 3 seconds for 10 times
         req.setRetryPolicy(new DefaultRetryPolicy((int) TimeUnit.SECONDS.toMillis(3), 10, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        // Add the request to the RequestQueue.
-        proggresBar.setVisibility(View.VISIBLE);
         queue.add(req);
+        proggresBar.setVisibility(View.VISIBLE);
     }
 
     public void scanQR(View v) {
@@ -155,14 +203,16 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
             startActivityForResult(intent, 0);
-        } catch (ActivityNotFoundException anfe) {
+        } catch (ActivityNotFoundException e) {
             //on catch, show the download dialog
-            showDialog(this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
+            dialog = showDialog(this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No");
+            dialog.show();
         }
     }
 
-    private static AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo) {
-        AlertDialog.Builder downloadDialog = new AlertDialog.Builder(act);
+    private AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo) {
+
+        final AlertDialog.Builder downloadDialog = new AlertDialog.Builder(act);
         downloadDialog.setTitle(title);
         downloadDialog.setMessage(message);
         downloadDialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
@@ -172,13 +222,14 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                 try {
                     act.startActivity(intent);
                 } catch (ActivityNotFoundException anfe) {
-
+                    Toast.makeText(act, "Application not found on PlayStore", Toast.LENGTH_SHORT);
                 }
             }
         });
         downloadDialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialogInterface, int i) {
-
+                if(dialog != null)
+                    dialog.dismiss();
             }
         });
         return downloadDialog.show();
@@ -188,7 +239,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         if (requestCode == 0) {
             if (resultCode == Activity.RESULT_OK) {
 
-                final String contents = intent.getStringExtra("SCAN_RESULT");
+                String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
                 RequestQueue queue = Volley.newRequestQueue(this);
                 String url = "http://167.205.32.46/pbd/api/catch";
@@ -198,15 +249,17 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                     obj.put("nim", "13512045");
                     obj.put("token", contents);
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    Toast.makeText(getBaseContext(), "Error creating json object", Toast.LENGTH_SHORT);
                 }
 
                 StringRequest req = new StringRequest(Request.Method.POST, url,
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
+                                // hide proggress bar and retry button
                                 proggresBar.setVisibility(View.GONE);
                                 retryButton.setVisibility(View.GONE);
+                                // show received data
                                 Toast.makeText(getBaseContext(), "Success!\nReceived data : " +
                                         response.toString(), Toast.LENGTH_LONG).show();
                             }
@@ -230,6 +283,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                         return "application/json";
                     }
                 };
+                // if error occurred, try to reconnect after 3 seconds for 10 times
                 req.setRetryPolicy(new DefaultRetryPolicy((int) TimeUnit.SECONDS.toMillis(3), 10, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
                 proggresBar.setVisibility(View.VISIBLE);
                 queue.add(req);
@@ -249,15 +303,4 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
         compass.start();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        compass.pause();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        compass.start();
-    }
 }
