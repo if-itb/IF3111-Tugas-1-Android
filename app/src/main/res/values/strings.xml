@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">TomAndJerry</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings"> settings </string>
-    <string name="direction"> Direction Activity </string>
-    <string name="qr_scan"> QR Scan Activity </string>
-    <string name="directionButton"> Direction </string>
-    <string name="scan"> Scan </string>
-    <color name="activeActivityColor">#ff598dff</color>
-
+    <string name="app_name">TomAndJerryV3</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="start_compass"> Compass </string>
+    <string name="start_QRScan">QR Scan </string>
 </resources>
