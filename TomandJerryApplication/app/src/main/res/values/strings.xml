@@ -5,5 +5,8 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_gpstracking">GPSTracking</string>
+    <string name="title_activity_geomagnetic_sensor">GeomagneticSensor</string>
+    <string name="title_activity_qrcode_scanner">QRCodeScanner</string>
 
 </resources>
