@@ -147,27 +147,26 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
 
                             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                             //format.setTimeZone(TimeZone.getTimeZone("UTC"));
-                            String time = format.format(new Date());
-                            //String time2 = format.format(new Date(Long.valueOf(json.getString("valid_until"))));
-                            String time2 = format.format(new Date());
-                            //timeText.setText("Now : " + System.currentTimeMillis() + " " + "Exp time : " + time2);
-                            long timeDiff = 120000;
+                            Date date1 = new Date();
+                            Date date2 = new Date(Long.valueOf(json.getString("valid_until"))*1000);
+                            String time = format.format(date1);
+                            String time2 = format.format(date2);
+                            final int days = (int)(date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24);
+                            long timeDiff = date2.getTime() - date1.getTime();
                             new CountDownTimer(timeDiff, 1000){
 
                                 @Override
                                 public void onTick(long millisUntilFinished) {
                                     String seconds = String.valueOf((millisUntilFinished/1000)%60);
                                     String minutes = String.valueOf((millisUntilFinished/1000)/60%60);
-                                    String hours = String.valueOf((millisUntilFinished/1000)/60/60%60);
-                                    if(seconds.length() == 1)
-                                        seconds = "0" + seconds;
-                                    if(minutes.length() == 1)
-                                        minutes = "0" + minutes;
-                                    if(hours.length() == 1)
-                                        hours = "0" + hours;
-
-
-                                    timeText.setText("TIme left: " + hours + ":" + minutes + ":" + seconds);
+                                    String hours = String.valueOf((millisUntilFinished/1000)/60/60%24);
+                                    String dayString = String.valueOf(millisUntilFinished / (1000 * 60 * 60 * 24));
+                                    if(seconds.length() == 1) seconds = "0" + seconds;
+                                    if(minutes.length() == 1) minutes = "0" + minutes;
+                                    if(hours.length() == 1) hours = "0" + hours;
+                                    if(days <= 1) dayString = dayString + " day ";
+                                    else dayString = dayString + " days ";
+                                    timeText.setText("Time left: "+ dayString + hours + ":" + minutes + ":" + seconds);
                                 }
 
                                 @Override
