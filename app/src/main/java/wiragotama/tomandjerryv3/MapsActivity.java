@@ -4,6 +4,7 @@ package wiragotama.tomandjerryv3;
  * Created by wira gotama on 3/1/2015.
  */
 
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -11,19 +12,27 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -34,13 +43,18 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener {
+
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    public double latitude;
-    public double longitude;
-    public String valid_until;
-    public boolean lock;
+    private double latitude;
+    private double longitude;
+    private String valid_until;
+    private boolean destroyed;
+    private boolean lock;
+    private Marker previousMarker;
 
     /* For compass */
     private ImageView mPointer;
@@ -53,20 +67,20 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private boolean mLastMagnetometerSet = false;
     private float[] mR = new float[9];
     private float[] mOrientation = new float[3];
-    private float mCurrentDegree = 0f;
+    private float mCurrentDegree = 0.0f;
 
     /* Button */
-    Button button;
+    private Button button;
+    private long epoch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        new Task().execute(getApplicationContext());
         lock = true;
-        while (lock);
         setUpMapIfNeeded();
+        new Task().execute(getApplicationContext());
         setUpCompass();
         setUpButton();
 
@@ -74,8 +88,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setCompassEnabled(false);
         }
-
-        //compass.setVisible(true);
     }
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
@@ -83,6 +95,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
+
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
@@ -91,9 +104,14 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     }
 
     private void setUpMap() {
-        Log.d("map", "[MAP] "+Double.toString(latitude)+" "+Double.toString(longitude));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Jerry")).showInfoWindow();
+        Log.d("map", "[MAP] " + Double.toString(latitude) + " " + Double.toString(longitude));
+        if (previousMarker!=null)
+                previousMarker.remove();
+
+        previousMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Jerry").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+        previousMarker.showInfoWindow();
         mMap.getUiSettings().setMapToolbarEnabled(true);
+        mMap.setMyLocationEnabled(true);
     }
 
     private void setUpCompass() {
@@ -158,7 +176,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             httpClient.getConnectionManager().shutdown();
         }
     }
-    
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -181,6 +199,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     @Override
     protected void onDestroy() {
+        destroyed = true;
         super.onDestroy();
     }
 
@@ -210,7 +229,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     Animation.RELATIVE_TO_SELF,
                     0.5f);
 
-            ra.setDuration(250);
+            ra.setDuration(300);
 
             ra.setFillAfter(true);
 
@@ -224,7 +243,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     }
 
-
     /* [GET REQUEST] HTTP - Asynchronus */
     public class Task extends AsyncTask<Context, String, String> {
 
@@ -234,24 +252,82 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
         @Override
         protected String doInBackground(Context... params) {
+            //for testing only
+            /*String dummy[] = new String[3];
+            dummy[0] = "{\"lat\":\"-8\", \"long\":\"108\", \"valid_until\":1425226350}";
+            dummy[1] = "{\"lat\":\"-8\", \"long\":\"-2\", \"valid_until\":1425226400}";
+            dummy[2] = "{\"lat\":\"10\", \"long\":\"10\", \"valid_until\":1425226450}";
+            int counter = 0;*/
+
             HttpClient client = new DefaultHttpClient();
             HttpGet request = new HttpGet("http://167.205.32.46/pbd/api/track?nim=13512015");
             HttpResponse response;
             String result = "";
 
-            try {
-                response = client.execute(request);
+            while (!destroyed) {
+                Log.d("[GET]", "[GET] start");
+                try {
+                    response = client.execute(request);
 
-                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
-                result = rd.readLine();
-                Log.d("Http result", "[GET] "+result);
-                parse(result);
-            } catch (Exception e) {
-                Log.d("fail", "[GET] Http Get Request Fail");
+                    result = rd.readLine();
+                    Log.d("Http result", "[GET] " + result);
+
+                    //for testing only
+                    //result = dummy[counter%3];
+
+                    parse(result);
+                    epoch = Long.valueOf(valid_until)-(System.currentTimeMillis()/1000) - 1;
+                    Log.d("epoch", String.valueOf(Long.valueOf(valid_until) - (System.currentTimeMillis() / 1000)));
+
+                    if (epoch>0) {
+                        Thread thread = new Thread() {
+                            @Override
+                            public void run() {
+                                while (lock) ;
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Log.d("map", "[MAP] " + Double.toString(latitude) + " " + Double.toString(longitude));
+
+                                        if (previousMarker != null)
+                                            previousMarker.remove();
+
+                                        previousMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Jerry").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                                        previousMarker.showInfoWindow();
+                                        mMap.getUiSettings().setMapToolbarEnabled(true);
+                                        mMap.setMyLocationEnabled(true);
+
+                                        View mapView = (View) findViewById(R.id.map);
+                                        mapView.invalidate();
+                                        mapView.forceLayout();
+                                        Toast.makeText(getApplicationContext(), "New Jerry Location!", Toast.LENGTH_SHORT).show();
+                                        lock = false;
+                                    }
+                                });
+                            }
+                        };
+                        thread.start();
+                    }
+
+                } catch (Exception e) {
+                    Log.d("fail", "[GET] Http Get Request Fail "+e.toString());
+                }
+                lock = false;
+                if (epoch>0) {
+                    Log.d("sleep", "[GET] background sleeps");
+                    try {
+                        Thread.sleep(epoch * 1000);
+                    } catch (InterruptedException e) {
+                        Log.d("stacktrace", "Stack Trace "+e.toString());
+                    }
+                }
+                //for testing only
+                //if (counter<2)
+                //counter++;
             }
-            lock = false;
-            return result;
+            return String.valueOf("true");
         }
 
         public void parse(String result) {
@@ -273,9 +349,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 i++;
             }
 
-            latitude = Double.valueOf(lat);
-            longitude = Double.valueOf(lon);
-            valid_until = val;
+            latitude = Double.valueOf(lat.trim());
+            longitude = Double.valueOf(lon.trim());
+            valid_until = val.trim();
             Log.d("hasilparsing", "[Parse] "+Double.toString(latitude)+" "+Double.toString(longitude)+" "+valid_until);
         }
     }

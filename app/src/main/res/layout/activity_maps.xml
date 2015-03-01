@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:screenOrientation="portrait" >
+    android:screenOrientation="portrait"
+    android:id="@+id/mainLayout" >
 
     <fragment
         android:layout_width="match_parent"
@@ -23,6 +24,18 @@
         android:layout_alignParentLeft="true"
         android:src="@drawable/compass_pointer" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/clock"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="30dp"
+        android:layout_below="@+id/map"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:layout_alignRight="@+id/pointer"
+        android:textColor="#000000" />
+
     <Button
         android:id="@+id/QR_scan"
         android:layout_height="50dp"
@@ -33,7 +46,7 @@
         android:text="@string/start_QRScan"
         android:onClick="selfDestruct"
         android:layout_below="@+id/map"
-        android:layout_alignRight="@+id/pointer"
+        android:layout_alignRight="@+id/clock"
         android:textStyle="bold"
         android:background="@android:color/transparent"
         android:paddingRight="10dp"/>
