@@ -4,6 +4,8 @@
 
 Dalam tugas ini, peserta diharapkan dapat membuat aplikasi android yang membantu Tom untuk mencari dan menangkap Jerry. Aplikasi android ini dibuat untuk berkomunikasi dengan Spike untuk mengetahui lokasi dan lama persembunyian Jerry di lokasi tersebut. Aplikasi itu juga dapat melaporkan penangkapan Jerry kepada Spike.
 
+<img src="https://raw.githubusercontent.com/GilangJulianS/IF3111-Tugas-1-Android/master/image/ScreenShot.png" width=300px height=540px />
+
 ## Latar Belakang
 
   Di  kawasan  ITB,  terdapat  banyak  kucing  yang  berkeliaran.  Salah  satu  kucing  yang  paling 
