@@ -4,7 +4,6 @@ package wiragotama.tomandjerryv3;
  * Created by wira gotama on 3/1/2015.
  */
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -12,23 +11,16 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
-import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -43,18 +35,17 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener {
 
+    /* Google maps */
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private double latitude;
     private double longitude;
     private String valid_until;
     private boolean destroyed;
     private boolean lock;
-    private Marker previousMarker;
+    private Marker previousMarker; //previous Marker on googleMap
 
     /* For compass */
     private ImageView mPointer;
@@ -71,6 +62,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     /* Button */
     private Button button;
+
+    /* Time */
     private long epoch;
 
     @Override
@@ -89,6 +82,10 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             mMap.getUiSettings().setCompassEnabled(false);
         }
     }
+
+    /*
+        instantiate map
+     */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
@@ -98,12 +95,15 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                setUpMap();
+                setUpMarker();
             }
         }
     }
 
-    private void setUpMap() {
+    /*
+        set marker in map at latitude and longitude Jerry placed
+     */
+    private void setUpMarker() {
         Log.d("map", "[MAP] " + Double.toString(latitude) + " " + Double.toString(longitude));
         if (previousMarker!=null)
                 previousMarker.remove();
@@ -114,6 +114,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         mMap.setMyLocationEnabled(true);
     }
 
+    /*
+        instantiate compass
+     */
     private void setUpCompass() {
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -121,6 +124,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         mPointer = (ImageView) findViewById(R.id.pointer);
     }
 
+    /*
+        instantiate button to invoke QR Scanner
+     */
     private void setUpButton() {
         button = (Button) findViewById(R.id.QR_scan);
         button.setOnClickListener(new View.OnClickListener() {
@@ -155,7 +161,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
     }
 
-    /* HTTP POST request */
+    /*
+        Http Post reqeust to catch Jerry
+     */
     private void sendPost(String token) throws Exception  {
         JSONObject json = new JSONObject();
         json.put("nim", "13512015");
@@ -243,7 +251,10 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     }
 
-    /* [GET REQUEST] HTTP - Asynchronus */
+    /*
+        Class that handle asynchronus Http Get Request to get newest information where Jerry is located
+        this class also update map (to the newest Jerry's location)
+     */
     public class Task extends AsyncTask<Context, String, String> {
 
         protected void onPreExecute() {
@@ -282,6 +293,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     Log.d("epoch", String.valueOf(Long.valueOf(valid_until) - (System.currentTimeMillis() / 1000)));
 
                     if (epoch>0) {
+                        /* Set marker about newest Jerry location in map */
                         Thread thread = new Thread() {
                             @Override
                             public void run() {
@@ -318,6 +330,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 if (epoch>0) {
                     Log.d("sleep", "[GET] background sleeps");
                     try {
+                        /* sleep thread when not needed */
                         Thread.sleep(epoch * 1000);
                     } catch (InterruptedException e) {
                         Log.d("stacktrace", "Stack Trace "+e.toString());
@@ -330,6 +343,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             return String.valueOf("true");
         }
 
+        /*
+            Parse response (JSON object) into it's components
+         */
         public void parse(String result) {
             String lat = "", lon = "", val = "";
             int len = result.length();
