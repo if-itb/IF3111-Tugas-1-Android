@@ -1,10 +1,13 @@
 package com.tracker.timothypratama.tomandjerryapplication.Activity;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
+import com.tracker.timothypratama.tomandjerryapplication.Model.TrackJerryViewModel;
 import com.tracker.timothypratama.tomandjerryapplication.R;
 
 public class TrackJerry extends ActionBarActivity {
@@ -13,6 +16,7 @@ public class TrackJerry extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_jerry);
+        getJerryLocation();
     }
 
 
@@ -36,5 +40,16 @@ public class TrackJerry extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void getJerryLocation() {
+        /* TODO: bikin async request ke server. ini masih stub! */
+        TrackJerryViewModel.setLatitude(-6.890323);
+        TrackJerryViewModel.setLongitude(107.610381);
+    }
+
+    public void ViewMap(View view) {
+        Intent i = new Intent(this,com.tracker.timothypratama.tomandjerryapplication.Activity.GPSTracking.class);
+        startActivity(i);
     }
 }

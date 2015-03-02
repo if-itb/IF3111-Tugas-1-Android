@@ -13,6 +13,7 @@
         android:id="@+id/TrackJerryButton"
         android:layout_marginBottom="23dp"
         android:layout_above="@+id/CatchJerryButton"
+        android:onClick="GoToJerry"
         android:layout_centerHorizontal="true" />
 
     <Button
