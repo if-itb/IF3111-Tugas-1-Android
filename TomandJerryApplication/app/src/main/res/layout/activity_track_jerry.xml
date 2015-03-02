@@ -1,0 +1,95 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.tracker.timothypratama.tomandjerryapplication.Activity.TrackJerry">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spikeImageView"
+        android:src="@drawable/spike"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Get Jerry Location"
+        android:id="@+id/GetJerryLocationButton"
+        android:layout_marginBottom="19dp"
+        android:layout_above="@+id/ViewMapButton"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Map"
+        android:id="@+id/ViewMapButton"
+        android:layout_marginBottom="19dp"
+        android:layout_above="@+id/ViewCompassButton"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Compass"
+        android:id="@+id/ViewCompassButton"
+        android:layout_marginBottom="33dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:src="@drawable/ChatBubble"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/ViewMapButton"
+        android:layout_alignStart="@+id/ViewMapButton"
+        android:layout_marginLeft="17dp"
+        android:layout_marginStart="17dp"
+        android:layout_above="@+id/GetJerryLocationButton" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Lat: -6.890323"
+        android:id="@+id/LatTextView"
+        android:layout_marginTop="112dp"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/spikeImageView"
+        android:layout_toEndOf="@+id/spikeImageView"
+        android:layout_marginLeft="24dp"
+        android:layout_marginStart="24dp"
+        android:textColor="#ff000000" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Long: 107.610381"
+        android:id="@+id/LongTextView"
+        android:textColor="#ff000000"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/LatTextView"
+        android:layout_alignLeft="@+id/LatTextView"
+        android:layout_alignStart="@+id/LatTextView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Valid Until: 1425833999"
+        android:id="@+id/ValidUntilTextView"
+        android:textColor="#ffffffff"
+        android:layout_marginBottom="30dp"
+        android:layout_alignBottom="@+id/spikeImageView"
+        android:layout_toRightOf="@+id/spikeImageView"
+        android:layout_toEndOf="@+id/spikeImageView" />
+
+</RelativeLayout>

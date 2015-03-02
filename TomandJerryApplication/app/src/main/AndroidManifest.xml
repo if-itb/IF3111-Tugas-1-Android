@@ -28,6 +28,10 @@
             android:name=".Activity.QRCodeScanner"
             android:label="@string/title_activity_qrcode_scanner" >
         </activity>
+        <activity
+            android:name=".Activity.TrackJerry"
+            android:label="@string/title_activity_track_jerry" >
+        </activity>
     </application>
 
 </manifest>

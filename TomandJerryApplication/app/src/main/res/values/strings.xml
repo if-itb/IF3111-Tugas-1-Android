@@ -8,5 +8,6 @@
     <string name="title_activity_gpstracking">GPSTracking</string>
     <string name="title_activity_geomagnetic_sensor">GeomagneticSensor</string>
     <string name="title_activity_qrcode_scanner">QRCodeScanner</string>
+    <string name="title_activity_track_jerry">TrackJerry</string>
 
 </resources>
