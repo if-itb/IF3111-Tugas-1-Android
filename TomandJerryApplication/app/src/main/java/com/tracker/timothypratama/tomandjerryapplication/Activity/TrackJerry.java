@@ -2,6 +2,7 @@ package com.tracker.timothypratama.tomandjerryapplication.Activity;
 
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -33,23 +34,50 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class TrackJerry extends ActionBarActivity {
+
+    Timer timer;
+    final int update_rate = 3000; /* in milisecond */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_jerry);
-        updateJerryLocation();
+        timer = new Timer();
+        StartUpdater();
     }
 
+    private void StartUpdater() {
+        final Handler handler = new Handler();
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        new Updater().execute("http://167.205.32.46/pbd/api/track?nim=13512032");
+                    }
+                });
+            }
+        };
+        Log.d("Timer", "Timer Started!");
+        timer.schedule(timerTask, 0, update_rate);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        timer.cancel();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_track_jerry, menu);
-        Updater updater = new Updater();
-        updater.execute("http://167.205.32.46/pbd/api/track?nim=13512032");
+
         return true;
     }
 
@@ -68,18 +96,6 @@ public class TrackJerry extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void updateJerryLocation() {
-        /* TODO: bikin async request ke server. ini masih stub! */
-
-        /* Update data pada model dan user interface */
-        TextView lat = (TextView) findViewById(R.id.LatValueTextView);
-        TextView lng = (TextView) findViewById(R.id.LongValueTextView);
-        TextView validuntil = (TextView) findViewById(R.id.ValidUntilValueTextView);
-        lat.setText(String.valueOf(TrackJerryViewModel.getLatitude()));
-        lng.setText(String.valueOf(TrackJerryViewModel.getLongitude()));
-        validuntil.setText("1425833999");
-    }
-
     public void ViewMap(View view) {
         Intent i = new Intent(this,com.tracker.timothypratama.tomandjerryapplication.Activity.GPSTracking.class);
         startActivity(i);
@@ -88,6 +104,7 @@ public class TrackJerry extends ActionBarActivity {
     class Updater extends AsyncTask<String, String, String>{
         @Override
         protected String doInBackground(String... params) {
+            Log.d("Async Task", "Async Task Updater Created!");
             String response = "";
             for(String url: params) {
                 DefaultHttpClient client = new DefaultHttpClient();
@@ -123,6 +140,16 @@ public class TrackJerry extends ActionBarActivity {
                 Latitude = jsonObject.getDouble("lat");
                 Longitude = jsonObject.getDouble("long");
                 valid = jsonObject.getString("valid_until");
+
+                TrackJerryViewModel.setLongitude(Longitude);
+                TrackJerryViewModel.setLatitude(Latitude);
+
+                TextView lat = (TextView) findViewById(R.id.LatValueTextView);
+                TextView longg = (TextView) findViewById(R.id.LongValueTextView);
+                TextView val = (TextView) findViewById(R.id.ValidUntilValueTextView);
+                lat.setText(String.valueOf(Latitude));
+                longg.setText(String.valueOf(Longitude));
+                val.setText(valid);
 
                 Log.d("Response", s);
                 Log.d("Latitude", String.valueOf(Latitude));
