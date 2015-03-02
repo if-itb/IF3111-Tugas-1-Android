@@ -1,6 +1,7 @@
 package com.tracker.timothypratama.tomandjerryapplication.Activity;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -21,6 +22,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
@@ -37,7 +40,7 @@ public class TrackJerry extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_jerry);
-        getJerryLocation();
+        updateJerryLocation();
     }
 
 
@@ -45,6 +48,8 @@ public class TrackJerry extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_track_jerry, menu);
+        Updater updater = new Updater();
+        updater.execute("http://167.205.32.46/pbd/api/track?nim=13512032");
         return true;
     }
 
@@ -63,67 +68,70 @@ public class TrackJerry extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void getJerryLocation() {
+    public void updateJerryLocation() {
         /* TODO: bikin async request ke server. ini masih stub! */
 
-        TrackJerryViewModel.setLatitude(-6.890323);
-        TrackJerryViewModel.setLongitude(107.610381);
-
+        /* Update data pada model dan user interface */
         TextView lat = (TextView) findViewById(R.id.LatValueTextView);
         TextView lng = (TextView) findViewById(R.id.LongValueTextView);
         TextView validuntil = (TextView) findViewById(R.id.ValidUntilValueTextView);
         lat.setText(String.valueOf(TrackJerryViewModel.getLatitude()));
         lng.setText(String.valueOf(TrackJerryViewModel.getLongitude()));
         validuntil.setText("1425833999");
-
-        makeGetRequest();
-    }
-
-    private void makeGetRequest() {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                .permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpResponse response = null;
-        try {
-            response = httpclient.execute(new HttpGet("http://167.205.32.46/pbd/api/track?nim=13512032"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        StatusLine statusLine = response.getStatusLine();
-        if(statusLine.getStatusCode() == HttpStatus.SC_OK){
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            try {
-                response.getEntity().writeTo(out);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            String responseString = out.toString();
-            Log.d("Response string",responseString);
-            try {
-                out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //..more logic
-        } else{
-            //Closes the connection.
-            try {
-                response.getEntity().getContent().close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                throw new IOException(statusLine.getReasonPhrase());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public void ViewMap(View view) {
         Intent i = new Intent(this,com.tracker.timothypratama.tomandjerryapplication.Activity.GPSTracking.class);
         startActivity(i);
+    }
+
+    class Updater extends AsyncTask<String, String, String>{
+        @Override
+        protected String doInBackground(String... params) {
+            String response = "";
+            for(String url: params) {
+                DefaultHttpClient client = new DefaultHttpClient();
+                HttpGet httpGet = new HttpGet(url);
+                try {
+                    HttpResponse execeute = client.execute(httpGet);
+                    InputStream content = execeute.getEntity().getContent();
+
+                    BufferedReader buffer = new BufferedReader(new InputStreamReader(content));
+                    String s = "";
+                    while ((s = buffer.readLine())!= null) {
+                        response += s;
+                    }
+                } catch (ClientProtocolException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+
+            JSONObject jsonObject;
+            double Latitude;
+            double Longitude;
+            String valid;
+
+            try {
+                jsonObject = new JSONObject(s);
+                Latitude = jsonObject.getDouble("lat");
+                Longitude = jsonObject.getDouble("long");
+                valid = jsonObject.getString("valid_until");
+
+                Log.d("Response", s);
+                Log.d("Latitude", String.valueOf(Latitude));
+                Log.d("Longitude", String.valueOf(Longitude));
+                Log.d("Valid Until", valid);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 }
