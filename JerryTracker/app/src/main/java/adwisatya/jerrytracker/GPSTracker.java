@@ -88,4 +88,65 @@ public class GPSTracker extends Service implements LocationListener {
         }
         return location;
     }
+    public void stopUsingGPS(){
+        if(locationManager !=  null){
+            locationManager.removeUpdates(GPSTracker.this);
+        }
+    }
+    public double getLatitude(){
+        if(location != null){
+            latitude = location.getLatitude();
+        }
+
+        return latitude;
+    }
+    public double getLongitude(){
+        if(location !=  null){
+            longitude = location.getLongitude();
+        }
+        return longitude;
+    }
+    public boolean canGetLocation(){
+        return this.canGetLocation;
+    }
+
+    public void showSettingAlert(){
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
+        alertDialog.setTitle("GPS is settings");
+        alertDialog.setMessage("GPS is not enabled");
+        alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog, int which){
+                Intent intent =  new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                mContext.startActivity(intent);
+            }
+        });
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+    }
+    @Override
+    public void onLocationChanged(Location location){
+
+    }
+    @Override
+    public void onProviderEnabled(String provider){
+
+    }
+    @Override
+    public void onProviderDisabled(String provider){
+
+    }
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras){
+
+    }
+
+    @Override
+    public IBinder onBind(Intent arg0){
+        return null;
+    }
 }
+
