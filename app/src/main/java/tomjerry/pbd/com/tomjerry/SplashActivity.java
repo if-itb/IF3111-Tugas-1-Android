@@ -24,7 +24,7 @@ public class SplashActivity extends ActionBarActivity {
 
     private double latitude;
     private double longitude;
-    private int duration;
+    private long valid_until;
     private boolean lock;
 
     @Override
@@ -49,7 +49,7 @@ public class SplashActivity extends ActionBarActivity {
                         MainActivity.class);
                 i.putExtra("latitude",latitude);
                 i.putExtra("longitude",longitude);
-                i.putExtra("duration",duration);
+                i.putExtra("valid_until",valid_until);
                 startActivity(i);
                 finish();
             }
@@ -111,7 +111,7 @@ public class SplashActivity extends ActionBarActivity {
                     JSONObject object = new JSONObject(result);
                     latitude =  object.getDouble("lat");
                     longitude = object.getDouble("long");
-                    duration = object.getInt("valid_until");
+                    valid_until = object.getLong("valid_until");
                 } catch(Exception e) {
                     e.printStackTrace();
                 }

@@ -34,6 +34,7 @@ import org.apache.http.protocol.HTTP;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends FragmentActivity {
@@ -42,7 +43,7 @@ public class MainActivity extends FragmentActivity {
     private ProgressDialog progressDialog;
     private double latitude;
     private double longitude;
-    private int duration;
+    private long valid_until;
     private String statusResult;
     private boolean lock;
     private TextView timer;
@@ -55,15 +56,30 @@ public class MainActivity extends FragmentActivity {
         Bundle extras = getIntent().getExtras();
         latitude = extras.getDouble("latitude");
         longitude = extras.getDouble("longitude");
-        duration = extras.getInt("duration");
+        valid_until = extras.getLong("valid_until");
 
         setContentView(R.layout.activity_main);
         setUpMapIfNeeded();
 
+        Date date = new Date();
+        long epoch = date.getTime();
+        valid_until = valid_until * 1000;
+
         timer = (TextView) findViewById(R.id.timer);
-        countDownTimer = new CountDownTimer(30000, 1000) {
+        countDownTimer = new CountDownTimer(valid_until - epoch, 1000) {
             public void onTick(long millisUntilFinished) {
-                timer.setText("" + millisUntilFinished / 1000);
+                long totalsec = millisUntilFinished / 1000;
+
+                long day = totalsec / (3600 * 24);
+                totalsec = totalsec - (day * 3600 * 24);
+
+                long hrs = totalsec / 3600;
+                totalsec = totalsec - (hrs * 3600);
+
+                long mnt = totalsec / 60;
+                totalsec = totalsec - (mnt * 60);
+
+                timer.setText(day+"d "+hrs+"h "+mnt+"m "+totalsec+"s");
             }
 
             public void onFinish() {
