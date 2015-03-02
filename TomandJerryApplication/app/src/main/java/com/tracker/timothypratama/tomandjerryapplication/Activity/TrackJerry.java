@@ -1,14 +1,35 @@
 package com.tracker.timothypratama.tomandjerryapplication.Activity;
 
 import android.content.Intent;
+import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.tracker.timothypratama.tomandjerryapplication.Model.TrackJerryViewModel;
 import com.tracker.timothypratama.tomandjerryapplication.R;
+
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.w3c.dom.Text;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class TrackJerry extends ActionBarActivity {
 
@@ -44,8 +65,61 @@ public class TrackJerry extends ActionBarActivity {
 
     public void getJerryLocation() {
         /* TODO: bikin async request ke server. ini masih stub! */
+
         TrackJerryViewModel.setLatitude(-6.890323);
         TrackJerryViewModel.setLongitude(107.610381);
+
+        TextView lat = (TextView) findViewById(R.id.LatValueTextView);
+        TextView lng = (TextView) findViewById(R.id.LongValueTextView);
+        TextView validuntil = (TextView) findViewById(R.id.ValidUntilValueTextView);
+        lat.setText(String.valueOf(TrackJerryViewModel.getLatitude()));
+        lng.setText(String.valueOf(TrackJerryViewModel.getLongitude()));
+        validuntil.setText("1425833999");
+
+        makeGetRequest();
+    }
+
+    private void makeGetRequest() {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                .permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response = null;
+        try {
+            response = httpclient.execute(new HttpGet("http://167.205.32.46/pbd/api/track?nim=13512032"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        StatusLine statusLine = response.getStatusLine();
+        if(statusLine.getStatusCode() == HttpStatus.SC_OK){
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try {
+                response.getEntity().writeTo(out);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            String responseString = out.toString();
+            Log.d("Response string",responseString);
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //..more logic
+        } else{
+            //Closes the connection.
+            try {
+                response.getEntity().getContent().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                throw new IOException(statusLine.getReasonPhrase());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void ViewMap(View view) {
