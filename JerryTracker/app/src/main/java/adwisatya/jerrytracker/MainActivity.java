@@ -1,5 +1,6 @@
 package adwisatya.jerrytracker;
 
+import adwisatya.jerrytracker.GPSTracker;
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
@@ -9,6 +10,7 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.support.v7.app.ActionBarActivity;
@@ -18,6 +20,7 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Button;
 
 
 public class MainActivity extends Activity implements SensorEventListener {
@@ -30,6 +33,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     TextView tvHeading;
     TextView txtLatLong;
     TextView txtTimer;
+    Button btnShowLocation;
+    GPSTracker gps;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +44,21 @@ public class MainActivity extends Activity implements SensorEventListener {
         tvHeading = (TextView) findViewById(R.id.tvHeading);
         txtLatLong = (TextView) findViewById(R.id.txtLatLong);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        btnShowLocation  = (Button) findViewById(R.id.btnShowLocation);
+        btnShowLocation.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View arg0){
+                gps = new GPSTracker(MainActivity.this);
+                if(gps.canGetLocation()){
+                    double latitude = gps.getLatitude();
+                    double longitude = gps.getLongitude();
+                    //Toast.makeText(getApplicationContext(),"YOur location is");
+                    txtLatLong.setText(latitude+","+longitude);
+                }else{
+                    gps.showSettingAlert();
+                }
+            }
+        });
     }
 
     @Override
