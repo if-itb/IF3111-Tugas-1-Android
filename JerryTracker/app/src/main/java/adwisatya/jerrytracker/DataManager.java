@@ -22,29 +22,33 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.w3c.dom.Text;
+
+import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-public class DataManager {
+import android.widget.TextView;
+
+public class DataManager extends AsyncTask {
+
+    @Override
+    protected Object doInBackground(Object... arg0) {
+        return getLocation();
+    }
+
     public String getLocation(){
-
-        String location = "1";
-        HttpClient Client = new DefaultHttpClient();
-
-
+        String location = "";
+        HttpClient client = new DefaultHttpClient();
+        HttpGet request =  new HttpGet("http://167.205.32.46/pbd/api/track?nim=13512043");
+        HttpResponse response;
         try{
-            HttpGet httpGet =  new HttpGet("http://itb.ac.id");
-            HttpResponse response = Client.execute(httpGet);
-            BufferedReader rd = new BufferedReader
-                    (new InputStreamReader(response.getEntity().getContent()));
+            response = client.execute(request);
+            location = response.getEntity().toString();
 
-            String line = "";
-            while ((line = rd.readLine()) != null) {
-                location = location + line;
-            }
         }catch(Exception e){
             e.printStackTrace();
         }
         return location;
-
     }
 }

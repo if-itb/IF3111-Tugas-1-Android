@@ -12,12 +12,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/tvHeading"
         android:text="Degree"
-        android:layout_alignParentTop="true"
         android:layout_alignRight="@+id/imageViewCompass"
         android:layout_alignEnd="@+id/imageViewCompass" />
 
     <ImageView
         android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
         android:id="@+id/imageViewCompass"
         android:src="@drawable/img_compass"
@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:text="Srv"
         android:id="@+id/txtLocServer"
-        android:layout_alignTop="@+id/tvHeading"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
     <TextView
