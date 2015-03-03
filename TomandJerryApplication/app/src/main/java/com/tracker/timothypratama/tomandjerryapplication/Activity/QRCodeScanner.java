@@ -18,6 +18,7 @@ import com.tracker.timothypratama.tomandjerryapplication.R;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -48,7 +49,7 @@ public class QRCodeScanner extends ActionBarActivity {
                 String contents = data.getStringExtra("SCAN_RESULT");
                 TrackJerryViewModel.setSecret_token(contents);
                 Log.d("Contents",contents);
-                
+
                 Catcher catcher = new Catcher();
                 catcher.execute();
             }
@@ -103,6 +104,7 @@ public class QRCodeScanner extends ActionBarActivity {
                 List<BasicNameValuePair> Parameters = new ArrayList();
                 Parameters.add(new BasicNameValuePair("nim","13512032"));
                 Parameters.add(new BasicNameValuePair("secret_token",TrackJerryViewModel.getSecret_token()));
+                httpPost.setEntity(new UrlEncodedFormEntity(Parameters));
                 HttpResponse httpResponse = httpClient.execute(httpPost);
                 InputStream content = httpResponse.getEntity().getContent();
                 BufferedReader buffer = new BufferedReader(new InputStreamReader(content));
