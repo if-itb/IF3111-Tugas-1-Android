@@ -270,9 +270,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         protected String doInBackground(Context... params) {
             //for testing only
             /*String dummy[] = new String[3];
-            dummy[0] = "{\"lat\":\"-8\", \"long\":\"108\", \"valid_until\":1425299610}";
-            dummy[1] = "{\"lat\":\"-8\", \"long\":\"-2\", \"valid_until\":1425299630}";
-            dummy[2] = "{\"lat\":\"10\", \"long\":\"10\", \"valid_until\":1425299610}";
+            dummy[0] = "{\"lat\":\"-8\", \"long\":\"108\", \"valid_until\":1425367660}";
+            dummy[1] = "{\"lat\":\"-8\", \"long\":\"-2\", \"valid_until\":1425367690}";
+            dummy[2] = "{\"lat\":\"10\", \"long\":\"10\", \"valid_until\":1425367710}";
             int counter = 0;*/
 
             HttpClient client = new DefaultHttpClient();
