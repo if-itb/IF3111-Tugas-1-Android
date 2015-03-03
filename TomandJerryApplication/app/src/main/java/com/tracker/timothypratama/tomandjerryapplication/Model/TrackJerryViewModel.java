@@ -6,6 +6,7 @@ package com.tracker.timothypratama.tomandjerryapplication.Model;
 public class TrackJerryViewModel {
     private static double longitude;
     private static double latitude;
+    private static String valid_until;
 
     public static double getLongitude() {
         return longitude;
@@ -21,5 +22,13 @@ public class TrackJerryViewModel {
 
     public static void setLatitude(double latitude) {
         TrackJerryViewModel.latitude = latitude;
+    }
+
+    public static String getValid_until() {
+        return valid_until;
+    }
+
+    public static void setValid_until(String valid_until) {
+        TrackJerryViewModel.valid_until = valid_until;
     }
 }

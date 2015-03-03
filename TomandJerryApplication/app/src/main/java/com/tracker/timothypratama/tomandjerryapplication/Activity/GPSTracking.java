@@ -56,6 +56,8 @@ public class GPSTracking extends ActionBarActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         LatLng jerry = new LatLng(TrackJerryViewModel.getLatitude(), TrackJerryViewModel.getLongitude());
         googleMap.setMyLocationEnabled(true);
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+        googleMap.getUiSettings().setCompassEnabled(true);
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(jerry,zoom));
         googleMap.addMarker(new MarkerOptions()
         .title("Jerry")
