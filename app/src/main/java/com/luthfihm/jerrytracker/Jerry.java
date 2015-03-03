@@ -15,6 +15,8 @@ public class Jerry {
     private Timestamp valid;
 
     public Jerry(String nim) throws JSONException {
+        try
+        {
             String json = "{\"lat\":\"-6.891278\",\"lon\":\"107.610255\",\"valid_until\":1425405600}";
             JSONObject obj = new JSONObject(json);
             double latitude = obj.getDouble("lat");
@@ -22,6 +24,11 @@ public class Jerry {
             double longitude = obj.getDouble("lon");
             latLng = new LatLng(latitude,longitude);
             //valid = new Timestamp(obj.getLong("valid_until"));
+        }
+        catch (JSONException e)
+        {
+
+        }
     }
 
     public LatLng getLatLng()
