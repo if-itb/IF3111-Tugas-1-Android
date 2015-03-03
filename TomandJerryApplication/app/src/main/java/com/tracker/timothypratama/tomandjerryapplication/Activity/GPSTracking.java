@@ -33,6 +33,7 @@ public class GPSTracking extends ActionBarActivity implements OnMapReadyCallback
     private ImageView image;
     private float currentDegree = 0f;
     private SensorManager sensorManager;
+    private RotateAnimation ra;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +106,7 @@ public class GPSTracking extends ActionBarActivity implements OnMapReadyCallback
     public void onSensorChanged(SensorEvent event) {
         float degree = Math.round(event.values[0]);
 
-        RotateAnimation ra = new RotateAnimation(
+        ra = new RotateAnimation(
                 currentDegree,
                 -degree,
                 Animation.RELATIVE_TO_SELF, 0.5f,
@@ -113,7 +114,8 @@ public class GPSTracking extends ActionBarActivity implements OnMapReadyCallback
         );
 
         ra.setDuration(210);
-        ra.setFillAfter(true);image.startAnimation(ra);
+        ra.setFillAfter(true);
+        image.startAnimation(ra);
         currentDegree = -degree;
     }
 
@@ -124,10 +126,14 @@ public class GPSTracking extends ActionBarActivity implements OnMapReadyCallback
 
     public void ShowCompass(View view) {
         ImageView compass = (ImageView) findViewById(R.id.compassImageView);
+        image.clearAnimation();
+        Log.d("Compass Click Tester","Test onclick");
         if(compass.getVisibility() == View.GONE) {
             compass.setVisibility(View.VISIBLE);
-        } else {
+            Log.d("compass","view == visible");
+        } else if (compass.getVisibility() == View.VISIBLE) {
             compass.setVisibility(View.GONE);
+            Log.d("compass"," view == gone");
         }
     }
 }
