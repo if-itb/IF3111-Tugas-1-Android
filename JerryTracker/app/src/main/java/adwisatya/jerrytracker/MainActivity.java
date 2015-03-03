@@ -1,6 +1,5 @@
 package adwisatya.jerrytracker;
 
-import adwisatya.jerrytracker.GPSTracker;
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
@@ -22,7 +21,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
 
-
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 public class MainActivity extends Activity implements SensorEventListener {
 
     private ImageView image;
@@ -36,6 +39,10 @@ public class MainActivity extends Activity implements SensorEventListener {
     Button btnShowLocation;
     GPSTracker gps;
     DataManager dataManager;
+
+    static final LatLng TutorialsPoint = new LatLng(21 , 57);
+    private GoogleMap googleMap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +70,19 @@ public class MainActivity extends Activity implements SensorEventListener {
         });
         dataManager = new DataManager();
         txtLocServer.setText(dataManager.getLocation());
+
+        try {
+            if (googleMap == null) {
+                googleMap = ((MapFragment) getFragmentManager().
+                        findFragmentById(R.id.map)).getMap();
+            }
+            googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+            Marker TP = googleMap.addMarker(new MarkerOptions().
+                    position(TutorialsPoint).title("TutorialsPoint"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -115,6 +135,5 @@ public class MainActivity extends Activity implements SensorEventListener {
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
-
 
 }
