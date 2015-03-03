@@ -28,10 +28,6 @@
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name=".Activity.GeomagneticSensor"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
             android:name=".Activity.QRCodeScanner"
             android:label="@string/app_name" >
         </activity>

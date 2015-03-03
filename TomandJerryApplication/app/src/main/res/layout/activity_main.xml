@@ -24,7 +24,8 @@
         android:layout_marginBottom="59dp"
         android:layout_alignParentBottom="true"
         android:layout_alignLeft="@+id/TrackJerryButton"
-        android:layout_alignStart="@+id/TrackJerryButton" />
+        android:layout_alignStart="@+id/TrackJerryButton"
+        android:onClick="CatchJerry" />
 
     <ImageView
         android:layout_width="wrap_content"

@@ -45,4 +45,9 @@ public class MainActivity extends ActionBarActivity {
         Intent intent = new Intent(this,com.tracker.timothypratama.tomandjerryapplication.Activity.TrackJerry.class);
         startActivity(intent);
     }
+
+    public void CatchJerry(View view) {
+        Intent i = new Intent(this, com.tracker.timothypratama.tomandjerryapplication.Activity.QRCodeScanner.class);
+        startActivity(i);
+    }
 }

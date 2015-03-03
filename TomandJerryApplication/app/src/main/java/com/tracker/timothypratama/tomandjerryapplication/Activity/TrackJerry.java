@@ -103,8 +103,8 @@ public class TrackJerry extends ActionBarActivity {
                 DefaultHttpClient client = new DefaultHttpClient();
                 HttpGet httpGet = new HttpGet(url);
                 try {
-                    HttpResponse execeute = client.execute(httpGet);
-                    InputStream content = execeute.getEntity().getContent();
+                    HttpResponse execute = client.execute(httpGet);
+                    InputStream content = execute.getEntity().getContent();
 
                     BufferedReader buffer = new BufferedReader(new InputStreamReader(content));
                     String s = "";

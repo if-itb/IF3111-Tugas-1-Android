@@ -4,9 +4,47 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.tracker.timothypratama.tomandjerryapplication.Activity.QRCodeScanner">
+    tools:context="com.tracker.timothypratama.tomandjerryapplication.Activity.QRCodeScanner"
+    android:id="@+id/layar">
 
-    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="250dp"
+        android:id="@+id/CatchJerryImageView"
+        android:src="@drawable/catch_jerry"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Catch!"
+        android:id="@+id/CatchButton"
+        android:onClick="catchjerry"
+        android:layout_below="@+id/CatchJerryImageView"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Result:"
+        android:id="@+id/textView"
+        android:layout_marginTop="26dp"
+        android:layout_below="@+id/CatchButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/resultTextView"
+        android:layout_alignTop="@+id/textView"
+        android:layout_toRightOf="@+id/textView"
+        android:layout_toEndOf="@+id/textView"
+        android:layout_marginLeft="7dp"
+        android:layout_marginStart="7dp" />
 
 </RelativeLayout>
