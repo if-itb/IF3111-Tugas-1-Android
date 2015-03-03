@@ -142,7 +142,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         LatLng latLng = new LatLng(currentLatitude, currentLongitude);
         MarkerOptions options = new MarkerOptions()
                 .position(latLng)
-                .title("You are here");
+                .title("You are here, Tom!");
         mMap.addMarker(options);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
