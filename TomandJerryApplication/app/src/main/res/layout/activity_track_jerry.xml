@@ -21,18 +21,9 @@
         android:text="View Map"
         android:id="@+id/ViewMapButton"
         android:onClick="ViewMap"
-        android:layout_above="@+id/ViewCompassButton"
+        android:layout_below="@+id/spikeImageView"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="27dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="View Compass"
-        android:id="@+id/ViewCompassButton"
-        android:layout_marginBottom="19dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_marginTop="83dp" />
 
     <ImageView
         android:layout_width="wrap_content"

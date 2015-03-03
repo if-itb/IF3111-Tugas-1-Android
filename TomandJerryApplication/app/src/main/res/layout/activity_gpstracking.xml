@@ -31,4 +31,29 @@
         android:layout_alignRight="@+id/map"
         android:layout_alignEnd="@+id/map" />
 
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/compassImageView"
+        android:scaleType="centerCrop"
+        android:src="@drawable/compass"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/imageButton"
+        android:visibility="gone" />
+
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/CompassImageButton"
+        android:src="@drawable/compass"
+        android:scaleType="centerCrop"
+        android:onClick="ShowCompass"
+        android:layout_alignTop="@+id/imageButton"
+        android:layout_toLeftOf="@+id/imageButton"
+        android:layout_toStartOf="@+id/imageButton" />
+
 </RelativeLayout>
