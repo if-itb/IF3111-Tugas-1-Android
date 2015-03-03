@@ -31,10 +31,11 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Result:"
         android:id="@+id/textView"
-        android:layout_marginTop="26dp"
+        android:layout_marginTop="45dp"
         android:layout_below="@+id/CatchButton"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:textColor="#ff000000" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -45,6 +46,29 @@
         android:layout_toRightOf="@+id/textView"
         android:layout_toEndOf="@+id/textView"
         android:layout_marginLeft="7dp"
-        android:layout_marginStart="7dp" />
+        android:layout_marginStart="7dp"
+        android:textColor="#ff000000" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Status:"
+        android:id="@+id/textView2"
+        android:layout_alignBaseline="@+id/StatusTextView"
+        android:layout_alignBottom="@+id/StatusTextView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textColor="#ff000000" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/StatusTextView"
+        android:layout_above="@+id/resultTextView"
+        android:layout_alignLeft="@+id/resultTextView"
+        android:layout_alignStart="@+id/resultTextView"
+        android:textColor="#ff000000" />
 
 </RelativeLayout>

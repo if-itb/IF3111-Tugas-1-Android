@@ -128,9 +128,10 @@ public class QRCodeScanner extends ActionBarActivity {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            TextView text = (TextView) findViewById(R.id.resultTextView);
-            text.setText(s);
-            Toast.makeText(getApplicationContext(), "Status: " + TrackJerryViewModel.getHttpPostStatus(), Toast.LENGTH_LONG).show();
+            TextView result = (TextView) findViewById(R.id.resultTextView);
+            TextView status = (TextView) findViewById(R.id.StatusTextView);
+            result.setText(s);
+            status.setText(String.valueOf(TrackJerryViewModel.getHttpPostStatus()));
         }
     }
 }
