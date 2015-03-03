@@ -8,6 +8,15 @@ public class TrackJerryViewModel {
     private static double latitude;
     private static String valid_until;
     private static String secret_token;
+    private static int httpPostStatus;
+
+    public static int getHttpPostStatus() {
+        return httpPostStatus;
+    }
+
+    public static void setHttpPostStatus(int httpPostStatus) {
+        TrackJerryViewModel.httpPostStatus = httpPostStatus;
+    }
 
     public static double getLongitude() {
         return longitude;

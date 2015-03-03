@@ -33,7 +33,7 @@ import java.util.List;
 
 public class QRCodeScanner extends ActionBarActivity {
 
-    private final String URL = "167.205.32.46/pbd/api/catch";
+    private final String URL = "http://167.205.32.46/pbd/api/catch";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,13 +99,15 @@ public class QRCodeScanner extends ActionBarActivity {
         protected String doInBackground(String... params) {
             HttpClient httpClient = new DefaultHttpClient();
             String response = "";
+            HttpResponse httpResponse = null;
             HttpPost httpPost = new HttpPost(URL);
             try {
                 List<BasicNameValuePair> Parameters = new ArrayList();
                 Parameters.add(new BasicNameValuePair("nim","13512032"));
-                Parameters.add(new BasicNameValuePair("secret_token",TrackJerryViewModel.getSecret_token()));
+                Parameters.add(new BasicNameValuePair("token",TrackJerryViewModel.getSecret_token()));
                 httpPost.setEntity(new UrlEncodedFormEntity(Parameters));
-                HttpResponse httpResponse = httpClient.execute(httpPost);
+                Log.d("Post Parameters", httpPost.getParams().toString());
+                httpResponse = httpClient.execute(httpPost);
                 InputStream content = httpResponse.getEntity().getContent();
                 BufferedReader buffer = new BufferedReader(new InputStreamReader(content));
                 String s = "";
@@ -119,6 +121,7 @@ public class QRCodeScanner extends ActionBarActivity {
             }
             Log.d("Poster",TrackJerryViewModel.getSecret_token());
             Log.d("Poster",response);
+            TrackJerryViewModel.setHttpPostStatus(httpResponse.getStatusLine().getStatusCode());
             return response;
         }
 
@@ -127,7 +130,7 @@ public class QRCodeScanner extends ActionBarActivity {
             super.onPostExecute(s);
             TextView text = (TextView) findViewById(R.id.resultTextView);
             text.setText(s);
-            Toast.makeText(getApplicationContext(), "result: " + s, Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Status: " + TrackJerryViewModel.getHttpPostStatus(), Toast.LENGTH_LONG).show();
         }
     }
 }
