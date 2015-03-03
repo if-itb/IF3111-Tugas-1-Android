@@ -32,9 +32,10 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     TextView tvHeading;
     TextView txtLatLong;
-    TextView txtTimer;
+    TextView txtLocServer;
     Button btnShowLocation;
     GPSTracker gps;
+    DataManager dataManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +44,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         image = (ImageView) findViewById(R.id.imageViewCompass);
         tvHeading = (TextView) findViewById(R.id.tvHeading);
         txtLatLong = (TextView) findViewById(R.id.txtLatLong);
+        txtLocServer = (TextView) findViewById(R.id.txtLocServer);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         btnShowLocation  = (Button) findViewById(R.id.btnShowLocation);
         btnShowLocation.setOnClickListener(new View.OnClickListener(){
@@ -52,13 +54,15 @@ public class MainActivity extends Activity implements SensorEventListener {
                 if(gps.canGetLocation()){
                     double latitude = gps.getLatitude();
                     double longitude = gps.getLongitude();
-                    //Toast.makeText(getApplicationContext(),"YOur location is");
+                    //Toast.makeText(getBaseContext(),"Your location is");
                     txtLatLong.setText(latitude+","+longitude);
                 }else{
                     gps.showSettingAlert();
                 }
             }
         });
+        dataManager = new DataManager();
+        txtLocServer.setText(dataManager.getLocation());
     }
 
     @Override

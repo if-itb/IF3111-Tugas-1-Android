@@ -1,3 +1,4 @@
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -10,33 +11,35 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/tvHeading"
-        android:layout_above="@+id/imageViewCompass"
-        android:layout_centerHorizontal="true"
-        android:text="Degree" />
+        android:text="Degree"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/imageViewCompass"
+        android:layout_alignEnd="@+id/imageViewCompass" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageViewCompass"
         android:src="@drawable/img_compass"
-        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/btnGetLoc"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="21dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Srv"
+        android:id="@+id/txtLocServer"
+        android:layout_alignTop="@+id/tvHeading"
         android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="timer"
-        android:id="@+id/txtTimer"
-        android:layout_alignParentTop="true"
-        android:layout_alignRight="@+id/imageViewCompass"
-        android:layout_alignEnd="@+id/imageViewCompass" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Latitute Longitude"
+        android:text="LL"
         android:id="@+id/txtLatLong"
-        android:layout_alignTop="@+id/txtTimer"
+        android:layout_alignTop="@+id/txtLocServer"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -46,7 +49,16 @@
         android:text="GPS"
         android:id="@+id/btnShowLocation"
         android:layout_below="@+id/txtLatLong"
-        android:layout_toRightOf="@+id/txtLatLong"
-        android:layout_toEndOf="@+id/txtLatLong" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="getLoc"
+        android:id="@+id/btnGetLoc"
+        android:layout_alignTop="@+id/btnShowLocation"
+        android:layout_alignRight="@+id/txtLocServer"
+        android:layout_alignEnd="@+id/txtLocServer" />
 
 </RelativeLayout>
