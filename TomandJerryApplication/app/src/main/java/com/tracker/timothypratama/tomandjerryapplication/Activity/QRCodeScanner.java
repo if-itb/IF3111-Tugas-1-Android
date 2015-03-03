@@ -48,6 +48,9 @@ public class QRCodeScanner extends ActionBarActivity {
                 String contents = data.getStringExtra("SCAN_RESULT");
                 TrackJerryViewModel.setSecret_token(contents);
                 Log.d("Contents",contents);
+                
+                Catcher catcher = new Catcher();
+                catcher.execute();
             }
             if(resultCode == RESULT_CANCELED) {
                 //do nothing
