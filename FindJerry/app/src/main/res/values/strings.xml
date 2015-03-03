@@ -3,9 +3,13 @@
 
     <string name="app_name">FindJerry</string>
     <string name="title_activity_maps">Map</string>
-    <string name="Popular">Popular</string>
-    <string name="Category">Category</string>
+    <string name="Find">Find Jerry!</string>
+    <string name="Catch">Catch Jerry!</string>
+    <string name="Exit">Exit</string>
     <string name="NearBy">NearBy</string>
     <string name="AZ">AZ</string>
+    <string name="title_activity_mag_sensor">MagSensorActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 </resources>

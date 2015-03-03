@@ -1,4 +1,4 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
@@ -7,66 +7,83 @@ tools:context=".MapActivity" >
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:id="@+id/map" tools:context=".MapsActivity"
-    android:name="com.google.android.gms.maps.SupportMapFragment"/>
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_alignParentLeft="true"
+    android:layout_marginLeft="0dp"
+    android:layout_alignParentTop="true"
+    android:layout_marginTop="0dp" />
 
-<RadioGroup
-    android:id="@+id/radio_group_list_selector"
-    android:layout_width="match_parent"
-    android:layout_height="48dp"
-    android:orientation="horizontal"
-    android:background="#80000000"
-    android:padding="4dp" >
 
-    <RadioButton
-        android:id="@+id/radioPopular"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:text="@string/Popular"
-        android:gravity="center_horizontal|center_vertical"
-        android:layout_weight="1"
-        android:textColor="@color/yellow" />
-    <View
-        android:id="@+id/VerticalLine1"
-        android:layout_width="1dip"
-        android:layout_height="match_parent"
-        android:background="#aaa" />
 
-    <RadioButton
-        android:id="@+id/radioAZ"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal|center_vertical"
-        android:text="@string/AZ"
-        android:layout_weight="1"
-        android:textColor="@color/yellow" />
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_gravity="right|top"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="0dp">
 
-    <View
-        android:id="@+id/VerticalLine2"
-        android:layout_width="1dip"
-        android:layout_height="match_parent"
-        android:background="#aaa" />
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:text="@string/Exit"
+            android:gravity="center"
+            android:background="@color/red"
+            android:onClick="exit"
+            android:id="@+id/buttonExit"
+            android:clickable="true"
+            android:layout_gravity="left|center_vertical"
+            android:layout_below="@+id/catchJerry"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="68dp" />
 
-    <RadioButton
-        android:id="@+id/radioCategory"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal|center_vertical"
-        android:text="@string/Category"
-        android:layout_weight="1"
-        android:textColor="@color/yellow" />
-    <View
-        android:id="@+id/VerticalLine"
-        android:layout_width="1dip"
-        android:layout_height="match_parent"
-        android:background="#aaa" />
 
-    <RadioButton
-        android:id="@+id/radioNearBy"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal|center_vertical"
-        android:text="@string/NearBy"
-        android:layout_weight="1"
-        android:textColor="@color/yellow" />
-</RadioGroup>
-</FrameLayout>
+        <Button
+            android:id="@+id/radioPopular"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:text="@string/Find"
+            android:gravity="center"
+            android:background="@color/yellow"
+            android:onClick="scanQR"
+            android:clickable="true"
+            android:layout_gravity="left|center_vertical"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:id="@+id/catchJerry"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:text="@string/Catch"
+            android:gravity="center"
+            android:background="@color/green"
+            android:onClick="catchJerry"
+            android:clickable="true"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="72dp"
+            android:layout_below="@+id/radioPopular"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <ImageView
+            android:id="@+id/pointer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/compass"
+            android:layout_gravity="left|top"
+            android:layout_marginLeft="70dp"
+            android:layout_marginTop="59dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="70dp" />
+
+    </RelativeLayout>
+
+</RelativeLayout>
