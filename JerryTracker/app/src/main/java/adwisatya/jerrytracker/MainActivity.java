@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Button;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -37,10 +38,11 @@ public class MainActivity extends Activity implements SensorEventListener {
     TextView txtLatLong;
     TextView txtLocServer;
     Button btnShowLocation;
+    Button btnGetLoc;
     GPSTracker gps;
     DataManager dataManager;
 
-    static final LatLng TutorialsPoint = new LatLng(21 , 57);
+    static final LatLng JerryLocation = new LatLng(-6.890756 , 107.610810);
     private GoogleMap googleMap;
 
     @Override
@@ -68,21 +70,30 @@ public class MainActivity extends Activity implements SensorEventListener {
                 }
             }
         });
-        dataManager = new DataManager();
-        txtLocServer.setText(dataManager.getLocation());
-
-        try {
+        //dataManager = new DataManager();
+        //txtLocServer.setText(dataManager.getLocation());
+        btnGetLoc = (Button) findViewById(R.id.btnGetLoc);
+        btnGetLoc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0){
+                LatLng latLng = new LatLng(-6.891278,107.610255);
+                updateJerryLocation(latLng);
+            }
+        });
+        updateJerryLocation(JerryLocation);
+        /*try {
             if (googleMap == null) {
                 googleMap = ((MapFragment) getFragmentManager().
                         findFragmentById(R.id.map)).getMap();
             }
             googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
             Marker TP = googleMap.addMarker(new MarkerOptions().
-                    position(TutorialsPoint).title("TutorialsPoint"));
-
+                    position(JerryLocation).title("JerryLocation"));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JerryLocation,15));
         } catch (Exception e) {
             e.printStackTrace();
         }
+        */
     }
 
     @Override
@@ -136,4 +147,18 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     }
 
+    public void updateJerryLocation(LatLng latLng){
+        try {
+            if (googleMap == null) {
+                googleMap = ((MapFragment) getFragmentManager().
+                        findFragmentById(R.id.map)).getMap();
+            }
+            googleMap.clear();
+            Marker TP = googleMap.addMarker(new MarkerOptions().
+                    position(latLng).title("JerryLocation"));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,15));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
