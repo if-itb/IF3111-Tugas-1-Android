@@ -58,10 +58,16 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener {
@@ -164,7 +170,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerjerry)));
 
         CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(lat, lon));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(20);
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(18);
 
         mMap.moveCamera(center);
         mMap.animateCamera(zoom);
@@ -172,14 +178,14 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
 
     private void setUpMap() {
-        double lat = -6.890608 , lon = 107.609861 ;
+        double lat = -6.890608, lon = 107.609861;
         CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(lat, lon));
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
 
         mMap.moveCamera(center);
         mMap.animateCamera(zoom);
 
-        mMap.addMarker(mapMarkerMe.position(new LatLng(lat,lon)).title("My Position")
+        mMap.addMarker(mapMarkerMe.position(new LatLng(lat, lon)).title("My Position")
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerme)));
     }
 
@@ -190,7 +196,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     public void findJerry(View view) throws IOException, ExecutionException, InterruptedException {
         RequestTask RT = new RequestTask();
-        RT.execute("http://167.205.32.46/pbd/api/track?nim=13512064%20(167.205.32.46/pbd/api/track?nim=13512064");
+        RT.execute("http://167.205.32.46/pbd/api/track?nim=13512064");
         String responseString = RT.get();
         extractResponseString(responseString);
 
@@ -203,7 +209,12 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 String lantitude = jsonObj.getString("lat");
                 String longitude = jsonObj.getString("lon");
                 String validTime = jsonObj.getString("valid_until");
-                Toast toast = Toast.makeText(this, lantitude + "  " + longitude, Toast.LENGTH_LONG);
+
+                // convert date
+                Long epoch = Long.parseLong(validTime);
+                String date = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new java.util.Date (epoch*1000));
+
+                Toast toast = Toast.makeText(this, "Valid sampai :  " + date , Toast.LENGTH_LONG);
                 toast.show();
                 updateMap(Float.parseFloat(lantitude), Float.parseFloat(longitude));
             } catch (JSONException e) {
