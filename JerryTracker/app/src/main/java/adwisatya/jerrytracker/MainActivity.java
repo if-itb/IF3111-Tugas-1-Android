@@ -6,10 +6,15 @@ package adwisatya.jerrytracker;
  * Compass reference: http://www.javacodegeeks.com/2013/09/android-compass-code-example.html
  */
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
@@ -39,23 +44,31 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 public class MainActivity extends Activity implements SensorEventListener {
 
     private ImageView image;
-
     private float currentDegree = 0f;
     private SensorManager mSensorManager;
 
-    TextView tvHeading;
+    TextView txtToken;
     TextView txtLatLong;
-    TextView txtLocServer;
+    TextView txtLat;
+    TextView txtLong;
     Button btnShowLocation;
     Button btnGetLoc;
+    Button scanner;
     GPSTracker gps;
     //DataManager dataManager;
 
     static final LatLng JerryLocation = new LatLng(-6.890756 , 107.610810);
+    static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
+
     private GoogleMap googleMap;
+
+    JSONArray LatLong = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,15 +76,11 @@ public class MainActivity extends Activity implements SensorEventListener {
         /* gambarkan layout activity */
         setContentView(R.layout.activity_main);
 
-//        if (android.os.Build.VERSION.SDK_INT > 9) {
-//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-//            StrictMode.setThreadPolicy(policy);
-//        }
-
         image = (ImageView) findViewById(R.id.imageViewCompass);
-        tvHeading = (TextView) findViewById(R.id.tvHeading);
+        txtToken = (TextView) findViewById(R.id.txtToken);
         txtLatLong = (TextView) findViewById(R.id.txtLatLong);
-        txtLocServer = (TextView) findViewById(R.id.txtLocServer);
+        txtLong = (TextView) findViewById(R.id.txtLong);
+        txtLat = (TextView) findViewById(R.id.txtLat);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         btnShowLocation  = (Button) findViewById(R.id.btnShowLocation);
 
@@ -96,16 +105,62 @@ public class MainActivity extends Activity implements SensorEventListener {
         btnGetLoc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0){
-                /*LatLng latLng = new LatLng(-6.891278,107.610255);
-                updateJerryLocation(latLng);
-                */
-                //txtLocServer.setText(ambilLokasiJerry());
                 new HttpAsyncTask().execute();
             }
         });
         updateJerryLocation(JerryLocation);
+
+        scanner = (Button) findViewById(R.id.scanner);
+
     }
 
+    public void scanQR(View v){
+        try {
+            //start the scanning activity from the com.google.zxing.client.android.SCAN intent
+            Intent intent = new Intent(ACTION_SCAN);
+            intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
+            startActivityForResult(intent, 0);
+        } catch (ActivityNotFoundException anfe) {
+            //on catch, show the download dialog
+            showDialog(MainActivity.this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
+        }
+    }
+    //alert dialog for downloadDialog
+    private static AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo) {
+        AlertDialog.Builder downloadDialog = new AlertDialog.Builder(act);
+        downloadDialog.setTitle(title);
+        downloadDialog.setMessage(message);
+        downloadDialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Uri uri = Uri.parse("market://search?q=pname:" + "com.google.zxing.client.android");
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                try {
+                    act.startActivity(intent);
+                } catch (ActivityNotFoundException anfe) {
+
+                }
+            }
+        });
+        downloadDialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        return downloadDialog.show();
+    }
+
+    //on ActivityResult method
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == 0) {
+            if (resultCode == RESULT_OK) {
+                //get the extras that are returned from the intent
+                String contents = intent.getStringExtra("SCAN_RESULT");
+                String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
+                txtToken.setText(contents);
+                //Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                //toast.show();
+            }
+        }
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -146,7 +201,6 @@ public class MainActivity extends Activity implements SensorEventListener {
     }
     public void onSensorChanged(SensorEvent event){
         float degree = Math.round(event.values[0]);
-        tvHeading.setText("Heading: " + Float.toString(degree) + " degrees");
         RotateAnimation ra = new RotateAnimation(
                 currentDegree,
                 -degree,
@@ -183,26 +237,20 @@ public class MainActivity extends Activity implements SensorEventListener {
         InputStream inputStream = null;
         String result = "";
         try {
-
             // create HttpClient
             HttpClient httpclient = new DefaultHttpClient();
-
             // make GET request to the given URL
             HttpResponse httpResponse = httpclient.execute(new HttpGet(url));
-
             // receive response as inputStream
             inputStream = httpResponse.getEntity().getContent();
-
             // convert inputstream to string
             if(inputStream != null)
                 result = convertInputStreamToString(inputStream);
             else
                 result = "Did not work!";
-
         } catch (Exception e) {
             Log.d("InputStream", e.getLocalizedMessage());
         }
-
         return result;
     }
 
@@ -227,7 +275,15 @@ public class MainActivity extends Activity implements SensorEventListener {
         @Override
         protected void onPostExecute(String result) {
             Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
-            txtLocServer.setText(result);
+            try{
+                JSONObject jsonObj = new JSONObject(result);
+                LatLong = jsonObj.getJSONArray("");
+                JSONObject c = LatLong.getJSONObject(0);
+                txtLat.setText(c.getString("Lat"));
+                txtLong.setText(c.getString("Long"));
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
         }
     }
 }
