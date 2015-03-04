@@ -7,35 +7,48 @@
 
     <Button
         android:id="@+id/scanner"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
         android:onClick="scanQR"
-        android:text="QR Code"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        >
+        android:text=" QR Code"
+        android:layout_marginTop="58dp"
+        android:drawableLeft="@drawable/icon_qr"
+        android:layout_below="@+id/imageView"
+        android:layout_centerHorizontal="true">
     </Button>
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Compass"
+        android:text=" Compass"
         android:id="@+id/compassButton"
-        android:layout_alignBottom="@+id/scanner"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:onClick="compass" />
+        android:onClick="compass"
+        android:drawableLeft="@drawable/icon_compass"
+        android:layout_below="@+id/mapButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp" />
 
     <Button
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text=" Map"
+        android:id="@+id/mapButton"
+        android:nestedScrollingEnabled="false"
+        android:onClick="map"
+        android:drawableLeft="@drawable/icon_map"
+        android:layout_below="@+id/scanner"
+        android:layout_alignLeft="@+id/scanner"
+        android:layout_alignStart="@+id/scanner"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="10dp" />
+
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Map"
-        android:id="@+id/mapButton"
-        android:layout_alignBottom="@+id/scanner"
-        android:layout_centerHorizontal="true"
-        android:nestedScrollingEnabled="false"
-        android:onClick="map" />
+        android:id="@+id/imageView"
+        android:src="@drawable/icon_tom_and_jerry"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>
