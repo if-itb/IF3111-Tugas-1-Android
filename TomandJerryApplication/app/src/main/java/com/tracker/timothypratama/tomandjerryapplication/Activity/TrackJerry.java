@@ -132,7 +132,7 @@ public class TrackJerry extends ActionBarActivity {
             try {
                 jsonObject = new JSONObject(s);
                 Latitude = jsonObject.getDouble("lat");
-                Longitude = jsonObject.getDouble("lon");
+                Longitude = jsonObject.getDouble("long");
                 valid = jsonObject.getString("valid_until");
 
                 TrackJerryViewModel.setLongitude(Longitude);
