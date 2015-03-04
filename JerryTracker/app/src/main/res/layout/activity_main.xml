@@ -12,25 +12,29 @@
         android:layout_height="wrap_content"
         android:id="@+id/txtToken"
         android:text="Token"
-        android:layout_alignBaseline="@+id/txtLatLong"
-        android:layout_alignBottom="@+id/txtLatLong"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+
+        android:layout_below="@+id/txtLong"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageViewCompass"
         android:src="@drawable/img_compass"
-        android:layout_alignTop="@+id/btnShowLocation"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+
+        android:layout_below="@+id/txtLatLong"
+        android:layout_alignRight="@+id/btnSubmit"
+        android:layout_alignEnd="@+id/btnSubmit" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="MyLocation"
         android:id="@+id/txtLatLong"
+
+        android:layout_alignRight="@+id/imageViewCompass"
+        android:layout_alignEnd="@+id/imageViewCompass"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
     <Button
@@ -42,25 +46,30 @@
         android:onClick="scanQR"
         android:text="QR Code"
         android:textSize="8dp"
-        android:layout_alignBottom="@+id/btnGetLoc"
-        android:layout_toRightOf="@+id/btnGetLoc"
-        android:layout_toEndOf="@+id/btnGetLoc">
+        android:layout_alignTop="@+id/btnSubmit"
+        android:layout_toLeftOf="@+id/btnSubmit"
+        android:layout_toStartOf="@+id/btnSubmit">
     </Button>
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
         android:text="GPS"
         android:id="@+id/btnShowLocation"
-        android:layout_below="@+id/txtLatLong"
+        android:textSize="8dp"
+
+        android:layout_above="@+id/btnGetLoc"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
         android:text="getLoc"
         android:id="@+id/btnGetLoc"
-        android:layout_below="@+id/btnShowLocation"
+        android:textSize="8dp"
+
+
+        android:layout_above="@+id/map"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -68,41 +77,41 @@
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/imageViewCompass" />
+        android:layout_height="250dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Lat"
         android:id="@+id/txtLat"
-        android:layout_alignTop="@+id/btnShowLocation"
-        android:layout_toRightOf="@+id/btnShowLocation"
-        android:layout_toEndOf="@+id/btnShowLocation"
-        android:layout_marginLeft="18dp"
-        android:layout_marginStart="18dp" />
+        android:layout_below="@+id/txtLatLong"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Long"
         android:id="@+id/txtLong"
-        android:layout_above="@+id/btnGetLoc"
-        android:layout_alignLeft="@+id/txtLat"
-        android:layout_alignStart="@+id/txtLat" />
+
+        android:layout_below="@+id/txtLat"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
         android:text="Submit"
         android:id="@+id/btnSubmit"
-        android:layout_alignBottom="@+id/scanner"
-        android:layout_toLeftOf="@+id/imageViewCompass"
-        android:layout_toRightOf="@+id/scanner"
-        android:layout_toEndOf="@+id/scanner"
-        android:layout_alignTop="@+id/scanner"
+
+
         android:textSize="8dp"
 
-        />
+        android:layout_above="@+id/map"
+        android:layout_alignRight="@+id/map"
+        android:layout_alignEnd="@+id/map" />
 
 </RelativeLayout>
