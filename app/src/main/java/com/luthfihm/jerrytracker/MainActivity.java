@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -27,13 +28,20 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
+
+import java.io.InputStream;
 
 
 public class MainActivity extends ActionBarActivity {
     private static SensorManager sensorService;
     private Sensor sensor;
     private ImageView compass;
+    private TextView textView;
     private float currentDegree;
     private GoogleMap mMap;
     private Marker currentLocation;
@@ -46,6 +54,7 @@ public class MainActivity extends ActionBarActivity {
         currentDegree = 0f;
         sensorService = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensor = sensorService.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+        textView = (TextView) findViewById(R.id.textView);
         setUpMap();
         if (sensor != null) {
             sensorService.registerListener(mySensorEventListener, sensor,
@@ -113,9 +122,11 @@ public class MainActivity extends ActionBarActivity {
             e.printStackTrace();
         }
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        textView.setText("You have time until :\n"+jerry.getTime()+"\nLet's catch Jerry Tom!");
         currentLocation = mMap.addMarker(new MarkerOptions().position(new LatLng(0,0)).icon(BitmapDescriptorFactory.fromResource(R.drawable.tom)));
         jerryLocation = mMap.addMarker(new MarkerOptions().position(jerry.getLatLng()).title("Jerry's here!").snippet("Catch him!").icon(BitmapDescriptorFactory.fromResource(R.drawable.jerry)));
         updateCamera(0);
+
     }
 
     public void updateCamera(float bearing) {
