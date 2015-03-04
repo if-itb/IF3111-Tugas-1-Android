@@ -1,5 +1,6 @@
 package com.yanfa.jerrysearcher;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -125,7 +126,7 @@ public class MainActivity extends FragmentActivity {
     }
 
     //on ActivityResult method
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    public void onActivityResult(final int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
                 //get the extras that are returned from the intent
@@ -141,7 +142,7 @@ public class MainActivity extends FragmentActivity {
                         new Response.Listener<String>(){
                             @Override
                             public void onResponse(String response) {
-                                tesCatch.setText(response);
+                                tesCatch.setText(response.substring(3,response.length()));
                             }
                         },
                         new Response.ErrorListener(){

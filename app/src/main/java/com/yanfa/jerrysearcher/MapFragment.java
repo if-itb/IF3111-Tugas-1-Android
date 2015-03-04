@@ -3,6 +3,7 @@ package com.yanfa.jerrysearcher;
 import android.app.*;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v4.app.*;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -41,7 +43,7 @@ public class MapFragment extends Fragment {
     public static LatLng langTut;
     private String jsonRet;
     private Data data;
-    private Button refButton;
+    private TextView timesRemaining;
 
     public MapFragment(){
     }
@@ -50,26 +52,13 @@ public class MapFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.map_fragment, container, false);
         loadMap();
-        refButton = (Button)rootView.findViewById(R.id.refreshButton);
 
-
-        refButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calendar c = Calendar.getInstance();
-                long seconds = c.get(Calendar.SECOND);
-                if (seconds > Data.validTil.getTime()){
-                    MainActivity.loadBar.setVisibility(View.VISIBLE);
-                    loadMap();
-                }
-                else{
-                    Toast.makeText(getActivity(),"Masih Terupdate", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+        timesRemaining = (TextView)rootView.findViewById(R.id.timesRemaining);
 
         return rootView;
     }
+
+
 
     @Override
     public void onAttach(Activity activity) {
@@ -148,11 +137,33 @@ public class MapFragment extends Fragment {
                         Data.validTil = new Date(Long.parseLong(data.getValid_until()));
                         setUpMapIfNeeded();
                         MainActivity.loadBar.setVisibility(View.GONE);
+                        Calendar c = Calendar.getInstance();
+                        long diffSeconds = Data.validTil.getTime() - c.get(Calendar.SECOND);
+                        new CountDownTimer(5000, 1000){
+                            @Override
+                            public void onTick(long millisUntilFinished) {
+                                long day, hour, minute, sec;
+                                day = (millisUntilFinished/1000/3600/24);
+                                hour = (millisUntilFinished/1000/3600)%24;
+                                minute = (millisUntilFinished /1000/60)%60 ;
+                                sec = (millisUntilFinished /1000)%60;
+                                timesRemaining.setText("Times Remaining :"+ day +":"+ hour +":"
+                                        + minute + ":" + sec);
+                            }
+
+                            @Override
+                            public void onFinish() {
+                                MainActivity.loadBar.setVisibility(View.VISIBLE);
+                                loadMap();
+                            }
+                        }.start();
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
             }
+
+
         });
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
