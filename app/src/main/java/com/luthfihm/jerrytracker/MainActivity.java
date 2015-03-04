@@ -5,6 +5,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,7 +21,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONException;
@@ -30,6 +36,8 @@ public class MainActivity extends ActionBarActivity {
     private ImageView compass;
     private float currentDegree;
     private GoogleMap mMap;
+    private Marker currentLocation;
+    private Marker jerryLocation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +72,7 @@ public class MainActivity extends ActionBarActivity {
             float azimuth = event.values[0];
             currentDegree = -azimuth;
             compass.setRotation(currentDegree);
+            updateCamera(azimuth);
         }
     };
 
@@ -103,12 +112,22 @@ public class MainActivity extends ActionBarActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        currentLocation = mMap.addMarker(new MarkerOptions().position(new LatLng(0,0)).icon(BitmapDescriptorFactory.fromResource(R.drawable.tom)));
+        jerryLocation = mMap.addMarker(new MarkerOptions().position(jerry.getLatLng()).title("Jerry's here!").snippet("Catch him!").icon(BitmapDescriptorFactory.fromResource(R.drawable.jerry)));
+        updateCamera(0);
+    }
 
-        mMap.setMyLocationEnabled(true);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(jerry.getLatLng()));
+    public void updateCamera(float bearing) {
+        GPSTracker gps = new GPSTracker(this);
+        if (gps.canGetLocation)
+        {
+            currentLocation.setPosition(new LatLng(gps.getLatitude(),gps.getLongitude()));
+            CameraPosition currentPlace = new CameraPosition.Builder()
+                    .target(new LatLng(gps.getLatitude(), gps.getLongitude()))
+                    .bearing(bearing).tilt(30f).zoom(18f).build();
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(currentPlace));
+        }
 
-        // Zoom in the Google Map
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
-        mMap.addMarker(new MarkerOptions().position(jerry.getLatLng()).title("Jerry's here!").snippet("Catch him!"));
     }
 }
