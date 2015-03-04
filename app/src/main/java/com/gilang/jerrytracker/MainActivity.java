@@ -129,7 +129,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                     public void onResponse(String response) {
                         try {
                             // Add new marker for jerry's location
-                            JSONObject json = new JSONObject(response);
+                            String temp = response.substring(response.indexOf('{'), response.lastIndexOf('}')+1);
+                            JSONObject json = new JSONObject(temp);
                             latitude = Double.valueOf(json.getString("lat"));
                             longitude = Double.valueOf(json.getString("long"));
                             maps.addMarker(new MarkerOptions()
