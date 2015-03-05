@@ -16,18 +16,24 @@ import java.util.Locale;
  */
 public class Jerry {
     private LatLng latLng;
-    private Timestamp valid;
+    private long valid;
 
-    public Jerry(String nim) throws JSONException {
+    public Jerry(){
+        latLng = new LatLng(0,0);
+        valid = 0;//new Timestamp(0);
+    }
+
+    public void update(String json)
+    {
         try
         {
-            String json = "{\"lat\":\"-6.891278\",\"lon\":\"107.610255\",\"valid_until\":1425405600}";
             JSONObject obj = new JSONObject(json);
             double latitude = obj.getDouble("lat");
             // Get longitude of the current location
-            double longitude = obj.getDouble("lon");
+            double longitude = obj.getDouble("long");
             latLng = new LatLng(latitude,longitude);
-            valid = new Timestamp(obj.getLong("valid_until"));
+            //valid = new Timestamp(obj.getLong("valid_until"));
+            valid = obj.getLong("valid_until")*1000;
         }
         catch (JSONException e)
         {
@@ -42,8 +48,7 @@ public class Jerry {
 
     public String getTime()
     {
-        String format = "d MMM yyyy, HH:mm:ss";
-        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
-        return sdf.format(new Date(valid.getTime()));
+        SimpleDateFormat sdf1 = new SimpleDateFormat("d MMM yyyy, HH:mm:ss");
+        return sdf1.format(new Date(valid));
     }
 }
