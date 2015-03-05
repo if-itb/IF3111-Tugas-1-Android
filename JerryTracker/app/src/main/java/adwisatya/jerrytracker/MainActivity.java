@@ -277,10 +277,8 @@ public class MainActivity extends Activity implements SensorEventListener {
             Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
             try{
                 JSONObject jsonObj = new JSONObject(result);
-                LatLong = jsonObj.getJSONArray("");
-                JSONObject c = LatLong.getJSONObject(0);
-                txtLat.setText(c.getString("Lat"));
-                txtLong.setText(c.getString("Long"));
+                txtLat.setText(jsonObj.getString("lat"));
+                txtLong.setText(jsonObj.getString("long"));
             }catch (JSONException e){
                 e.printStackTrace();
             }
