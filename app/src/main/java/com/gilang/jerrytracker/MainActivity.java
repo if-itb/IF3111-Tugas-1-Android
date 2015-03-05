@@ -42,6 +42,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONException;
@@ -69,6 +70,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     private TextView retryButton;
     private TextView timeText;
     private AlertDialog dialog;
+    private Marker jerryMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +122,11 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
     public void getMapData(){
+        if(jerryMarker != null){
+            jerryMarker.remove();
+            jerryMarker = null;
+        }
+
         RequestQueue queue = Volley.newRequestQueue(this);
         String url ="http://167.205.32.46/pbd/api/track?nim=13512045";
 
@@ -133,7 +140,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                             JSONObject json = new JSONObject(temp);
                             latitude = Double.valueOf(json.getString("lat"));
                             longitude = Double.valueOf(json.getString("long"));
-                            maps.addMarker(new MarkerOptions()
+                            jerryMarker = maps.addMarker(new MarkerOptions()
                                     .position(new LatLng(latitude, longitude))
                                     .title("Jerry's Location")
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.jerry)));
