@@ -71,6 +71,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     TextView txtLong;
     TextView txtValid;
     Button scanner;
+    Button btnSubmit;
     GPSTracker gps;
     int it = 0;
     double jLat = 0, jLong=0;
@@ -88,6 +89,13 @@ public class MainActivity extends Activity implements SensorEventListener {
         /* gambarkan layout activity */
         setContentView(R.layout.activity_main);
 
+//        btnSubmit = (Button) findViewById(R.id.btnSubmit);
+//        btnSubmit.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View arg0){
+//                new postTokenAsync().execute();
+//            }
+//        });
         image = (ImageView) findViewById(R.id.imageViewCompass);
         txtToken = (TextView) findViewById(R.id.txtToken);
         txtLong = (TextView) findViewById(R.id.txtLong);
@@ -306,7 +314,13 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
     }
 
-    public void postToker(){
+    private class postTokenAsync extends AsyncTask<String,String, String>{
+        @Override
+        protected String doInBackground(String... params) {
+            return postToken();
+        }
+    }
+    public String postToken(){
         String token = txtToken.toString();
         JSONObject final_data = new JSONObject();
         try {
@@ -337,6 +351,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         }catch (IOException e){
             e.printStackTrace();
         }
-
+        return "";
     }
 }
