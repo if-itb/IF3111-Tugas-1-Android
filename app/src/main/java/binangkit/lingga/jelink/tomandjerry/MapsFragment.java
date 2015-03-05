@@ -91,7 +91,7 @@ public class MapsFragment extends Fragment {
                 .title("Jerry")
                 .snippet("I'm here now! Come and get me!")
                 .icon(BitmapDescriptorFactory
-                        .fromResource(R.drawable.ic_launcher)));
+                        .fromResource(R.drawable.cursor_jerry)));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Jerry, 16.3f));
         mMap.setMyLocationEnabled(true);
     }
