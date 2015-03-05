@@ -93,6 +93,7 @@ public class MapsFragment extends Fragment {
                 .icon(BitmapDescriptorFactory
                         .fromResource(R.drawable.ic_launcher)));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Jerry, 16.3f));
+        mMap.setMyLocationEnabled(true);
     }
 
     public void setJerry(double lat, double lng) {
