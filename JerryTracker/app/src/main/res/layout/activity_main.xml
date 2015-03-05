@@ -17,14 +17,26 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
         android:id="@+id/imageViewCompass"
         android:src="@drawable/img_compass"
 
-        android:layout_alignRight="@+id/btnSubmit"
-        android:layout_alignEnd="@+id/btnSubmit" />
+        android:focusable="false"
+        android:layout_alignTop="@+id/txtToken"
+        android:layout_alignLeft="@+id/scanner"
+        android:layout_alignStart="@+id/scanner" />
 
     <Button
         android:id="@+id/scanner"
@@ -35,37 +47,20 @@
         android:onClick="scanQR"
         android:text="QR Code"
         android:textSize="8dp"
-        android:layout_below="@+id/txtValid"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignTop="@+id/btnSubmit"
+        android:layout_alignRight="@+id/map"
+        android:layout_alignEnd="@+id/map">
     </Button>
-
-    <Button
-        android:layout_width="80dp"
-        android:layout_height="40dp"
-        android:text="getLoc"
-        android:id="@+id/btnGetLoc"
-        android:textSize="8dp"
-
-
-        android:layout_alignTop="@+id/map" />
-    <fragment
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.MapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/imageViewCompass" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Lat"
         android:id="@+id/txtLat"
+        android:layout_alignTop="@+id/map"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="35dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -86,16 +81,16 @@
 
         android:textSize="8dp"
 
-        android:layout_alignTop="@+id/map"
-        android:layout_alignRight="@+id/map"
-        android:layout_alignEnd="@+id/map" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Valid Until"
         android:id="@+id/txtValid"
-        android:layout_below="@+id/txtToken"
+        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 

@@ -35,17 +35,26 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -63,10 +72,10 @@ public class MainActivity extends Activity implements SensorEventListener {
     TextView txtValid;
     Button scanner;
     GPSTracker gps;
+    int it = 0;
+    double jLat = 0, jLong=0;
 
-    public Marker JerryMarker;
-    public Marker MyMarker;
-    static LatLng JerryLocation = new LatLng(0,0);
+    //static LatLng JerryLocation = new LatLng(0,0);
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 
     private GoogleMap googleMap;
@@ -185,15 +194,17 @@ public class MainActivity extends Activity implements SensorEventListener {
                 0.5f,
                 Animation.RELATIVE_TO_SELF,
                 0.5f);
-        ra.setDuration(110);
+        ra.setDuration(90);
         ra.setFillAfter(true);
         image.startAnimation(ra);
         currentDegree = -degree;
 
-
-        new HttpAsyncTask().execute();
-        updateJerryLocation();
-
+        it++;
+        if(it>20) {
+            new HttpAsyncTask().execute();
+            updateJerryLocation();
+            it = 0;
+        }
     }
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
@@ -207,9 +218,10 @@ public class MainActivity extends Activity implements SensorEventListener {
             }
             googleMap.setMyLocationEnabled(true);
             Marker TP = googleMap.addMarker(new MarkerOptions().
-                    position(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString()))).title("JerryLocation"));
-            TP.setPosition(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString())));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JerryLocation,15));
+                    position(new LatLng(gps.getLatitude(),gps.getLongitude())));
+            //TP.setPosition(new LatLng(0,0));
+            //TP.setPosition(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString())));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(gps.getLatitude(),gps.getLongitude()),15));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -220,10 +232,14 @@ public class MainActivity extends Activity implements SensorEventListener {
                 googleMap = ((MapFragment) getFragmentManager().
                         findFragmentById(R.id.map)).getMap();
             }
+            googleMap.clear();
             googleMap.setMyLocationEnabled(true);
             Marker TP = googleMap.addMarker(new MarkerOptions().
-                    position(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString()))).title("JerryLocation"));
-            TP.setPosition(new LatLng(6,101));
+                    position(new LatLng(jLat,jLong)));
+            //TP.setPosition(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString())));
+            //TP.setPosition(new LatLng(-6.890323,107.610381));
+
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString())),15));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -248,12 +264,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                 result = "Did not work!";
         } catch (Exception e) {
             Log.d("InputStream", e.getLocalizedMessage());
-        }
-        try{
-            JSONObject jsonObj = new JSONObject(result);
-            JerryLocation = new LatLng(jsonObj.getDouble("lat"),jsonObj.getDouble("long"));
-        }catch (JSONException e){
-            e.printStackTrace();
         }
         return result;
     }
@@ -286,11 +296,47 @@ public class MainActivity extends Activity implements SensorEventListener {
             try{
                 JSONObject jsonObj = new JSONObject(result);
                 txtLat.setText(jsonObj.getString("lat"));
+                jLat = jsonObj.getDouble("lat");
                 txtLong.setText(jsonObj.getString("long"));
+                jLong = jsonObj.getDouble("long");
                 txtValid.setText(simpleDateFormat.format(jsonObj.getDouble("valid_until")));
             }catch (JSONException e){
                 e.printStackTrace();
             }
         }
+    }
+
+    public void postToker(){
+        String token = txtToken.toString();
+        JSONObject final_data = new JSONObject();
+        try {
+            final_data.put("nim", "13512043");
+            final_data.put("token", token);
+        }catch(JSONException e){
+            e.printStackTrace();
+        }
+
+        HttpClient httpClient =  new DefaultHttpClient();
+        HttpPost httpPost = new HttpPost("http://167.205.32.46/pbd/api/catch");
+
+        try{
+            httpPost.setEntity(new StringEntity(final_data.toString()));
+        }catch(UnsupportedEncodingException e){
+            e.printStackTrace();
+        }
+
+        try{
+            httpPost.setHeader("Accept", "application/json");
+            httpPost.setHeader("Content-type", "application/json");
+            HttpResponse response = httpClient.execute(httpPost);
+            Log.d("Http Response:", response.toString());
+            Toast.makeText(getBaseContext(), response.toString(), Toast.LENGTH_LONG).show();
+
+        }catch(ClientProtocolException e){
+            e.printStackTrace();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
     }
 }
