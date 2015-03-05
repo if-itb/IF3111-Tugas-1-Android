@@ -43,10 +43,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+
 public class MainActivity extends Activity implements SensorEventListener {
 
     private ImageView image;
@@ -54,16 +58,15 @@ public class MainActivity extends Activity implements SensorEventListener {
     private SensorManager mSensorManager;
 
     TextView txtToken;
-    TextView txtLatLong;
     TextView txtLat;
     TextView txtLong;
-    Button btnShowLocation;
-    Button btnGetLoc;
+    TextView txtValid;
     Button scanner;
     GPSTracker gps;
-    //DataManager dataManager;
 
-    static final LatLng JerryLocation = new LatLng(-6.890756 , 107.610810);
+    public Marker JerryMarker;
+    public Marker MyMarker;
+    static LatLng JerryLocation = new LatLng(0,0);
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 
     private GoogleMap googleMap;
@@ -78,38 +81,14 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         image = (ImageView) findViewById(R.id.imageViewCompass);
         txtToken = (TextView) findViewById(R.id.txtToken);
-        txtLatLong = (TextView) findViewById(R.id.txtLatLong);
         txtLong = (TextView) findViewById(R.id.txtLong);
         txtLat = (TextView) findViewById(R.id.txtLat);
+        txtValid =  (TextView) findViewById(R.id.txtValid);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        btnShowLocation  = (Button) findViewById(R.id.btnShowLocation);
+        gps = new GPSTracker(MainActivity.this);
 
-        /* Jika tombol Show Location di click */
-        btnShowLocation.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View arg0){
-                gps = new GPSTracker(MainActivity.this);
-                if(gps.canGetLocation()){
-                    double latitude = gps.getLatitude();
-                    double longitude = gps.getLongitude();
-                    //Toast.makeText(getBaseContext(),"Your location is");
-                    txtLatLong.setText(latitude+","+longitude);
-                }else{
-                    gps.showSettingAlert();
-                }
-            }
-        });
-
-
-        btnGetLoc = (Button) findViewById(R.id.btnGetLoc);
-        btnGetLoc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0){
-                new HttpAsyncTask().execute();
-            }
-        });
-        updateJerryLocation(JerryLocation);
-
+        //updateJerryLocation(JerryLocation);
+        setUpMap();
         scanner = (Button) findViewById(R.id.scanner);
 
     }
@@ -156,8 +135,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
                 txtToken.setText(contents);
-                //Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
-                //toast.show();
             }
         }
     }
@@ -212,27 +189,48 @@ public class MainActivity extends Activity implements SensorEventListener {
         ra.setFillAfter(true);
         image.startAnimation(ra);
         currentDegree = -degree;
+
+
+        new HttpAsyncTask().execute();
+        updateJerryLocation();
+
     }
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
 
-    public void updateJerryLocation(LatLng latLng){
+    public void setUpMap(){
         try {
             if (googleMap == null) {
                 googleMap = ((MapFragment) getFragmentManager().
                         findFragmentById(R.id.map)).getMap();
             }
-            googleMap.clear();
+            googleMap.setMyLocationEnabled(true);
             Marker TP = googleMap.addMarker(new MarkerOptions().
-                    position(latLng).title("JerryLocation"));
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,15));
+                    position(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString()))).title("JerryLocation"));
+            TP.setPosition(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString())));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JerryLocation,15));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void updateJerryLocation(){
+        try {
+            if (googleMap == null) {
+                googleMap = ((MapFragment) getFragmentManager().
+                        findFragmentById(R.id.map)).getMap();
+            }
+            googleMap.setMyLocationEnabled(true);
+            Marker TP = googleMap.addMarker(new MarkerOptions().
+                    position(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString()))).title("JerryLocation"));
+            TP.setPosition(new LatLng(6,101));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public static String ambilLokasiJerry(){
+        LatLng LJerry;
         String url = "http://167.205.32.46/pbd/api/track?nim=13512043";
         InputStream inputStream = null;
         String result = "";
@@ -250,6 +248,12 @@ public class MainActivity extends Activity implements SensorEventListener {
                 result = "Did not work!";
         } catch (Exception e) {
             Log.d("InputStream", e.getLocalizedMessage());
+        }
+        try{
+            JSONObject jsonObj = new JSONObject(result);
+            JerryLocation = new LatLng(jsonObj.getDouble("lat"),jsonObj.getDouble("long"));
+        }catch (JSONException e){
+            e.printStackTrace();
         }
         return result;
     }
@@ -274,11 +278,16 @@ public class MainActivity extends Activity implements SensorEventListener {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            TimeZone utcZone = TimeZone.getTimeZone("UTC");
+            simpleDateFormat.setTimeZone(utcZone);
+            simpleDateFormat.setTimeZone(TimeZone.getDefault());
+            //Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
             try{
                 JSONObject jsonObj = new JSONObject(result);
                 txtLat.setText(jsonObj.getString("lat"));
                 txtLong.setText(jsonObj.getString("long"));
+                txtValid.setText(simpleDateFormat.format(jsonObj.getDouble("valid_until")));
             }catch (JSONException e){
                 e.printStackTrace();
             }
