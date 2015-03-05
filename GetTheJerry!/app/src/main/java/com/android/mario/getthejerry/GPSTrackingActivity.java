@@ -1,6 +1,7 @@
 package com.android.mario.getthejerry;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -91,6 +92,7 @@ public class GPSTrackingActivity extends Activity implements SensorEventListener
     }
 
     public void catchJerry(View view){
-
+        Intent intent = new Intent(this, QRScannerActivity.class);
+        startActivity(intent);
     }
 }
