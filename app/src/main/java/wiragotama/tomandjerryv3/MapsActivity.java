@@ -74,9 +74,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         setContentView(R.layout.activity_maps);
 
         destroyed = false;
+        setUpMapIfNeeded();
         backgroundtask = new Task();
         backgroundtask.execute(getApplicationContext());
-        setUpMapIfNeeded();
         setUpCompass();
         setUpButton();
 
