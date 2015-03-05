@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">FindJerry</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_ask_spike">AskSpikeActivity</string>
+    <string name="title_activity_compass">CompassActivity</string>
+    <string name="title_activity_qrcode">QRCodeActivity</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_catch_jerry">Map</string>
+    <string name="title_activity_tell_spike">TellSpikeActivity</string>
+</resources>
