@@ -46,9 +46,8 @@ public class Jerry {
         return latLng;
     }
 
-    public String getTime()
+    public long getTime()
     {
-        SimpleDateFormat sdf1 = new SimpleDateFormat("d MMM yyyy, HH:mm:ss");
-        return sdf1.format(new Date(valid));
+        return valid;
     }
 }

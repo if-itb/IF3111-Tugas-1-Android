@@ -1,5 +1,6 @@
 package com.luthfihm.jerrytracker;
 
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -52,7 +54,9 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -68,6 +72,7 @@ public class MainActivity extends ActionBarActivity implements GoogleMap.OnMarke
     private Marker currentLocation;
     private Marker jerryLocation;
     private Jerry jerry;
+    private JerryTimer countDownTimer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +86,7 @@ public class MainActivity extends ActionBarActivity implements GoogleMap.OnMarke
         if (isConnected()) {
             Toast.makeText(this, "connected!",
                     Toast.LENGTH_LONG).show();
-            new UpdateJerryTask().execute("http://167.205.32.46/pbd/api/track?nim=13512100");
+            new UpdateJerryTask(MainActivity.this).execute("http://167.205.32.46/pbd/api/track?nim=13512100");
         }
         else
             Toast.makeText(this, "not connected!",
@@ -146,6 +151,7 @@ public class MainActivity extends ActionBarActivity implements GoogleMap.OnMarke
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            finish();
             return true;
         }
 
@@ -240,9 +246,24 @@ public class MainActivity extends ActionBarActivity implements GoogleMap.OnMarke
     }
 
     private class UpdateJerryTask extends AsyncTask<String, Void, String> {
+        private ProgressDialog dialog;
+
+        public UpdateJerryTask(MainActivity activity) {
+            dialog = new ProgressDialog(activity);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog.setMessage("Getting Jerry's Info...");
+            dialog.show();
+        }
         @Override
         protected String doInBackground(String... urls) {
-
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             HttpClient client = new DefaultHttpClient();
             HttpGet request = new HttpGet(urls[0]);
             // replace with your url
@@ -262,13 +283,29 @@ public class MainActivity extends ActionBarActivity implements GoogleMap.OnMarke
         @Override
         protected void onPostExecute(String result) {
             jerry.update(result);
-            textView.setText("You have time until :\n"+jerry.getTime()+"\nLet's catch Jerry Tom!");
+            long startTime = jerry.getTime() - System.currentTimeMillis();
+            countDownTimer = new JerryTimer(startTime, 1000);
+            countDownTimer.start();
             Toast.makeText(getBaseContext(), "Jerry's info was updated!",
                     Toast.LENGTH_LONG).show();
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
         }
     }
 
     private class CatchJerryTask extends AsyncTask<String, Void, String> {
+        private ProgressDialog dialog;
+
+        public CatchJerryTask(MainActivity activity) {
+            dialog = new ProgressDialog(activity);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog.setMessage("Catching Jerry...");
+            dialog.show();
+        }
         @Override
         protected String doInBackground(String... data) {
 
@@ -293,7 +330,10 @@ public class MainActivity extends ActionBarActivity implements GoogleMap.OnMarke
             //making POST request.
             try {
                 HttpResponse response = httpClient.execute(httpPost);
-                return convertInputStreamToString(response.getEntity().getContent());
+                if (response.getStatusLine().getStatusCode() == 200)
+                {
+                    return convertInputStreamToString(response.getEntity().getContent());
+                }
             } catch (ClientProtocolException e) {
 
             } catch (IOException e) {
@@ -304,9 +344,19 @@ public class MainActivity extends ActionBarActivity implements GoogleMap.OnMarke
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-
-            Toast.makeText(getBaseContext(), result,
-                    Toast.LENGTH_LONG).show();
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+            if (result != null)
+            {
+                Intent nextScreen = new Intent(getApplicationContext(), SecondActivity.class);
+                startActivity(nextScreen);
+            }
+            else
+            {
+                Toast.makeText(getBaseContext(), "Failed to Catch Jerry",
+                        Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -328,10 +378,43 @@ public class MainActivity extends ActionBarActivity implements GoogleMap.OnMarke
             if (resultCode == RESULT_OK) {
                 //get the extras that are returned from the intent
                 String token = intent.getStringExtra("SCAN_RESULT");
-                Toast toast = Toast.makeText(this, "Sending data...", Toast.LENGTH_LONG);
-                toast.show();
-                new CatchJerryTask().execute("13512100", token);
+                new CatchJerryTask(MainActivity.this).execute("13512100", token);
             }
+        }
+    }
+
+    public class JerryTimer extends CountDownTimer
+    {
+
+        public JerryTimer(long startTime, long interval)
+        {
+            super(startTime, interval);
+        }
+
+        @Override
+        public void onFinish()
+        {
+            textView.setText("Time's up!");
+            new UpdateJerryTask(MainActivity.this).execute("http://167.205.32.46/pbd/api/track?nim=13512100");
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished)
+        {
+            long days, hours, minutes, seconds;
+            String daysT = "", restT = "";
+            long ttime = millisUntilFinished/1000;
+
+            days = (Math.round(ttime) / 86400);
+            hours = (Math.round(ttime) / 3600) - (days * 24);
+            minutes = (Math.round(ttime) / 60) - (days * 1440) - (hours * 60);
+            seconds = Math.round(ttime) % 60;
+
+            if(days>1) daysT = String.format("%d days ", days);
+            else daysT = String.format("%d day ", days);
+
+            restT = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+            textView.setText("Time Left :\n" + daysT + restT);
         }
     }
 }

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/JerryTracker.iml" filepath="$PROJECT_DIR$/JerryTracker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/IF3111-Tugas-1-Android.iml" filepath="$PROJECT_DIR$/IF3111-Tugas-1-Android.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
