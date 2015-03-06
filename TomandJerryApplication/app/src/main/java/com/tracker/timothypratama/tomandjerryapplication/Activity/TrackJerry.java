@@ -33,7 +33,7 @@ import java.util.TimerTask;
 public class TrackJerry extends ActionBarActivity {
 
     Timer timer;
-    final int update_rate = 6000; /* in milisecond */
+    final int update_rate = 300000; /* in milisecond */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,14 +56,22 @@ public class TrackJerry extends ActionBarActivity {
                 });
             }
         };
-        Log.d("Timer", "Timer Started!");
+        Log.d("TimerTask", "TimerTask Started!");
         timer.schedule(timerTask, 0, update_rate);
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onPause() {
+        super.onPause();
         timer.cancel();
+        Log.d("TimerTask","TimerTask stopped");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        timer = new Timer();
+        StartUpdater();
     }
 
     @Override
@@ -97,7 +105,7 @@ public class TrackJerry extends ActionBarActivity {
     class Updater extends AsyncTask<String, String, String>{
         @Override
         protected String doInBackground(String... params) {
-            Log.d("Async Task", "Async Task Updater Created!");
+            Log.d("Async Task", "Async Task Updater Executed!");
             String response = "";
             for(String url: params) {
                 DefaultHttpClient client = new DefaultHttpClient();
