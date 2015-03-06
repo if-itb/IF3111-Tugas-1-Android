@@ -25,22 +25,30 @@ public class MapsActivity extends FragmentActivity {
     // URL to get contacts JSON
     private static String url = "http://167.205.32.46/pbd/api/track?nim=13512093";
     private ProgressDialog pDialog;
+    private LatLng old_pos;
     private double lat;
     private double lng;
     private double valid;
+    private GetContacts searchJerry;
+    private boolean start;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        new GetContacts().execute();
-        setUpMapIfNeeded();
+        searchJerry = new GetContacts();
+        old_pos = new LatLng(lat,lng);
+        start = false;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        setUpMapIfNeeded();
+        if (old_pos.longitude != lng || old_pos.latitude != lat || !start){
+            old_pos = new LatLng(lat,lng);
+            searchJerry.execute();
+            start = true;
+        }
     }
 
     /**
@@ -80,13 +88,13 @@ public class MapsActivity extends FragmentActivity {
     private void setUpMap() {
         LatLng JERRY = new LatLng(lat,lng);
         Marker hamburg = mMap.addMarker(new MarkerOptions().position(JERRY)
-                .title("Hamburg"));
+                .title("Jerry"));
 
         // Move the camera instantly to hamburg with a zoom of 15.
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JERRY, 15));
 
         // Zoom in, animating the camera.
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(20), 2000, null);
     }
 
     /**
@@ -155,6 +163,8 @@ public class MapsActivity extends FragmentActivity {
             t3=(TextView)findViewById(R.id.textView4);
             temp = "long:" + valid;
             t3.setText(temp);
+
+            setUpMapIfNeeded();
         }
 
     }
