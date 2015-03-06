@@ -180,7 +180,10 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             request.addHeader("content-type", "application/json");
             request.setEntity(params);
             HttpResponse response = httpClient.execute(request);
-            Log.d("[POST]", "[POST] Response "+response.getStatusLine().getStatusCode());
+            Log.d("[POST]", "[POST] send post with token"+json.toString());
+            BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+            String result = rd.readLine();
+            Log.d("[POST]", "[POST] Response "+result);
         } catch (Exception ex) {
             Log.d("[POST]", "[POST] send post caught exception");
         } finally {
