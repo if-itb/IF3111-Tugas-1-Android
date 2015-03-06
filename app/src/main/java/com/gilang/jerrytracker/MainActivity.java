@@ -49,6 +49,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -136,7 +137,7 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                     public void onResponse(String response) {
                         try {
                             // Add new marker for jerry's location
-                            String temp = response.substring(response.indexOf('{'), response.lastIndexOf('}')+1);
+                            String temp = new String(response.getBytes("ISO-8859-1"), "UTF-8");
                             JSONObject json = new JSONObject(temp);
                             latitude = Double.valueOf(json.getString("lat"));
                             longitude = Double.valueOf(json.getString("long"));
@@ -186,6 +187,8 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                             proggresBar.setVisibility(View.GONE);
 
                         } catch (JSONException e) {
+                            e.printStackTrace();
+                        } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
                     }
@@ -264,11 +267,28 @@ public class MainActivity extends ActionBarActivity implements OnMapReadyCallbac
                             @Override
                             public void onResponse(String response) {
                                 // hide proggress bar and retry button
+                                String temp;
+                                String message;
+                                int code;
+                                JSONObject json;
+                                try {
+                                    temp = new String(response.getBytes("ISO-8859-1"), "UTF-8");
+                                    json = new JSONObject(temp);
+                                    message = json.getString("message");
+                                    code = json.getInt("code");
+                                    if(code == 200) Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG).show();
+                                    else if(code == 400) Toast.makeText(getBaseContext(), "There is missing parameter in your request", Toast.LENGTH_LONG).show();
+                                    else if(code == 403) Toast.makeText(getBaseContext(), "There is invalid parameter in your request", Toast.LENGTH_LONG).show();
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(getBaseContext(), "Failed to parse server response", Toast.LENGTH_LONG).show();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(getBaseContext(), "Failed to parse json message", Toast.LENGTH_LONG).show();
+                                }
+
                                 proggresBar.setVisibility(View.GONE);
                                 retryButton.setVisibility(View.GONE);
-                                // show received data
-                                Toast.makeText(getBaseContext(), "Success!\nReceived data : " +
-                                        response.toString(), Toast.LENGTH_LONG).show();
                             }
                         },
                         new Response.ErrorListener() {
