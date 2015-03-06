@@ -183,7 +183,17 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             Log.d("[POST]", "[POST] send post with token"+json.toString());
             BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
             String result = rd.readLine();
-            Log.d("[POST]", "[POST] Response "+result);
+            JSONObject o = new JSONObject(result);
+            Log.d("[POST]", "[POST] Response "+o.toString());
+            if (o.getInt("code")==200) {
+                Log.d("[POST]", "[POST] TOKEN OK");
+            }
+            else if (o.getInt("code")==400) {
+                Log.d("[POST]", "[POST] Missing Parameter");
+            }
+            else if (o.getInt("code")==403) {
+                Log.d("[POST]", "[POST] Forbidden");
+            }
         } catch (Exception ex) {
             Log.d("[POST]", "[POST] send post caught exception");
         } finally {
