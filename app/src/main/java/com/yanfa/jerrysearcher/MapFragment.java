@@ -158,11 +158,12 @@ public class MapFragment extends Fragment {
                                 loadMap();
                             }
                         }.start();
-                        MainActivity.compassView.bringToFront();
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getActivity(), "Error" + error, Toast.LENGTH_LONG).show();
+                MainActivity.loadBar.setVisibility(View.GONE);
             }
 
 

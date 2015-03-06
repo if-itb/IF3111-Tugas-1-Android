@@ -9,4 +9,5 @@
         android:layout_height="139dp"
         android:src="@drawable/pointer"
         android:id="@+id/dirPointer" />
+
 </FrameLayout>

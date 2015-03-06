@@ -1,35 +1,54 @@
 package com.yanfa.jerrysearcher;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 /**
  * Created by Yanfa on 06/03/2015.
  */
-public class JerryFinderFragment extends DialogFragment implements SensorEventListener {
+public class FinderDialogFragment extends DialogFragment implements SensorEventListener {
 
     private ImageView compassView;
     private float currentDegree = 0f;
     private SensorManager sm;
+    private Dialog dialog;
+    private FrameLayout mainLayout;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.map_fragment, container, false);
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        dialog = new Dialog(getActivity());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.jerry_fragment);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(100));
 
+        mainLayout = (FrameLayout)dialog.findViewById(R.id.mainLayout);
+        compassView = (ImageView)dialog.findViewById(R.id.jerryPointer);
+        sm = (SensorManager)getActivity().getSystemService(Context.SENSOR_SERVICE);
+        mainLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
 
-        
+        // for the system's orientation sensor registered listeners
+        sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+                SensorManager.SENSOR_DELAY_GAME);
 
-        return rootView;
+        return dialog;
     }
 
     @Override

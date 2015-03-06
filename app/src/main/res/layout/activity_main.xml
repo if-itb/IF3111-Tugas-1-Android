@@ -47,23 +47,10 @@
             android:layout_height="wrap_content"
             android:textColor="#FFFFFF"
             android:layout_weight="1"
-            android:text="Jerry!!"
+            android:text="Compass"
             android:background="@drawable/button"
-            android:id="@+id/compassButton" />
+            android:id="@+id/jerryButton"
+            android:onClick="onClickJerryButton"/>
     </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/langTut"
-        android:layout_weight="0.29" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="39dp"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/tesCatch"
-        android:layout_gravity="center_horizontal" />
 
 </LinearLayout>

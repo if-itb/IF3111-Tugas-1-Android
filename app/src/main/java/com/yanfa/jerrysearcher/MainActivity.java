@@ -14,8 +14,6 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -23,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -34,7 +33,7 @@ import com.google.android.gms.maps.GoogleMap;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity extends FragmentActivity implements SensorEventListener{
+public class MainActivity extends FragmentActivity{
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private String jsonRet;
@@ -46,8 +45,6 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
     public static ProgressBar loadBar;
     private Button QRButton;
     private Button jerryFinderButton;
-    private TextView tesCatch;
-    public static ImageView compassView;
     private String token;
     private float currentDegree = 0f;
 
@@ -60,7 +57,6 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
         setContentView(R.layout.activity_main);
 
         loadBar = (ProgressBar)findViewById(R.id.mapLoad);
-        tesCatch = (TextView)findViewById(R.id.tesCatch);
 
         sm = (SensorManager)getSystemService(SENSOR_SERVICE);
         fm = getSupportFragmentManager();
@@ -76,62 +72,25 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
             }
         });
 
-        jerryFinderButton = (Button)findViewById(R.id.compassButton);
+        jerryFinderButton = (Button)findViewById(R.id.jerryButton);
         jerryFinderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent(getBaseContext(), CompassActivity.class);
-//                startActivity(intent);
+                new FinderDialogFragment()
+                        .show(fm, "MyDialog");
             }
         });
-
-        compassView = (ImageView)findViewById(R.id.compassView);
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-
-        float degree = Math.round(event.values[0]);
-
-        // create a rotation animation (reverse turn degree degrees)
-        RotateAnimation ra = new RotateAnimation(
-                currentDegree,
-                -degree,
-                Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF,
-                0.5f);
-
-        // how long the animation will take place
-        ra.setDuration(210);
-
-        // set the animation after the end of the reservation status
-        ra.setFillAfter(true);
-
-        // Start the animation
-        compassView.startAnimation(ra);
-        currentDegree = -degree;
-
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        // for the system's orientation sensor registered listeners
-        sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ORIENTATION),
-                SensorManager.SENSOR_DELAY_GAME);
     }
 
 
     @Override
     protected void onPause() {
         super.onPause();
-        sm.unregisterListener(this);
         // to stop the listener and save battery
     }
 
@@ -194,15 +153,17 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
 
     //on ActivityResult method
     public void onActivityResult(final int requestCode, int resultCode, Intent intent) {
-        loadBar.setVisibility(View.VISIBLE);
-        loadBar.bringToFront();
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
                 //get the extras that are returned from the intent
+
+                loadBar.setVisibility(View.VISIBLE);
+                loadBar.bringToFront();
+
                 final String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
 
-                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(this, "Content: " + contents, Toast.LENGTH_LONG);
                 toast.show();
 
                 RequestQueue queue = Volley.newRequestQueue(this);
@@ -211,16 +172,26 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
                         new Response.Listener<String>(){
                             @Override
                             public void onResponse(String response) {
-                                Toast.makeText(getBaseContext(), response.substring(3,response.length()), Toast.LENGTH_LONG).show();
-                                //tesCatch.setText(response.substring(3,response.length()));
+                                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                                alertDialog.setTitle("Result Retrieved");
+                                alertDialog.setMessage(response.substring(3,response.length()));
+                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                alertDialog.show();
                                 loadBar.setVisibility(View.GONE);
                             }
                         },
                         new Response.ErrorListener(){
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                //Log.d("Error.Response", response);
+                                Toast.makeText(getBaseContext(), "Error" + error, Toast.LENGTH_LONG).show();
+                                loadBar.setVisibility(View.GONE);
                             }
+
                         }
                 ) {
 
@@ -250,7 +221,15 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
                         return "application/json";
                     }
                 };
+
+
+                postRequest.setRetryPolicy(new DefaultRetryPolicy(
+                        1000*5,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+
                 queue.add(postRequest);
+
             }
         }
     }
