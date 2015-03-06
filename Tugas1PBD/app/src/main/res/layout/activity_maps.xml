@@ -1,0 +1,41 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/tvHeading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"
+        android:layout_marginTop="20dp"
+        android:text="Heading: 0.0" />
+
+    <fragment
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" android:id="@+id/map" tools:context=".MapsActivity"
+    android:name="com.google.android.gms.maps.SupportMapFragment" />
+
+    <ImageView
+        android:id="@+id/imageViewCompass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/img_compass"
+        android:layout_toStartOf="@+id/tvHeading"
+        android:layout_toLeftOf="@+id/tvHeading" />
+
+    <Button
+           android:id="@+id/scanner"
+           android:layout_width="250dp"
+           android:layout_height="80dp"
+           android:layout_gravity="center"
+           android:layout_margin="10dp"
+           android:gravity="center"
+           android:onClick="scanQR"
+           android:text="QR Code"
+           android:textSize="18dp" >
+       </Button>
+
+</RelativeLayout>
