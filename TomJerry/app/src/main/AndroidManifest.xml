@@ -29,7 +29,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ActivityHTTP"
+            android:name=".getLatLng"
             android:label="@string/title_activity_activity_http" >
         </activity>
 
@@ -47,6 +47,10 @@
         <activity
             android:name=".qrCode"
             android:label="@string/title_activity_qr_code" >
+        </activity>
+        <activity
+            android:name=".compass"
+            android:label="@string/title_activity_compass" >
         </activity>
     </application>
 

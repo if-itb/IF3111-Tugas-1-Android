@@ -3,17 +3,26 @@ package com.example.rikysamuel.tomjerry;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class qrCode extends Activity {
 
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
+
     private String contents;
+    private String response;
+    private Boolean lock;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,9 +74,13 @@ public class qrCode extends Activity {
             if (resultCode == RESULT_OK) {
                 //get the extras that are returned from the intent
                 contents = intent.getStringExtra("SCAN_RESULT");
-                String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Toast toast = Toast.makeText(this, " Sending Content:" + contents + " to the server.", Toast.LENGTH_LONG);
-                toast.show();
+                lock = true;
+                new PostTask().execute(getApplicationContext());
+                Toast.makeText(this, " Sending Content: " + contents + " to the server.", Toast.LENGTH_LONG).show();
+                while(lock){
+                }
+                TextView t = (TextView) findViewById(R.id.hello);
+                t.setText(response);
                 finish();
             }
         }
@@ -76,8 +89,32 @@ public class qrCode extends Activity {
     @Override
     public void finish(){
         Intent i = new Intent();
-        i.putExtra("contents",contents);
+        i.putExtra("response", response);
         setResult(RESULT_OK,i);
         super.finish();
+    }
+
+    public class PostTask extends AsyncTask<Context, String, String> {
+
+        private Context context;
+
+        @Override
+        protected void onPreExecute() {
+            // TODO Auto-generated method stub
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(Context... params) {
+            context = params[0];
+
+            HTTPClass htc = new HTTPClass();
+            htc.setUrl("http://167.205.32.46/pbd/api/catch");
+            htc.setContents(contents);
+            response = htc.doPost();
+            lock = false;
+
+            return "Success";
+        }
     }
 }

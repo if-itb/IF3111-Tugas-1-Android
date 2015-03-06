@@ -9,31 +9,20 @@ import android.view.MenuItem;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import android.app.Activity;
-import android.widget.TextView;
-import android.widget.Toast;
 
 
-public class ActivityHTTP extends Activity {
+public class getLatLng extends Activity {
     // JSON object Node Names
     private static final String LATITUDE = "lat";
     private static final String LONGITUDE = "long";
     private static final String VALID_UNTIL = "valid_until";
 
-    private static String tes;
     private boolean lock;
     private double latitude;
     private double longitude;
     private int valid_until;
+    private HTTPClass httpget;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +30,7 @@ public class ActivityHTTP extends Activity {
         setContentView(R.layout.activity_activity_http);
 
         lock = true;
+        httpget = new HTTPClass();
         new Task().execute(getApplicationContext());
         while(lock){
         }
@@ -104,31 +94,11 @@ public class ActivityHTTP extends Activity {
 
         @Override
         protected String doInBackground(Context... params) {
-            // TODO Auto-generated method stub
             context = params[0];
-            HttpClient client = new DefaultHttpClient();
-            HttpGet request = new HttpGet("http://167.205.32.46/pbd/api/track?nim=13512089");
-            HttpResponse response;
-            String result = "";
-            try {
-                response = client.execute(request);
-                tes = String.valueOf(response.getStatusLine().getStatusCode());
-
-                // Get the response
-                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-                String line = "";
-                while ((line = rd.readLine()) != null) {
-                    result += line;
-                }
-
-                parse(result);
-                lock = false;
-
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            httpget.setUrl("http://167.205.32.46/pbd/api/track?nim=13512089");
+            String result = httpget.doGet();
+            parse(result);
+            lock = false;
 
             return result;
         }

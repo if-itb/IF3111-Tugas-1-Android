@@ -36,7 +36,7 @@ public class fragmentStart extends Fragment {
             @Override
             public void onClick(View v){
                 Toast.makeText(getActivity(), "HTTP Request", Toast.LENGTH_LONG).show();
-                Intent i = new Intent(getActivity(),ActivityHTTP.class);
+                Intent i = new Intent(getActivity(),getLatLng.class);
                 startActivityForResult(i, REQUEST_CODE);
                 TextView t = (TextView) getActivity().findViewById(R.id.textView);
                 t.setText("HTTP Request......");
@@ -79,12 +79,12 @@ public class fragmentStart extends Fragment {
             alert();
         }
         if (resultCode == Activity.RESULT_OK && requestCode == QR_REQUEST_CODE){
-            String contents = "";
-            if (data.hasExtra("contents")){
-                contents = data.getExtras().getString("contents");
+            String response = "";
+            if (data.hasExtra("response")){
+                response = data.getExtras().getString("response");
             }
             TextView t = (TextView) getActivity().findViewById(R.id.textView);
-            t.setText("contents: " + contents);
+            t.setText("response: " + response);
         }
     }
 
