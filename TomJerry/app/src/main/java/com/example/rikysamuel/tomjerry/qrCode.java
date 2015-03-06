@@ -70,20 +70,18 @@ public class qrCode extends Activity {
 
     //on ActivityResult method
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == 0) {
-            if (resultCode == RESULT_OK) {
-                //get the extras that are returned from the intent
-                contents = intent.getStringExtra("SCAN_RESULT");
-                lock = true;
-                new PostTask().execute(getApplicationContext());
-                Toast.makeText(this, " Sending Content: " + contents + " to the server.", Toast.LENGTH_LONG).show();
-                while(lock){
-                }
-                TextView t = (TextView) findViewById(R.id.hello);
-                t.setText(response);
-                finish();
+        if (requestCode == 0 && resultCode == RESULT_OK) {
+            //get the extras that are returned from the intent
+            contents = intent.getStringExtra("SCAN_RESULT");
+            lock = true;
+            new PostTask().execute(getApplicationContext());
+            Toast.makeText(this, " Sending Content: " + contents + " to the server.", Toast.LENGTH_LONG).show();
+            while(lock){
             }
+            TextView t = (TextView) findViewById(R.id.hello);
+            t.setText(response);
         }
+        finish();
     }
 
     @Override
