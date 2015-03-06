@@ -124,7 +124,7 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
         autoUpdateTask = new TimerTask() {
             @Override
             public void run() {
-                long timeNow = (new Date()).getTime()/1000;
+                long timeNow = System.currentTimeMillis()/1000;
                 //in update target location task, valid until will be update each 10 seconds
                 if (validUntil != -1 && timeNow > validUntil){
                     new UpdateTargetLocationTask().execute("");

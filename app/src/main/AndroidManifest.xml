@@ -41,14 +41,17 @@
 
         <activity
             android:name=".CompassActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_compass" >
         </activity>
         <activity
             android:name=".MapActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_map" >
         </activity>
         <activity
             android:name=".QRCodeActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_qrcode" >
         </activity>
     </application>

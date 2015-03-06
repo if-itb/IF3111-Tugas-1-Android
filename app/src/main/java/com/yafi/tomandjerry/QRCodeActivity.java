@@ -21,7 +21,10 @@ import com.google.android.gms.maps.model.LatLng;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -121,7 +124,14 @@ public class QRCodeActivity extends Activity {
                 con.connect();
                 responseCode = con.getResponseCode();
                 Log.d("response code",Integer.toString(responseCode));
-                return Integer.toString(responseCode);
+                InputStream is = con.getInputStream();
+                BufferedReader r = new BufferedReader(new InputStreamReader(is,"UTF8"));
+                StringBuffer sb = new StringBuffer();
+                int chr;
+                while ((chr = r.read()) != -1){
+                    sb.append(((char) chr));
+                }
+                return sb.toString();
             } catch (MalformedURLException mue) {
                 return null;
             } catch (IOException ioe) {
@@ -131,7 +141,18 @@ public class QRCodeActivity extends Activity {
 
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(getApplicationContext(),"Status code: "+result,Toast.LENGTH_LONG).show();
+            try{
+                JSONObject jo = new JSONObject(result);
+                String message;
+                if (jo.has("message")){
+                    message = (String) jo.get("message");
+                } else {
+                    message = result;
+                }
+                Toast.makeText(getApplicationContext(),message,Toast.LENGTH_LONG).show();
+            } catch (JSONException je){
+                Toast.makeText(getApplicationContext(),je.getMessage(),Toast.LENGTH_LONG).show();
+            }
         }
     }
 }
