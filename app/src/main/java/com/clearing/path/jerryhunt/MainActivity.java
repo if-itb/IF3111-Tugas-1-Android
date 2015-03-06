@@ -41,7 +41,11 @@ public class MainActivity extends ActionBarActivity {
 
     public void sendMessage(View view)
     {
-        Intent intent = new Intent(MainActivity.this, ToActivity.class);
+        Intent intent = new Intent(MainActivity.this, MapsActivity.class);
         startActivity(intent);
+    }
+
+    public void exitProgram(){
+        System.exit(0);
     }
 }
