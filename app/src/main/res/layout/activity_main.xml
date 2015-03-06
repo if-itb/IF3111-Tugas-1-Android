@@ -2,13 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:weightSum="1">
+    android:weightSum="1"
+    android:background="#000000">
 
     <FrameLayout
         android:layout_width="fill_parent"
-        android:layout_height="450dp"
-        android:id="@+id/container"
-        android:layout_weight="0.62">
+        android:layout_height="465dp"
+        android:id="@+id/container">
 
         <ProgressBar
             style="?android:attr/progressBarStyleLarge"
@@ -17,14 +17,40 @@
             android:id="@+id/mapLoad"
             android:layout_gravity="center"
             android:indeterminate="false" />
+
+        <ImageView
+            android:layout_width="59dp"
+            android:layout_height="49dp"
+            android:id="@+id/compassView"
+            android:src="@drawable/pointer"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="left|bottom" />
     </FrameLayout>
 
-    <Button
-        android:layout_width="371dp"
-        android:layout_height="wrap_content"
-        android:text="Scan QR"
-        android:id="@+id/QRButton"
-        android:layout_weight="0.18" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="78dp">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:text="Scan QR"
+            android:id="@+id/QRButton"
+            android:background="@drawable/button"
+            android:layout_weight="1" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:layout_weight="1"
+            android:text="Jerry!!"
+            android:background="@drawable/button"
+            android:id="@+id/compassButton" />
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"

@@ -5,13 +5,19 @@ import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,18 +34,22 @@ import com.google.android.gms.maps.GoogleMap;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements SensorEventListener{
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private String jsonRet;
     private Data data;
     private boolean loading;
     private FragmentManager fm;
+    private SensorManager sm;
 
     public static ProgressBar loadBar;
     private Button QRButton;
+    private Button jerryFinderButton;
     private TextView tesCatch;
+    public static ImageView compassView;
     private String token;
+    private float currentDegree = 0f;
 
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 
@@ -52,6 +62,7 @@ public class MainActivity extends FragmentActivity {
         loadBar = (ProgressBar)findViewById(R.id.mapLoad);
         tesCatch = (TextView)findViewById(R.id.tesCatch);
 
+        sm = (SensorManager)getSystemService(SENSOR_SERVICE);
         fm = getSupportFragmentManager();
 
         fm.beginTransaction().replace(R.id.container, new  MapFragment())
@@ -61,11 +72,67 @@ public class MainActivity extends FragmentActivity {
         QRButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tesCatch.setText("loading");
                 scanQR(v);
             }
         });
 
+        jerryFinderButton = (Button)findViewById(R.id.compassButton);
+        jerryFinderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Intent intent = new Intent(getBaseContext(), CompassActivity.class);
+//                startActivity(intent);
+            }
+        });
+
+        compassView = (ImageView)findViewById(R.id.compassView);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+
+        float degree = Math.round(event.values[0]);
+
+        // create a rotation animation (reverse turn degree degrees)
+        RotateAnimation ra = new RotateAnimation(
+                currentDegree,
+                -degree,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF,
+                0.5f);
+
+        // how long the animation will take place
+        ra.setDuration(210);
+
+        // set the animation after the end of the reservation status
+        ra.setFillAfter(true);
+
+        // Start the animation
+        compassView.startAnimation(ra);
+        currentDegree = -degree;
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // for the system's orientation sensor registered listeners
+        sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+                SensorManager.SENSOR_DELAY_GAME);
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sm.unregisterListener(this);
+        // to stop the listener and save battery
     }
 
     //product barcode mode
@@ -127,6 +194,8 @@ public class MainActivity extends FragmentActivity {
 
     //on ActivityResult method
     public void onActivityResult(final int requestCode, int resultCode, Intent intent) {
+        loadBar.setVisibility(View.VISIBLE);
+        loadBar.bringToFront();
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
                 //get the extras that are returned from the intent
@@ -142,7 +211,9 @@ public class MainActivity extends FragmentActivity {
                         new Response.Listener<String>(){
                             @Override
                             public void onResponse(String response) {
-                                tesCatch.setText(response.substring(3,response.length()));
+                                Toast.makeText(getBaseContext(), response.substring(3,response.length()), Toast.LENGTH_LONG).show();
+                                //tesCatch.setText(response.substring(3,response.length()));
+                                loadBar.setVisibility(View.GONE);
                             }
                         },
                         new Response.ErrorListener(){
@@ -173,7 +244,6 @@ public class MainActivity extends FragmentActivity {
                         String temp = "{\"nim\": \"13512037\",\"token\": \"" + contents + "\"}";
                         return temp.getBytes();
                     }
-
 
                     @Override
                     public String getBodyContentType() {

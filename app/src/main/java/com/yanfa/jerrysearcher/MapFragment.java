@@ -139,7 +139,7 @@ public class MapFragment extends Fragment {
                         MainActivity.loadBar.setVisibility(View.GONE);
                         Calendar c = Calendar.getInstance();
                         long diffSeconds = Data.validTil.getTime() - c.get(Calendar.SECOND);
-                        new CountDownTimer(5000, 1000){
+                        new CountDownTimer(diffSeconds, 1000){
                             @Override
                             public void onTick(long millisUntilFinished) {
                                 long day, hour, minute, sec;
@@ -147,16 +147,18 @@ public class MapFragment extends Fragment {
                                 hour = (millisUntilFinished/1000/3600)%24;
                                 minute = (millisUntilFinished /1000/60)%60 ;
                                 sec = (millisUntilFinished /1000)%60;
-                                timesRemaining.setText("Times Remaining :"+ day +":"+ hour +":"
+                                timesRemaining.setText("Times Remaining : "+ day +":"+ hour +":"
                                         + minute + ":" + sec);
                             }
 
                             @Override
                             public void onFinish() {
                                 MainActivity.loadBar.setVisibility(View.VISIBLE);
+                                MainActivity.loadBar.bringToFront();
                                 loadMap();
                             }
                         }.start();
+                        MainActivity.compassView.bringToFront();
                     }
                 }, new Response.ErrorListener() {
             @Override
