@@ -23,6 +23,7 @@ import android.view.animation.RotateAnimation;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.HttpAuthHandler;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +54,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -65,7 +67,14 @@ public class MainActivity extends Activity implements SensorEventListener {
     private ImageView image;
     private float currentDegree = 0f;
     private SensorManager mSensorManager;
+    static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
+    private GoogleMap googleMap;
+    JSONArray LatLong = null;
+    int it = 0;
+    double jLat = 0, jLong=0;
+    String responsePost;
 
+    TextView txtResponse;
     TextView txtToken;
     TextView txtLat;
     TextView txtLong;
@@ -73,40 +82,39 @@ public class MainActivity extends Activity implements SensorEventListener {
     Button scanner;
     Button btnSubmit;
     GPSTracker gps;
-    int it = 0;
-    double jLat = 0, jLong=0;
 
-    //static LatLng JerryLocation = new LatLng(0,0);
-    static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
-
-    private GoogleMap googleMap;
-
-    JSONArray LatLong = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         /* gambarkan layout activity */
         setContentView(R.layout.activity_main);
+        scanner = (Button) findViewById(R.id.scanner);
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        gps = new GPSTracker(MainActivity.this);
 
-        btnSubmit = (Button) findViewById(R.id.btnSubmit);
-        btnSubmit.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View arg0){
-                new postTokenAsync().execute();
-            }
-        });
         image = (ImageView) findViewById(R.id.imageViewCompass);
         txtToken = (TextView) findViewById(R.id.txtToken);
         txtLong = (TextView) findViewById(R.id.txtLong);
         txtLat = (TextView) findViewById(R.id.txtLat);
         txtValid =  (TextView) findViewById(R.id.txtValid);
-        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        gps = new GPSTracker(MainActivity.this);
-
-        //updateJerryLocation(JerryLocation);
+        txtResponse = (TextView) findViewById(R.id.txtResponse);
+        btnSubmit = (Button) findViewById(R.id.btnSubmit);
+        btnSubmit.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View arg0){
+                //new postTokenAsync().execute();
+                try {
+                    txtResponse.setText(new MyAsyncTask().execute().get());
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }catch(ExecutionException e){
+                    e.printStackTrace();
+                }
+            }
+        });
         setUpMap();
-        scanner = (Button) findViewById(R.id.scanner);
 
     }
 
@@ -244,10 +252,6 @@ public class MainActivity extends Activity implements SensorEventListener {
             googleMap.setMyLocationEnabled(true);
             Marker TP = googleMap.addMarker(new MarkerOptions().
                     position(new LatLng(jLat,jLong)));
-            //TP.setPosition(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString())));
-            //TP.setPosition(new LatLng(-6.890323,107.610381));
-
-            //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString())),15));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -259,13 +263,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         InputStream inputStream = null;
         String result = "";
         try {
-            // create HttpClient
             HttpClient httpclient = new DefaultHttpClient();
-            // make GET request to the given URL
             HttpResponse httpResponse = httpclient.execute(new HttpGet(url));
-            // receive response as inputStream
             inputStream = httpResponse.getEntity().getContent();
-            // convert inputstream to string
             if(inputStream != null)
                 result = convertInputStreamToString(inputStream);
             else
@@ -276,7 +276,6 @@ public class MainActivity extends Activity implements SensorEventListener {
         return result;
     }
 
-    // convert inputstream to String
     private static String convertInputStreamToString(InputStream inputStream) throws IOException{
         BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
         String line = "";
@@ -293,7 +292,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 
             return ambilLokasiJerry();
         }
-        // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -314,39 +312,24 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
     }
 
-    public String postToken(){
-        String token = txtToken.toString();
-        String url = "http://167.205.32.46/pbd/api/catch";
+    public String postData(){
+        String URL = "http://167.205.32.46/pbd/api/catch";
+        HttpClient httpClient =  new DefaultHttpClient();
+        HttpPost httpPost =  new HttpPost(URL);
         InputStream inputStream = null;
         String result = "";
-        JSONObject final_data = new JSONObject();
-        try {
-            final_data.put("nim", "13512043");
-            final_data.put("token", token);
-        }catch(JSONException e){
-            e.printStackTrace();
-        }
-        HttpClient httpClient =  new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(url);
         try{
-
-            httpPost.setEntity(new StringEntity(final_data.toString()));
-        }catch(UnsupportedEncodingException e){
-            e.printStackTrace();
-        }
-
-        try{
-            httpPost.setHeader("Accept", "application/json");
-            httpPost.setHeader("Content-type", "application/json");
-            HttpResponse response = httpClient.execute(httpPost);
+            List nameValuePairs = new ArrayList();
+            nameValuePairs.add(new BasicNameValuePair("nim","13512043"));
+            nameValuePairs.add(new BasicNameValuePair("token",txtToken.toString()));
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+            HttpResponse response =  httpClient.execute(httpPost);
             inputStream = response.getEntity().getContent();
-            //Log.d("Http Response:", response.toString());
-            if(inputStream != null) {
+            if(inputStream != null)
                 result = convertInputStreamToString(inputStream);
-                Toast.makeText(getBaseContext(), response.toString(), Toast.LENGTH_LONG).show();
-            }
-            else
+            else {
                 result = "Did not work!";
+            }
         }catch(ClientProtocolException e){
             e.printStackTrace();
         }catch (IOException e){
@@ -355,16 +338,10 @@ public class MainActivity extends Activity implements SensorEventListener {
         return result;
     }
 
-    private class postTokenAsync extends AsyncTask<String, Void, String> {
+    private class MyAsyncTask extends AsyncTask<String, Integer, String>{
         @Override
-        protected String doInBackground(String... urls) {
-
-            return postToken();
-        }
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-
+        protected String doInBackground(String... params){
+            return postData();
         }
     }
 }
