@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -49,6 +50,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     private static final int CAMERA_DISTANCE = 17;
 
+    private Handler handler = new Handler();
+
     // maps
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private double latitude, longitude;
@@ -60,7 +63,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private float currentDegree = 0f;
 
     // scan
-    private ImageButton buttonScan;
+    private ImageButton buttonRefresh, buttonScan;
 
     private static AlertDialog.Builder showDialog(final Activity activity, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo) {
         AlertDialog.Builder downloadDialog = new AlertDialog.Builder(activity);
@@ -87,7 +90,36 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         setContentView(R.layout.activity_maps);
 
         // maps
+        buttonRefresh = (ImageButton) findViewById(R.id.buttonRefresh);
+        buttonRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setUpMapIfNeeded();
+            }
+        });
         setUpMapIfNeeded();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    if (!isNetworkAvailable()) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                buttonRefresh.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    }
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
 
         // compass
         imageViewCompassSmall = (ImageView) findViewById(R.id.imageViewCompassSmall);
@@ -115,14 +147,14 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             public void onClick(View v) {
                 Intent i = new Intent("com.google.zxing.client.android.SCAN");
                 i.putExtra("SCAN_MODE", "QR_CODE_MODE");
-                if (i.resolveActivityInfo(getPackageManager(), 0) != null) {
-                    startActivityForResult(i, 0);
-                } else {
-                    if (isOnline()) {
-                        showDialog(MapsActivity.this, "No scanner found", "Download Barcode Scanner by ZXing Team?", "Yes", "No").show();
+                if (isNetworkAvailable()) {
+                    if (i.resolveActivityInfo(getPackageManager(), 0) != null) {
+                        startActivityForResult(i, 0);
                     } else {
-                        Toast.makeText(getApplicationContext(), "No internet access", Toast.LENGTH_SHORT).show();
+                        showDialog(MapsActivity.this, "No scanner found", "Download Barcode Scanner by ZXing Team?", "Yes", "No").show();
                     }
+                } else {
+                        Toast.makeText(getApplicationContext(), "No internet access", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -212,10 +244,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-                setUpMap();
-            }
+        }
+
+        // Check if we were successful in obtaining the map.
+        if (mMap != null) {
+            setUpMap();
         }
     }
 
@@ -226,11 +259,17 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        HttpGetTrack httpGetTrack = new HttpGetTrack();
-        httpGetTrack.execute();
+        if (isNetworkAvailable()) {
+            buttonRefresh.setVisibility(View.INVISIBLE);
+            HttpGetTrack httpGetTrack = new HttpGetTrack();
+            httpGetTrack.execute();
+        } else {
+            Toast.makeText(getApplicationContext(), "No internet access", Toast.LENGTH_SHORT).show();
+            buttonRefresh.setVisibility(View.VISIBLE);
+        }
     }
 
-    public boolean isOnline() {
+    public boolean isNetworkAvailable() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -242,7 +281,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             if (resultCode == RESULT_OK) {
                 String token = intent.getStringExtra("SCAN_RESULT");
 
-                if (isOnline()) {
+                if (isNetworkAvailable()) {
                     HttpPostCatch httpPostCatch = new HttpPostCatch();
                     httpPostCatch.execute(token);
                 } else {
@@ -287,9 +326,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
                 Log.d("api/track", message);
                 return new JSONObject(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
 
@@ -371,9 +408,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
                 Log.d("api/catch", String.valueOf(code));
                 return code;
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
 
