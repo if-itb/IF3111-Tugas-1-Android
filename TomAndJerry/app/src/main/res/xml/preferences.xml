@@ -15,7 +15,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="Spike Tracker"
+        android:title="Jerry Tracker Configuration"
         android:key="pref_key_spike_api">
 
         <EditTextPreference

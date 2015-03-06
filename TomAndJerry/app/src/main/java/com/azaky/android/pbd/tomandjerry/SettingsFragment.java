@@ -1,26 +1,12 @@
 package com.azaky.android.pbd.tomandjerry;
 
-import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
-import android.text.TextUtils;
-
-
-import java.util.List;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -74,7 +60,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         KEY_PREF_AUTOZOOM = resources.getString(R.string.pref_key_autozoom);
         KEY_PREF_USE_MY_LOCATION = resources.getString(R.string.pref_key_use_my_location);
 
-        addPreferencesFromResource(R.xml.pref_tracker_api);
+        addPreferencesFromResource(R.xml.preferences);
 
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
