@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">FindJerry</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_ask_spike">Ask Spike</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_catch_jerry">Catch Jerry</string>
+    <string name="title_activity_refresh_tracking_jerry">Tracking Jerry</string>
+    <string name="title_activity_test">TestActivity</string>
+</resources>

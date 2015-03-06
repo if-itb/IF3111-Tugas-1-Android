@@ -1,0 +1,42 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="16dp"
+    android:orientation="vertical"
+    android:background="@drawable/backrepeatdark"
+    android:gravity="center_horizontal"
+    android:paddingBottom="16dp" tools:context=".MainActivity">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:src="@drawable/header"
+        android:layout_above="@+id/askSpike"
+        android:layout_alignParentEnd="true" />
+
+    <ImageButton
+        android:layout_width="200dip"
+        android:layout_height="108dip"
+        android:text="Ask Spike"
+        android:id="@+id/askSpike"
+        android:background="@drawable/askspikebutton"
+        android:layout_marginBottom="180dp"
+        android:layout_alignParentBottom="true"
+        android:onClick="toAskSpike"
+        android:layout_centerHorizontal="true" />
+
+    <ImageButton
+        android:layout_width="250dip"
+        android:layout_height="76dip"
+        android:text="Catch Jerry"
+        android:id="@+id/qrCode"
+        android:background="@drawable/scanqrbutton"
+        android:onClick="scanQR"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/askSpike"
+        android:layout_marginBottom="72dp" />
+
+
+</RelativeLayout>
