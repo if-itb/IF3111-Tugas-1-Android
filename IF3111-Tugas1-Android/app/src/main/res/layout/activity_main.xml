@@ -1,0 +1,41 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff">
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/map" tools:context=".MainActivity"
+    android:name="com.google.android.gms.maps.SupportMapFragment" />
+
+<TextView
+    android:id="@+id/tvHeading"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
+    android:layout_marginBottom="40dp"
+    android:layout_marginTop="20dp"
+    android:text="Heading: 0.0" />
+
+<ImageView
+    android:id="@+id/imageViewCompass"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:src="@drawable/img_compass" />
+
+<Button
+    android:id="@+id/QR_scan"
+    android:layout_height="50dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:layout_width="wrap_content"
+    android:text="@string/start_QRScan"
+    android:onClick="selfDestruct"
+    android:textStyle="bold"
+    android:background="#ff2effc9"
+    android:paddingRight="10dp"
+    android:layout_marginBottom="151dp"
+    android:layout_alignParentBottom="true"
+    android:layout_centerHorizontal="true" />
+</RelativeLayout>
