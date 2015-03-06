@@ -12,8 +12,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.concurrent.ExecutionException;
+
 public class MapsActivity extends Activity {
-    static final LatLng JERRY = new LatLng(53.558, 9.927);
+    private LatLng JERRY;
     static final LatLng KIEL = new LatLng(53.551, 9.993);
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
@@ -21,7 +26,13 @@ public class MapsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        setUpMapIfNeeded();
+        try {
+            setUpMapIfNeeded();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         //Memindahkan kamera langsung ke jerry dengan zoom 15
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JERRY, 15));
@@ -32,7 +43,13 @@ public class MapsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        setUpMapIfNeeded();
+        try {
+            setUpMapIfNeeded();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -50,7 +67,7 @@ public class MapsActivity extends Activity {
      * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
      * method in {@link #onResume()} to guarantee that it will be called.
      */
-    private void setUpMapIfNeeded() {
+    private void setUpMapIfNeeded() throws ExecutionException, InterruptedException {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
@@ -68,7 +85,8 @@ public class MapsActivity extends Activity {
      * <p/>
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
-    private void setUpMap() {
+    private void setUpMap() throws ExecutionException, InterruptedException {
+        getJerryPosition();
         Marker jerry = mMap.addMarker(new MarkerOptions().position(JERRY).title("Jerry"));
         Marker kiel = mMap.addMarker(new MarkerOptions()
                 .position(KIEL)
@@ -76,5 +94,23 @@ public class MapsActivity extends Activity {
                 .snippet("Kiel is cool")
                 .icon(BitmapDescriptorFactory
                         .fromResource(R.drawable.ic_launcher)));
+    }
+
+    public void getJerryPosition() throws ExecutionException, InterruptedException {
+        RequestTask req = new RequestTask();
+        req.execute("http://167.205.32.46/pbd/api/track?nim=13512084");
+        String response = (String) req.get();
+//        LatLng loc = null;
+        try {
+            JSONObject json = new JSONObject(response);
+            String lat = json.getString("lat");
+            String lon = json.getString("long");
+            String valid_until = json.getString("valid_until");
+//            loc = new LatLng(Float.parseFloat(lat), Float.parseFloat(lon));
+            JERRY = new LatLng(Float.parseFloat(lat), Float.parseFloat(lon));
+
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
     }
 }
