@@ -112,6 +112,7 @@ public class MapsActivity extends FragmentActivity {
 
             // Making a request to url and getting response
             String jsonStr = sh.makeServiceCall(url, ServiceHandler.GET);
+            jsonStr = jsonStr.substring(3);
 
             Log.d("Response: ", "> " + jsonStr);
 
@@ -122,7 +123,7 @@ public class MapsActivity extends FragmentActivity {
                     lat = jsonObj.getDouble("lat");
                     lng = jsonObj.getDouble("long");
                     valid = jsonObj.getDouble("valid_until");
-                    System.out.println(lat + " " + lng);
+                    Log.d("Response: ", "> " + lat + " " + lng + " " + valid);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -143,9 +144,10 @@ public class MapsActivity extends FragmentActivity {
              * Updating parsed JSON data into ListView
              * */
             TextView t,t2,t3;
+            String temp;
 
             t=(TextView)findViewById(R.id.textView2);
-            String temp = "lat:" + lat;
+            temp = "lat:" + lat;
             t.setText(temp);
             t2=(TextView)findViewById(R.id.textView3);
             temp = "long:" + lng;
