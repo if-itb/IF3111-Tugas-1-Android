@@ -64,6 +64,7 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
     private String valid_until;
     private Marker mapMarker;
     private Button button;
+    private String result;
 
     private long epoch;
 
@@ -215,6 +216,20 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
             request.setEntity(params);
             HttpResponse response = httpClient.execute(request);
             Log.d("[POST]", "[POST] Response "+response.getStatusLine().getStatusCode());
+            if(response.getStatusLine().getStatusCode()==200) {
+                result = "200 OK";
+            }
+            else if (response.getStatusLine().getStatusCode()==400) {
+                result = "ERROR 400 MISSING PARAMETER";
+            }
+            else if (response.getStatusLine().getStatusCode() == 403) {
+                result = "FORBIDDEN";
+            }
+            else {
+                result = response.getStatusLine().getStatusCode() + " ERROR";
+            }
+            Log.d("cek",result);
+            Toast.makeText(getApplicationContext(),result,Toast.LENGTH_LONG).show();
         } catch (Exception ex) {
             Log.d("[POST]", "[POST] send post caught exception");
         } finally {
