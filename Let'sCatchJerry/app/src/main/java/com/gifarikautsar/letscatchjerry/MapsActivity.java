@@ -17,6 +17,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.View;
@@ -37,16 +38,22 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BufferedHttpEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 public class MapsActivity extends FragmentActivity implements LocationListener, SensorEventListener {
@@ -57,8 +64,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private SensorManager mSensorManager;
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     private LatLng Jerry;
-    private String contents ="";
-
+    private TextView textCounter;
+    private long time = 0;
+    private String QRContent = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +74,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         setContentView(R.layout.activity_maps);
 
         //Compass
-
         image = (ImageView) findViewById(R.id.imageViewCompass);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -92,6 +99,9 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             locationManager.requestLocationUpdates(provider, 20000, 0, this);
         }
         getRequest();
+        textCounter = (TextView) findViewById(R.id.textCounter);
+        textCounter.setText(String.valueOf(time));
+
     }
 
     @Override
@@ -199,10 +209,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
                 //get the extras that are returned from the intent
-                String contents = intent.getStringExtra("SCAN_RESULT");
+                QRContent = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(this, "Content:" + QRContent + " Format:" + format, Toast.LENGTH_LONG);
                 toast.show();
+                postRequest();
             }
         }
     }
@@ -256,7 +267,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             catch (IOException e) {
                 e.printStackTrace();
             }
-            contents = json.toString();
+            String contents = json.toString();
             return json;
         }
 
@@ -268,7 +279,17 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             try{
                 lat = Double.parseDouble(result.getString("lat"));
                 lng = Double.parseDouble(result.getString("long"));
+                time = Long.parseLong(result.getString("valid_until")) * 1000;
                 Jerry = new LatLng(lat,lng);
+                new CountDownTimer((time - System.currentTimeMillis()), 1000){
+                    public void onTick(long millisUntilFinished){
+                        textCounter.setText(String.valueOf((time - System.currentTimeMillis())/1000) + " seconds left");
+                    }
+                    public void onFinish() {
+                        time = 0;
+                        getRequest();
+                    }
+                }.start();
                 Toast toast = Toast.makeText(MapsActivity.this,"Jerry Position ("+lat+","+lng+")",Toast.LENGTH_LONG);
                 toast.show();
             }
@@ -278,4 +299,53 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
             setUpMap();
         }
     }
+
+    public void postRequest(){
+        PostTask pt = new PostTask();
+        pt.execute();
+    }
+
+    private class PostTask extends AsyncTask<Void, String, String>{
+        @Override
+        protected String doInBackground(Void... params){
+            HttpClient client = new DefaultHttpClient();
+
+            String p_result = null;
+            try{
+                HttpPost post = new HttpPost ("http://167.205.32.46/pbd/api/catch");
+                JSONObject json = new JSONObject();
+                json.put("nim", "13512020");
+                json.put("token", QRContent);
+                StringEntity se = new StringEntity(json.toString());
+                se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE,"application/json"));
+
+                post.setEntity(se);
+                HttpResponse response = client.execute(post);
+                if(response != null){
+                    HttpEntity entity = response.getEntity();
+                    BufferedHttpEntity buffEntity = new BufferedHttpEntity(entity);
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(buffEntity.getContent()));
+
+                    String line;
+                    StringBuilder sb = new StringBuilder();
+                    while((line = rd.readLine()) != null){
+                        sb.append(line);
+                    }
+                    p_result = sb.toString();
+                }
+
+            } catch (JSONException | IOException e) {
+                e.printStackTrace();
+            }
+            return p_result;
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            Toast toast = Toast.makeText(MapsActivity.this, result, Toast.LENGTH_LONG);
+            toast.show();
+        }
+    }
+
 }

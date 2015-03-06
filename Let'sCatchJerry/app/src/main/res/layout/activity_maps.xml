@@ -28,4 +28,14 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="5dp" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/textCounter"
+        android:layout_above="@+id/button"
+        android:layout_centerHorizontal="true"
+        android:background="#ffff1d1d"
+        android:text="" />
+
 </RelativeLayout>
