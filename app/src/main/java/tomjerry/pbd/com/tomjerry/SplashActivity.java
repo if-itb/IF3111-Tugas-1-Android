@@ -7,8 +7,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
-import android.view.WindowManager;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -32,9 +30,12 @@ public class SplashActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
         setContentView(R.layout.activity_splash);
+        lock = true;
+
+        // Mengeksekusi AsyncTask untuk mengambil koordinat dan batas waktu Jerry
         new Task().execute(getApplicationContext());
 
-        lock = true;
+        // Menjalankan thread untuk menunggu AsyncTask selesai melakukan request
         Thread welcomeThread = new Thread() {
             @Override
             public void run() {
@@ -43,7 +44,7 @@ public class SplashActivity extends ActionBarActivity {
                 while(lock) {
                 }
             } catch (Exception e) {
-
+                e.printStackTrace();
             } finally {
                 Intent i = new Intent(SplashActivity.this,
                         MainActivity.class);
@@ -81,30 +82,32 @@ public class SplashActivity extends ActionBarActivity {
     }
 
     public class Task extends AsyncTask<Context, Void, Void> {
-
-        private Context context;
-
         @Override
         protected Void doInBackground(Context... params) {
-            context = params[0];
+            Context context = params[0];
+            System.out.println(context.toString());
 
             HttpClient client = new DefaultHttpClient();
             HttpGet request = new HttpGet("http://167.205.32.46/pbd/api/track?nim=13512025");
             HttpResponse response;
             String result = "";
             try {
+                // Mengeksekusi Http Get
                 response = client.execute(request);
 
-                // Get the response
+                // Mengambil isi dari response Http Get
                 BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
-                String line = "";
+                String line;
                 while ((line = rd.readLine()) != null) {
                     result += line;
                 }
             } catch (Exception e) {
-                // TODO Auto-generated catch block
+                // Jika hasil gagal didapat, set semua menjadi 0
                 e.printStackTrace();
+                latitude = 0;
+                longitude = 0;
+                valid_until = 0;
             }
             if(!result.equalsIgnoreCase("")) {
                 try {

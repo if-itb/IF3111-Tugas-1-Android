@@ -13,7 +13,6 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 
 public class CompassActivity extends ActionBarActivity implements SensorEventListener {

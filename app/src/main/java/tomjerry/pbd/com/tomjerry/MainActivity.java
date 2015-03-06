@@ -1,10 +1,8 @@
 package tomjerry.pbd.com.tomjerry;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
@@ -16,10 +14,8 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.apache.http.HttpResponse;
@@ -33,18 +29,20 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends FragmentActivity {
 
-    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private ProgressDialog progressDialog;
+    private GoogleMap mMap;
     private double latitude;
     private double longitude;
     private long valid_until;
-    private String statusResult;
+    private long curr_time;
+    private String statusResult = "";
     private boolean lock;
     private TextView timer;
     private CountDownTimer countDownTimer;
@@ -53,6 +51,7 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Mengambil parameter dari intent SplashActivity
         Bundle extras = getIntent().getExtras();
         latitude = extras.getDouble("latitude");
         longitude = extras.getDouble("longitude");
@@ -62,11 +61,16 @@ public class MainActivity extends FragmentActivity {
         setUpMapIfNeeded();
 
         Date date = new Date();
-        long epoch = date.getTime();
+        curr_time = date.getTime();
         valid_until = valid_until * 1000;
+        long duration = valid_until - curr_time;
+        if(duration<=0) {
+            duration = 30000;
+        }
 
+        // Membuat timer yang akan mengrefresh apabila mencapai 0
         timer = (TextView) findViewById(R.id.timer);
-        countDownTimer = new CountDownTimer(valid_until - epoch, 1000) {
+        countDownTimer = new CountDownTimer(duration, 1000) {
             public void onTick(long millisUntilFinished) {
                 long totalsec = millisUntilFinished / 1000;
 
@@ -91,6 +95,7 @@ public class MainActivity extends FragmentActivity {
         };
         countDownTimer.start();
 
+        // Tombol untuk mengstart Barcode Scanner
         Button captureButton = (Button) findViewById(R.id.capture_button);
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,6 +107,7 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
+        // Tombol untuk mengstart Compasss
         Button compassButton = (Button) findViewById(R.id.compass_button);
         compassButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,9 +122,9 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onBackPressed() {
         backButtonHandler();
-        return;
     }
 
+    // Mengoverride tombol back untuk mengecek apakah user memang ingin keluar dari aplikasi
     public void backButtonHandler() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
         // Setting Dialog Title
@@ -150,6 +156,8 @@ public class MainActivity extends FragmentActivity {
             if (resultCode == RESULT_OK) {
                 final String scanResult = data.getStringExtra("SCAN_RESULT");
                 lock = true;
+
+                // Thread untuk mengpost hasil dari Barcode Scanning
                 Thread postThread = new Thread() {
                     @Override
                     public void run() {
@@ -160,14 +168,8 @@ public class MainActivity extends FragmentActivity {
                             HttpPost post = new HttpPost("http://167.205.32.46/pbd/api/catch");
                             post.setHeader("Content-type","application/json");
 
-                            List postParameters = new ArrayList<NameValuePair>();
-                            postParameters.add(new BasicNameValuePair("token", scanResult));
-                            postParameters.add(new BasicNameValuePair("nim", "13512025"));
-
-                            post.setEntity(new UrlEncodedFormEntity(postParameters));
-
                             JSONObject jsonObj = new JSONObject();
-                            StringEntity entity = null;
+                            StringEntity entity;
                             jsonObj.put("nim", "13512025");
                             jsonObj.put("token", scanResult);
                             entity = new StringEntity(jsonObj.toString(), HTTP.UTF_8);
@@ -175,27 +177,25 @@ public class MainActivity extends FragmentActivity {
                             entity.setContentType("application/json");
                             post.setEntity(entity);
 
-                            String result = "";
                             HttpResponse response = client.execute(post);
 
-                            int status = response.getStatusLine().getStatusCode();
-                            if(status == 200) {
-                                result = response.getStatusLine().getReasonPhrase();
-                            } else if(status == 400) {
-                                result = response.getStatusLine().getReasonPhrase();
-                            } else if(status == 403) {
-                                result = response.getStatusLine().getReasonPhrase();
-                            } else {
-                                result = response.getStatusLine().getReasonPhrase();
+                            // Mengambil isi dari response Http Get
+                            BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+
+                            String line;
+                            while ((line = rd.readLine()) != null) {
+                                statusResult += line;
                             }
-                            statusResult = result;
+                            JSONObject object = new JSONObject(statusResult);
+                            statusResult = object.getString("message");
                             lock = false;
                         } catch (Exception e) {
+                            statusResult = "Failed to post";
+                            e.printStackTrace();
                         }
                     } catch (Exception e) {
-
-                    } finally {
-
+                        e.printStackTrace();
+                        statusResult = "Failed to post";
                     }
                     }
                 };
@@ -206,13 +206,43 @@ public class MainActivity extends FragmentActivity {
                 // Handle cancel
                 Toast.makeText(getApplicationContext(), "Capturing cancelled",Toast.LENGTH_SHORT).show();
             }
-
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        Date date = new Date();
+        curr_time = date.getTime();
+        long duration = valid_until - curr_time;
+        if(duration<=0) {
+            duration = 30000;
+        }
+
+        // Mengresume countdown
+        countDownTimer = new CountDownTimer(duration, 1000) {
+            public void onTick(long millisUntilFinished) {
+                long totalsec = millisUntilFinished / 1000;
+
+                long day = totalsec / (3600 * 24);
+                totalsec = totalsec - (day * 3600 * 24);
+
+                long hrs = totalsec / 3600;
+                totalsec = totalsec - (hrs * 3600);
+
+                long mnt = totalsec / 60;
+                totalsec = totalsec - (mnt * 60);
+
+                timer.setText(day+"d "+hrs+"h "+mnt+"m "+totalsec+"s");
+            }
+
+            public void onFinish() {
+                Intent intent = new Intent(MainActivity.this,SplashActivity.class);
+                countDownTimer.cancel();
+                finish();
+                startActivity(intent);
+            }
+        };
         countDownTimer.start();
         setUpMapIfNeeded();
     }
@@ -254,6 +284,8 @@ public class MainActivity extends FragmentActivity {
     private void setUpMap() {
         // Check if we were successful in obtaining the map.
         if (mMap != null) {
+            mMap.setMyLocationEnabled(true);
+            // Membuat marker untuk menandakan lokasi Jerry
             mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Jerry is here!"));
             CameraPosition cameraPosition = new CameraPosition.Builder().target(
                     new LatLng(latitude, longitude)).zoom(14).build();
