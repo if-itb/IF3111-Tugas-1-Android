@@ -192,27 +192,26 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                 public void onResponse(String response) {
                     // response
                     Log.d("debug res", response);
-                    if(response.indexOf('{') == -1) {
-                        Toast toast = Toast.makeText(me, "Congrats! You found Jerry!!", Toast.LENGTH_LONG);
-                        toast.show();
-                    }
-                    else{
-                        long errCode;
-                        String message;
-                        Gson gson = new Gson();
-                        response = response.substring(response.indexOf('{'),response.lastIndexOf('}')+1);
-                        String json = gson.toJson(response);
-                        try {
-                            JSONObject jsonObj = new JSONObject(response);
-                            errCode = jsonObj.getLong("code");
-                            message = jsonObj.getString("message");
-
-                            Toast toast = Toast.makeText(me, "Error with code " + errCode + " " + message, Toast.LENGTH_LONG);
+                    long code;
+                    String message;
+                    Gson gson = new Gson();
+                    response = response.substring(response.indexOf('{'),response.lastIndexOf('}')+1);
+                    String json = gson.toJson(response);
+                    try {
+                        JSONObject jsonObj = new JSONObject(response);
+                        code = jsonObj.getLong("code");
+                        message = jsonObj.getString("message");
+                        if(code == 200) {
+                            Toast toast = Toast.makeText(me, "Congrats! You found Jerry!!", Toast.LENGTH_LONG);
                             toast.show();
                         }
-                        catch (JSONException e){
-                            Log.d("debug res", "exception json");
+                        else{
+                                Toast toast = Toast.makeText(me, "Error with code " + code + " " + message, Toast.LENGTH_LONG);
+                                toast.show();
+                            }
                         }
+                    catch (JSONException e){
+                        Log.d("debug res", "exception json");
                     }
                 }
             },
