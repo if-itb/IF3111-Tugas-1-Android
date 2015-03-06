@@ -20,19 +20,16 @@ import android.widget.Toast;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends ActionBarActivity {
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
@@ -58,25 +55,8 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
 
-                /*
-                JSONObject theData = getData("167.205.32.46/pbd/api/track?nim=13512039");
-                try {
-                    LatVal = theData.getDouble("lat");
-                    LongVal = theData.getDouble("long");
-                    theTime = theData.getLong("valid_until");
-                    time = String.format("%02d:%02d:%02d", (TimeUnit.MILLISECONDS.toHours(theTime) + 7),
-                            TimeUnit.MILLISECONDS.toMinutes(theTime) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(theTime)),
-                            TimeUnit.MILLISECONDS.toSeconds(theTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(theTime)));
-                }
-                catch(JSONException e){}
-                */
-
 
                 Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
-                intent.putExtra("Long", LongVal);
-                intent.putExtra("Lat", LatVal);
-                intent.putExtra("Valid", theTime);
-                intent.putExtra("ValidString", time);
                 startActivity(intent);
             }
         });
@@ -105,63 +85,6 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    public class Task extends AsyncTask<Context, String, String> {
-        private Context context;
-        public JSONObject getData(String url) {
-            JSONObject theData = new JSONObject();
-            HttpClient client = new DefaultHttpClient();
-            HttpGet request = new HttpGet(url);
-            HttpResponse response;
-            String result = "";
-            try {
-                response = client.execute(request);
-                // Get the response
-                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF8"));
-
-                String line = "";
-                while ((line = rd.readLine()) != null) {
-                    result += line;
-                }
-                Log.d("api/track", result);
-
-                String resulte = result.substring(result.indexOf("{"), (result.lastIndexOf("}") + 1));
-                Log.d("api/track", resulte);
-                theData = new JSONObject(resulte);
-            } catch (Exception e) {
-            }
-
-            //Toast T = new Toast(getApplicationContext());
-            //T.setText(result);
-
-            //Toast.makeText(getApplication().getApplicationContext(), result, Toast.LENGTH_LONG).show();
-            lock = false;
-            return theData;
-        }
-
-        @Override
-        protected String doInBackground(Context... params) {
-            context = params[0];
-            JSONObject theData = getData("http://167.205.32.46/pbd/api/track?nim=13512039");
-            try {
-                LatVal = theData.getDouble("lat");
-                LongVal = theData.getDouble("long");
-                theTime = theData.getLong("valid_until");
-
-                time = String.format("%02d:%02d:%02d", ((TimeUnit.SECONDS.toHours(theTime) + 7) % 24),
-                        TimeUnit.SECONDS.toMinutes(theTime) % 60,
-                        TimeUnit.SECONDS.toSeconds(theTime) % 60);
-            }
-            catch(JSONException e){}
-
-            return new String();
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            Toast.makeText(getApplication().getApplicationContext(), "Finished loading from PBD Server", Toast.LENGTH_LONG).show();
-        }
-    }
     private static AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo) {
         AlertDialog.Builder downloadDialog = new AlertDialog.Builder(act);
         downloadDialog.setTitle(title);
@@ -215,7 +138,6 @@ public class MainActivity extends ActionBarActivity {
                 Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
                 toast.show();
 
-                // send post_http
                 new postTask().execute(getApplicationContext());
 
             }

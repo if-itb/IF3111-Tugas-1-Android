@@ -85,25 +85,7 @@ public class MapsActivity extends FragmentActivity {
     }
 
     private void setUpMap() {
-        /*
-        double lat;
-        double lang;
-        String thetime;
-        Long theTime;
-        */
-        //TODO Get location data from another activity?
         Bundle B = getIntent().getExtras();
-
-        /*
-        lat = B.getDouble("Lat");
-        lang = B.getDouble("Long");
-        theTime = B.getLong("Valid");
-        thetime = B.getString("ValidString");
-        */
-    /*
-        lat = -6.890323;
-        lang = 107.610381;
-        */
         mMap.addMarker(new MarkerOptions().position(new LatLng(LatVal, LongVal)).title("Jerry"));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(LatVal, LongVal), 18));
     }
