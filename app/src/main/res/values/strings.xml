@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Tubes1PBD</string>
+    <string name="title_activity_maps">TomJerry</string>
+    <string name="title_section1" />
+    <string name="title_section2" />
+    <string name="title_section3" />
+
+</resources>

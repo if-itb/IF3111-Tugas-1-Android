@@ -1,0 +1,37 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:screenOrientation="portrait"
+    android:id="@+id/mainLayout" >
+
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/map"
+        tools:context=".MapsActivity"
+        android:name="com.google.android.gms.maps.SupportMapFragment" />
+
+    <ImageView
+    android:id="@+id/compass"
+    android:layout_height="200dp"
+    android:layout_width="wrap_content"
+    android:paddingTop="0dp"
+    android:paddingBottom="10dp"
+    android:paddingLeft="10dp"
+    android:src="@drawable/compass" />
+
+    <Button
+        android:id="@+id/scanner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scanner"/>
+
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        ></ListView>
+
+</RelativeLayout>
