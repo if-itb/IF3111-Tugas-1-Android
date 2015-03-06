@@ -14,6 +14,8 @@ import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -59,25 +61,47 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         image = (ImageView) findViewById(R.id.imageViewCompass);
-
-        // TextView that will tell the user what degree is he heading
         tvHeading = (TextView) findViewById(R.id.tvHeading);
-
-        // initialize your android device sensor capabilities
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-//        Bundle myBundle = getIntent().getExtras();
-//        latitude = myBundle.getDouble("latitude");
-//        longitude = myBundle.getDouble("longitude");
         setUpMapIfNeeded();
-        new HttpActivity().execute(getApplicationContext());
+        checkConnection();
+    }
+
+    private void checkConnection() {
+        if (Helper.isOnline(getApplicationContext())) {
+            new HttpActivity().execute(getApplicationContext());
+            mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+                    SensorManager.SENSOR_DELAY_GAME);
+        } else {
+            mSensorManager.unregisterListener(this); //hemat batere
+            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which){
+                        case DialogInterface.BUTTON_POSITIVE:
+                            finish();
+                            moveTaskToBack(true);
+                            break;
+
+                        case DialogInterface.BUTTON_NEGATIVE:
+                            checkConnection();
+                            break;
+                    }
+                }
+            };
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
+            builder.setMessage("Lo ga punya internet? Mau keluar ga?").setPositiveButton("Ya! Saya keluar!", dialogClickListener)
+                    .setNegativeButton("Ga! Coba lagi!", dialogClickListener).setCancelable(false).show();
+        }
     }
 
     private void setUpMapIfNeeded() {
-        if (googleMap == null) {
+        if (googleMap == null) { //untuk hemat batere
             googleMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.displayMap)).getMap();
         }
     }
@@ -229,8 +253,7 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
     @Override
     protected void onPause() {
         super.onPause();
-        // to stop the listener and save battery
-        mSensorManager.unregisterListener(this);
+        mSensorManager.unregisterListener(this); //hemat batere
     }
     //product qr code mode
     public void scanQR(View v) {
