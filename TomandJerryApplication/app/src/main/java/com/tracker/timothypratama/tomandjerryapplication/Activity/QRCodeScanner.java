@@ -22,6 +22,8 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -120,18 +122,28 @@ public class QRCodeScanner extends ActionBarActivity {
                 e.printStackTrace();
             }
             Log.d("Poster",TrackJerryViewModel.getSecret_token());
-            Log.d("Poster",response);
-            TrackJerryViewModel.setHttpPostStatus(httpResponse.getStatusLine().getStatusCode());
+            Log.d("Poster", response);
             return response;
         }
 
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            TextView result = (TextView) findViewById(R.id.resultTextView);
-            TextView status = (TextView) findViewById(R.id.StatusTextView);
-            result.setText(s);
-            status.setText(String.valueOf(TrackJerryViewModel.getHttpPostStatus()));
+            TextView t_result = (TextView) findViewById(R.id.resultTextView);
+            TextView t_status = (TextView) findViewById(R.id.StatusTextView);
+            try {
+                JSONObject object = new JSONObject(s);
+                String result = object.getString("message");
+                int status = object.getInt("code");
+                TrackJerryViewModel.setHttpPostStatus(status);
+                Log.d("Poster","status: " + status);
+                Log.d("Poster","message: " + result);
+                t_result.setText(result);
+                t_status.setText(String.valueOf(status));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 }
