@@ -20,6 +20,7 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -42,9 +43,11 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -58,6 +61,8 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
     boolean isLocationUpdated;
     Timer timer;
     TimerTask autoUpdateTask;
+
+    private TextView validUntilTextView;
 
     private ImageView mPointer;
     private SensorManager mSensorManager;
@@ -75,6 +80,7 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        validUntilTextView = (TextView) findViewById(R.id.validUntilTextView);
 
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -134,6 +140,7 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
     }
 
     public void moveCameraToTarget(View v){
+        updateTargetLocation();
         map.animateCamera(CameraUpdateFactory.newLatLng(targetPosition));
 
     }
@@ -240,7 +247,14 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
                     //make notification
                     Toast.makeText(getApplicationContext(),"target location updated",Toast.LENGTH_SHORT).show();
                 }
-                validUntil = (System.currentTimeMillis()/1000) + 10;
+                //set valid until
+                long validUntilMillis = validUntil*1000;
+                Date validUntilDate = new Date(validUntilMillis);
+                SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
+                sdf.setTimeZone(TimeZone.getTimeZone("GMT+7"));
+                validUntilTextView.setText("Expired: "+sdf.format(validUntilDate));
+
+                //validUntil = (System.currentTimeMillis()/1000) + 10;
             } catch (JSONException je) {
                 je.printStackTrace();
                 Toast.makeText(getApplicationContext(), "JSONException:  " + je.getMessage(), Toast.LENGTH_LONG).show();
