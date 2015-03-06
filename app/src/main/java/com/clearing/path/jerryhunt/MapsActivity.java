@@ -7,10 +7,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONException;
@@ -22,13 +25,15 @@ public class MapsActivity extends FragmentActivity {
     // URL to get contacts JSON
     private static String url = "http://167.205.32.46/pbd/api/track?nim=13512093";
     private ProgressDialog pDialog;
-    private double lat = 0;
-    private double lng = 0;
+    private double lat;
+    private double lng;
+    private double valid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        new GetContacts().execute();
         setUpMapIfNeeded();
     }
 
@@ -73,7 +78,15 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title("Marker"));
+        LatLng JERRY = new LatLng(lat,lng);
+        Marker hamburg = mMap.addMarker(new MarkerOptions().position(JERRY)
+                .title("Hamburg"));
+
+        // Move the camera instantly to hamburg with a zoom of 15.
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JERRY, 15));
+
+        // Zoom in, animating the camera.
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
     }
 
     /**
@@ -106,7 +119,10 @@ public class MapsActivity extends FragmentActivity {
                 try {
                     JSONObject jsonObj = new JSONObject(jsonStr);
 
-
+                    lat = jsonObj.getDouble("lat");
+                    lng = jsonObj.getDouble("long");
+                    valid = jsonObj.getDouble("valid_until");
+                    System.out.println(lat + " " + lng);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -126,7 +142,17 @@ public class MapsActivity extends FragmentActivity {
             /**
              * Updating parsed JSON data into ListView
              * */
+            TextView t,t2,t3;
 
+            t=(TextView)findViewById(R.id.textView2);
+            String temp = "lat:" + lat;
+            t.setText(temp);
+            t2=(TextView)findViewById(R.id.textView3);
+            temp = "long:" + lng;
+            t2.setText(temp);
+            t3=(TextView)findViewById(R.id.textView4);
+            temp = "long:" + valid;
+            t3.setText(temp);
         }
 
     }
