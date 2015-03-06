@@ -39,10 +39,12 @@
             android:label="@string/title_activity_peta_activitity" >
         </activity>
         <activity
-            android:name=".ScanQRActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_scan_qr"
-            android:theme="@style/FullscreenTheme" >
+            android:name=".ScannerActivity"
+            android:label="@string/title_activity_scanner"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.hp.gogetjerry.MainActivity" />
         </activity>
     </application>
 

@@ -35,5 +35,6 @@
         android:text="Catch!!"
         android:id="@+id/buttonCatch"
         android:layout_below="@+id/buttonPosition"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:onClick="Scan"/>
 </RelativeLayout>

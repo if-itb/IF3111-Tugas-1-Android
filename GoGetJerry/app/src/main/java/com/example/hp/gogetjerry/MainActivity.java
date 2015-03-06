@@ -48,4 +48,9 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
+    public void Scan (View v){
+        Intent intent = new Intent(this, com.example.hp.gogetjerry.ScannerActivity.class);
+        startActivity(intent);
+    }
+
 }

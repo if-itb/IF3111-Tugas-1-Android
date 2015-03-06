@@ -97,18 +97,7 @@ public class PetaActivitity extends ActionBarActivity implements SensorEventList
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        //get Jerry's position; use api/track
-//        JSONObject jsonLatLong = getJSONfromURL("http://167.205.32.46/pbd/api/track?nim=13512080");
-//        double Latitude, Longitude;
-//        String valid_until;
-//        try{
-//            Latitude = Double.parseDouble(jsonLatLong.getString("lat")) ;
-//            Longitude = Double.parseDouble(jsonLatLong.getString("long"));
-//            Log.d("Nilai Lat ", jsonLatLong.getString("lat"));
-//            valid_until = jsonLatLong.getString("valid_until");
             mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-//            } catch (JSONException e1) {
-//            e1.printStackTrace();
 
     }
 
