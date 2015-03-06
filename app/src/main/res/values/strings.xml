@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">PBD</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_map">MapActivity</string>
+    <string name="jing">jing</string>
+    <string name="displayMap">Google Map Display</string>
+    <string name="barcode">Barcode Scanning</string>
+    <string name="title_activity_barcode">BarcodeActivity</string>
+    <string name="title_activity_compass">CompassActivity</string>
+
+</resources>
