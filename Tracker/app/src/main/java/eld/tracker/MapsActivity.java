@@ -57,18 +57,20 @@ import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener{
     //Map attributes
     private double lat;
     private double lng;
-    private LatLng tes = new LatLng(-3.890323,107.610381);
+    private LatLng tes = new LatLng(-5.890323,107.610381);
     private LatLng JerryPosition = tes;
     static final LatLngBounds ITB = new LatLngBounds(new LatLng(-6.891476, 107.608229),new LatLng(-6.891438, 107.612242));
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-
+    private int time;
+    private TextView text;
     private String contents = "";
 
     //Compass attributes
@@ -100,6 +102,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         getRequest();
+        text = (TextView) findViewById(R.id.textView2);
+        text.setText(String.valueOf(time));
 
         // setting compass
         image = (ImageView) findViewById(R.id.imageViewCompass);
@@ -107,6 +111,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
         //setting maps
         setUpMapIfNeeded();
+
     }
 
     @Override
@@ -158,10 +163,10 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(JerryPosition).title("Marker"));
+        mMap.clear();
+        mMap.addMarker(new MarkerOptions().position(JerryPosition).title("Jerry is here!!!"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JerryPosition, 17));
     }
-
 
     // QRcode
     //product qr code mode
@@ -205,9 +210,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
                 //get the extras that are returned from the intent
-                String contents = intent.getStringExtra("SCAN_RESULT");
+                contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(this, "Content: " + contents + " Format: " + format, Toast.LENGTH_LONG);
                 toast.show();
                 postRequest();
             }
@@ -256,7 +261,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             catch (IOException e) {
                 e.printStackTrace();
             }
-            contents = json.toString();
             return json;
         }
 
@@ -266,8 +270,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             try{
                 lat = Double.parseDouble(result.getString("lat"));
                 lng = Double.parseDouble(result.getString("long"));
+                time = Integer.parseInt(result.getString("valid_until")) * 1000;
                 JerryPosition = new LatLng(lat,lng);
-                Toast toast = Toast.makeText(MapsActivity.this,"Jerry Position ("+lat+","+lng+")",Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(MapsActivity.this,"Jerry Position ("+lat+","+lng+") "+ time,Toast.LENGTH_LONG);
                 toast.show();
             }
             catch(JSONException e){
@@ -307,6 +312,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 se = new StringEntity(json.toString());
                 se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE,"application/json"));
 //                post.setEntity(new UrlEncodedFormEntity(pairs));
+                post.setEntity(se);
                 response = client.execute(post);
                 if(response != null){
                     entity = response.getEntity();
@@ -333,7 +339,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         protected void onPostExecute(String result){
             super.onPostExecute(result);
             Toast toastreply = Toast.makeText(MapsActivity.this,result,Toast.LENGTH_LONG);
-            setUpMapIfNeeded();
             toastreply.show();
         }
     }
