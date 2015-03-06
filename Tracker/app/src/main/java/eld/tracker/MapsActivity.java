@@ -1,6 +1,7 @@
 package eld.tracker;
 
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
@@ -8,7 +9,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.app.Activity;
@@ -17,7 +17,6 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 import android.hardware.Sensor;
@@ -31,45 +30,31 @@ import android.widget.TextView;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener{
     //Map attributes
-    private double lat;
-    private double lng;
     private LatLng tes = new LatLng(-5.890323,107.610381);
     private LatLng JerryPosition = tes;
-    static final LatLngBounds ITB = new LatLngBounds(new LatLng(-6.891476, 107.608229),new LatLng(-6.891438, 107.612242));
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private int time;
+    private long time = 1;
     private TextView text;
     private String contents = "";
 
@@ -101,6 +86,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
         getRequest();
         text = (TextView) findViewById(R.id.textView2);
         text.setText(String.valueOf(time));
@@ -163,6 +149,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
+        if(time == 0){
+            Toast toast = Toast.makeText(MapsActivity.this,"Getting new Request from server",Toast.LENGTH_LONG);
+            toast.show();
+            getRequest();
+        }
         mMap.clear();
         mMap.addMarker(new MarkerOptions().position(JerryPosition).title("Jerry is here!!!"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JerryPosition, 17));
@@ -193,8 +184,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 try {
                     act.startActivity(intent);
-                } catch (ActivityNotFoundException e) {
-
+                }
+                catch (ActivityNotFoundException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -236,9 +228,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             BufferedHttpEntity buffEntity = null;
             BufferedReader rd = null;
             StringBuffer sb = new StringBuffer();
-            String line = "";
+            String line;
             try{
-                response = (HttpResponse) client.execute(request);
+                response = client.execute(request);
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -268,11 +260,20 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         protected void onPostExecute(JSONObject result) {
             super.onPostExecute(result);
             try{
-                lat = Double.parseDouble(result.getString("lat"));
-                lng = Double.parseDouble(result.getString("long"));
-                time = Integer.parseInt(result.getString("valid_until")) * 1000;
+                double lat = Double.parseDouble(result.getString("lat"));
+                double lng = Double.parseDouble(result.getString("long"));
+                time = Long.parseLong(result.getString("valid_until")) * 1000;
                 JerryPosition = new LatLng(lat,lng);
-                Toast toast = Toast.makeText(MapsActivity.this,"Jerry Position ("+lat+","+lng+") "+ time,Toast.LENGTH_LONG);
+                new CountDownTimer((time - System.currentTimeMillis()), 1000) {
+                    public void onTick(long millisUntilFinished) {
+                        text.setText(String.valueOf((time - System.currentTimeMillis()) / 1000) + " seconds");
+                    }
+                    public void onFinish() {
+                        time = 0;
+                        setUpMap();
+                    }
+                }.start();
+                Toast toast = Toast.makeText(MapsActivity.this,"Jerry Position ("+lat+","+lng+")",Toast.LENGTH_LONG);
                 toast.show();
             }
             catch(JSONException e){
