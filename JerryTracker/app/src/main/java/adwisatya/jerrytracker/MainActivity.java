@@ -89,13 +89,13 @@ public class MainActivity extends Activity implements SensorEventListener {
         /* gambarkan layout activity */
         setContentView(R.layout.activity_main);
 
-//        btnSubmit = (Button) findViewById(R.id.btnSubmit);
-//        btnSubmit.setOnClickListener(new View.OnClickListener(){
-//            @Override
-//            public void onClick(View arg0){
-//                new postTokenAsync().execute();
-//            }
-//        });
+        btnSubmit = (Button) findViewById(R.id.btnSubmit);
+        btnSubmit.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View arg0){
+                new postTokenAsync().execute();
+            }
+        });
         image = (ImageView) findViewById(R.id.imageViewCompass);
         txtToken = (TextView) findViewById(R.id.txtToken);
         txtLong = (TextView) findViewById(R.id.txtLong);
@@ -247,7 +247,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             //TP.setPosition(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString())));
             //TP.setPosition(new LatLng(-6.890323,107.610381));
 
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString())),15));
+            //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(txtLat.toString()),Double.parseDouble(txtLong.toString())),15));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -314,14 +314,11 @@ public class MainActivity extends Activity implements SensorEventListener {
         }
     }
 
-    private class postTokenAsync extends AsyncTask<String,String, String>{
-        @Override
-        protected String doInBackground(String... params) {
-            return postToken();
-        }
-    }
     public String postToken(){
         String token = txtToken.toString();
+        String url = "http://167.205.32.46/pbd/api/catch";
+        InputStream inputStream = null;
+        String result = "";
         JSONObject final_data = new JSONObject();
         try {
             final_data.put("nim", "13512043");
@@ -329,11 +326,10 @@ public class MainActivity extends Activity implements SensorEventListener {
         }catch(JSONException e){
             e.printStackTrace();
         }
-
         HttpClient httpClient =  new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost("http://167.205.32.46/pbd/api/catch");
-
+        HttpPost httpPost = new HttpPost(url);
         try{
+
             httpPost.setEntity(new StringEntity(final_data.toString()));
         }catch(UnsupportedEncodingException e){
             e.printStackTrace();
@@ -343,14 +339,32 @@ public class MainActivity extends Activity implements SensorEventListener {
             httpPost.setHeader("Accept", "application/json");
             httpPost.setHeader("Content-type", "application/json");
             HttpResponse response = httpClient.execute(httpPost);
-            Log.d("Http Response:", response.toString());
-            Toast.makeText(getBaseContext(), response.toString(), Toast.LENGTH_LONG).show();
-
+            inputStream = response.getEntity().getContent();
+            //Log.d("Http Response:", response.toString());
+            if(inputStream != null) {
+                result = convertInputStreamToString(inputStream);
+                Toast.makeText(getBaseContext(), response.toString(), Toast.LENGTH_LONG).show();
+            }
+            else
+                result = "Did not work!";
         }catch(ClientProtocolException e){
             e.printStackTrace();
         }catch (IOException e){
             e.printStackTrace();
         }
-        return "";
+        return result;
+    }
+
+    private class postTokenAsync extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+
+            return postToken();
+        }
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(String result) {
+
+        }
     }
 }
