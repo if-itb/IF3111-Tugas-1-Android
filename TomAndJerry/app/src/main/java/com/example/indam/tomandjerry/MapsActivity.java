@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -47,8 +48,6 @@ import java.net.URI;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener {
     // Atribut Map
-    private LatLng jerry_whereabouts = new LatLng(0,0);
-    static final LatLngBounds ITB_whereabouts = new LatLngBounds(new LatLng(-6.891476, 107.608229),new LatLng(-6.891438, 107.612242));
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 
@@ -66,7 +65,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        setUpMapIfNeeded();
 
         image = (ImageView) findViewById(R.id.imageViewCompass);
 
@@ -75,6 +73,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
         // initialize your android device sensor capabilities
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        setUpMapIfNeeded();
     }
 
     @Override
@@ -121,7 +121,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        getRequest();
     }
 
     @Override
@@ -224,30 +224,39 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     // Jerry Tracking
 
+    // GetRequest
+    public void getRequest() {
+        GetTask gt = new GetTask();
+        gt.execute("http://167.205.32.46/pbd/api/track?nim=13512026");
+    }
     private class GetTask extends AsyncTask<String, String, JSONObject> {
         @Override
         protected JSONObject doInBackground(String... uri){
             HttpClient client = new DefaultHttpClient();
             HttpGet request = new HttpGet(URI.create(uri[0]));
-            StringBuffer strBuff = null;
+            StringBuilder sb = null;
+            HttpResponse response;
             try{
-                HttpResponse response = (HttpResponse) client.execute(request);
+                response = client.execute(request);
                 HttpEntity entity = response.getEntity();
 
                 BufferedHttpEntity buffEntity = new BufferedHttpEntity(entity);
                 BufferedReader buffRead = new BufferedReader(new InputStreamReader(buffEntity.getContent()));
                 String line;
+                sb = new StringBuilder();
                 while((line = buffRead.readLine()) != null){
-                    strBuff.append(line);
+                    sb.append(line);
                 }
-            } catch(IOException | java.lang.NullPointerException e){ e.printStackTrace();}
+            } catch(IOException e){ e.printStackTrace();}
 
             JSONObject json = null;
-
             try {
-                json = new JSONObject(strBuff.toString());
+                json = new JSONObject(sb.toString());
+            } catch(JSONException e) {e.printStackTrace();}
+
+            if(json != null) {
                 contents = json.toString();
-            } catch(JSONException | java.lang.NullPointerException e) {e.printStackTrace();}
+            }
 
             return json;
         }
@@ -255,22 +264,27 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         @Override
         protected void onPostExecute(JSONObject result){
             super.onPostExecute(result);
+            LatLng jerry_whereabouts = new LatLng(0,0);
             try{
-                double latitude = Double.parseDouble(result.getString("lat"));
-                double longitude = Double.parseDouble(result.getString("long"));
-                jerry_whereabouts = new LatLng(latitude, longitude);
-                Toast toast = Toast.makeText(MapsActivity.this, "Jerry Position ("+ latitude + "," + longitude + ")", Toast.LENGTH_LONG);
+                double lat = Double.parseDouble(result.getString("lat"));
+                double lon = Double.parseDouble(result.getString("long"));
+                jerry_whereabouts = new LatLng(lat, lon);
+                Toast toast = Toast.makeText(MapsActivity.this, "Jerry Position ("+ lat + "," + lon + ")", Toast.LENGTH_LONG);
                 toast.show();
             } catch(JSONException e){e.printStackTrace();}
-            setUpMap();
+            //setUpMap();
+
+            mMap.clear();
+            mMap.addMarker(new MarkerOptions().position(jerry_whereabouts).title("Marker"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(jerry_whereabouts, 17));
         }
     }
-    // GetRequest
-    public void getRequest() {
-        GetTask gt = new GetTask();
-        gt.execute("http://167.205.32.46/pbd/api/track?nim=13512026");
-    }
 
+    // PostRequest
+    public void postRequest(){
+        PostTask pt = new PostTask();
+        pt.execute();
+    }
     private class PostTask extends AsyncTask<Void, String, String>{
         @Override
         protected String doInBackground(Void... uri){
@@ -282,6 +296,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 json.put("token", contents);
                 StringEntity SE = new StringEntity(json.toString());
                 SE.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+                post.setEntity(SE);
                 HttpClient client = new DefaultHttpClient();
                 HttpResponse response = client.execute(post);
                 if(response != null){
@@ -289,7 +304,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     BufferedHttpEntity buffEnt = new BufferedHttpEntity(entity);
                     BufferedReader buffRead = new BufferedReader(new InputStreamReader(buffEnt.getContent()));
                     String line;
-                    StringBuffer SB = new StringBuffer();
+                    StringBuilder SB = new StringBuilder();
                     while((line = buffRead.readLine()) != null){
                         SB.append(line);
                     }
@@ -304,14 +319,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         protected void onPostExecute(String result){
             super.onPostExecute(result);
             Toast trep = Toast.makeText(MapsActivity.this, result, Toast.LENGTH_LONG);
-            setUpMapIfNeeded();
             trep.show();
         }
-    }
-    // PostRequest
-    public void postRequest(){
-        PostTask pt = new PostTask();
-        pt.execute();
     }
 
 }
