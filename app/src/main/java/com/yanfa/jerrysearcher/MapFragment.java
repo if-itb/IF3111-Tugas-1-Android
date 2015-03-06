@@ -120,6 +120,9 @@ public class MapFragment extends Fragment {
     public void loadMap(){
         final Gson gson = new Gson();
 
+        MainActivity.loadBar.setVisibility(View.VISIBLE);
+        MainActivity.loadBar.bringToFront();
+
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         String url ="http://167.205.32.46/pbd/api/track?nim=13512037";
 

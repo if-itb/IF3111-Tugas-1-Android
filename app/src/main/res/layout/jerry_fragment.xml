@@ -9,5 +9,5 @@
         android:layout_height="wrap_content"
         android:id="@+id/jerryPointer"
         android:layout_gravity="center"
-        android:src="@drawable/pointer"/>
+        android:src="@drawable/compass"/>
 </FrameLayout>
