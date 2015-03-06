@@ -22,21 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/img_compass"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/textView1"
-        android:layout_toEndOf="@+id/textView1" />
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|top"
-        android:text="Scan"
-        android:textColor="#000000"
-        android:textSize="30dp"
-        android:layout_above="@+id/scanner2"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentTop="true" />
 
     <Button
         android:id="@+id/scanner"
@@ -45,25 +31,9 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:onClick="scanQR"
-        android:text="QR Code"
+        android:text="Find Jerry!"
         android:textSize="18dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/textView1"
-        android:layout_alignStart="@+id/textView1">
+        android:layout_alignParentBottom="true">
     </Button>
 
-    <Button
-        android:id="@+id/scanner2"
-        android:layout_width="150dp"
-        android:layout_height="60dp"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:onClick="scanBar"
-        android:text="Bar Code"
-        android:textSize="18dp"
-        android:layout_above="@+id/scanner"
-        android:layout_alignLeft="@+id/scanner"
-        android:layout_alignStart="@+id/scanner">
-    </Button>
-
-    </RelativeLayout>
+</RelativeLayout>
