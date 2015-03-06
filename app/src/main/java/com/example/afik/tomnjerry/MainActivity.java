@@ -7,6 +7,7 @@ import android.view.View;
 
 
 public class MainActivity extends Activity {
+    private static final int REQUEST_QR = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +24,7 @@ public class MainActivity extends Activity {
 
     public void onClickQR(View view) {
         Intent i = new Intent(this, QRCode.class);
-        startActivity(i);
+        startActivityForResult(i,REQUEST_QR);
     }
 
 }
