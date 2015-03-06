@@ -46,6 +46,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -151,6 +152,10 @@ public class MainActivity extends ActionBarActivity implements GoogleMap.OnMarke
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
             finish();
             return true;
         }
@@ -308,7 +313,11 @@ public class MainActivity extends ActionBarActivity implements GoogleMap.OnMarke
         }
         @Override
         protected String doInBackground(String... data) {
-
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             HttpClient httpClient = new DefaultHttpClient();
             // replace with your url
             HttpPost httpPost = new HttpPost("http://167.205.32.46/pbd/api/catch");
@@ -349,8 +358,24 @@ public class MainActivity extends ActionBarActivity implements GoogleMap.OnMarke
             }
             if (result != null)
             {
-                Intent nextScreen = new Intent(getApplicationContext(), SecondActivity.class);
-                startActivity(nextScreen);
+                try
+                {
+                    JSONObject obj = new JSONObject(result);
+                    if (obj.getInt("code") == 200)
+                    {
+                        Intent nextScreen = new Intent(getApplicationContext(), SecondActivity.class);
+                        startActivity(nextScreen);
+                    }
+                    else
+                    {
+                        Toast.makeText(getBaseContext(), "Failed to Catch Jerry",
+                                Toast.LENGTH_LONG).show();
+                    }
+                }
+                catch (JSONException e)
+                {
+
+                }
             }
             else
             {
@@ -378,6 +403,7 @@ public class MainActivity extends ActionBarActivity implements GoogleMap.OnMarke
             if (resultCode == RESULT_OK) {
                 //get the extras that are returned from the intent
                 String token = intent.getStringExtra("SCAN_RESULT");
+                Log.i("Token : ",token);
                 new CatchJerryTask(MainActivity.this).execute("13512100", token);
             }
         }
