@@ -17,8 +17,8 @@ import android.widget.Toast;
  * Created by Rikysamuel on 3/6/2015.
  */
 public class fragmentStart extends Fragment {
-    private static final int REQUEST_CODE = 10;
-
+    private static final int REQUEST_CODE = 10;     // http request
+    private static final int QR_REQUEST_CODE = 20;  // qr-code
 
     private double latitude;
     private double longitude;
@@ -43,6 +43,20 @@ public class fragmentStart extends Fragment {
             }
         });
 
+        //catchOnClick
+        ImageButton catchJerry = (ImageButton) v.findViewById(R.id.imageButton2); // you have to use rootview object..
+        catchJerry.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v){
+                Toast.makeText(getActivity(), "QR-Code Scanner", Toast.LENGTH_LONG).show();
+                Intent i = new Intent(getActivity(),qrCode.class);
+                startActivityForResult(i, QR_REQUEST_CODE);
+                TextView t = (TextView) getActivity().findViewById(R.id.textView);
+                t.setText("Opening App... Please wait.....");
+            }
+        });
+
         return v;
     }
 
@@ -64,6 +78,14 @@ public class fragmentStart extends Fragment {
             t.setText("long: " + longitude + " lat: " + latitude + " val: " + valid_until);
             alert();
         }
+        if (resultCode == Activity.RESULT_OK && requestCode == QR_REQUEST_CODE){
+            String contents = "";
+            if (data.hasExtra("contents")){
+                contents = data.getExtras().getString("contents");
+            }
+            TextView t = (TextView) getActivity().findViewById(R.id.textView);
+            t.setText("contents: " + contents);
+        }
     }
 
     public void alert(){
@@ -78,8 +100,6 @@ public class fragmentStart extends Fragment {
                         i.putExtra("lat", latitude);
                         i.putExtra("val", valid_until);
                         startActivity(i);
-                        TextView t = (TextView) getActivity().findViewById(R.id.textView);
-                        t.setText("Google Maps......");
                     }
                 })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {

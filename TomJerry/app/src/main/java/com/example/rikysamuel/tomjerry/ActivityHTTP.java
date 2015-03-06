@@ -122,7 +122,6 @@ public class ActivityHTTP extends Activity {
                     result += line;
                 }
 
-//                Log.d(TAG, result);
                 parse(result);
                 lock = false;
 
