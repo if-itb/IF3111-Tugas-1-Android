@@ -174,6 +174,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
         mMap.moveCamera(center);
         mMap.animateCamera(zoom);
+
     }
 
 
@@ -187,6 +188,19 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
         mMap.addMarker(mapMarkerMe.position(new LatLng(lat, lon)).title("My Position")
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerme)));
+
+
+        try {
+            RequestTask RT = new RequestTask();
+            RT.execute("http://167.205.32.46/pbd/api/track?nim=13512064");
+            String responseString = null;
+            responseString = RT.get();
+            extractResponseString(responseString);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 
     public void exit(View view) {
@@ -195,10 +209,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
 
     public void findJerry(View view) throws IOException, ExecutionException, InterruptedException {
-        RequestTask RT = new RequestTask();
-        RT.execute("http://167.205.32.46/pbd/api/track?nim=13512064");
-        String responseString = RT.get();
-        extractResponseString(responseString);
 
     }
 
@@ -207,7 +217,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             try {
                 JSONObject jsonObj = new JSONObject(jsonStr);
                 String lantitude = jsonObj.getString("lat");
-                String longitude = jsonObj.getString("lon");
+                String longitude = jsonObj.getString("long");
                 String validTime = jsonObj.getString("valid_until");
 
                 // convert date
