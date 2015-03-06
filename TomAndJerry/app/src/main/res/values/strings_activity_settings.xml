@@ -1,0 +1,13 @@
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_title_api_endpoint">API Endpoint</string>
+    <string name="pref_default_api_endpoint">http://167.205.32.46/pbd</string>
+
+    <string name="pref_title_nim">NIM</string>
+    <string name="pref_default_nim">13512076</string>
+
+</resources>
