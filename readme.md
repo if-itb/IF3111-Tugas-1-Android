@@ -45,3 +45,17 @@ Anda dibebaskan dalam berkreasi mendesain tampilan selama fitur-fitur pada spesi
 - MIT License
 - "Tom and Jerry" are TM and copyright Turner Entertainment (where the rights stand today via Warner Bros). All rights
 reserved. Any reproduction, duplication or distribution of these materials in any form is expressly prohibited.
+
+## Cara Pemakaian
+### Main Screen
+Pada main screen terdapat 2 buah tombol. Tombol <b>Track Jerry!</b> digunakan untuk mencari lokasi Jerry dengan cara bertanya kepada Spike. Sedangkan tombol <b>Catch Jerry!</b> digunakan untuk menangkap Jerry dengan cara membaca QR code, kemudian secara otomatis mengirimkan token yang didapat dari QR Code tersebut ke Server untuk di validasi.
+
+### Track Jerry! Screen
+Pada layar ini terdapat sebuah tombol, yaitu <b>View Map</b>. Tombol ini digunakan untuk melihat posisi Jerry sesuai dengan Latitude dan Longitude yang diberitahu oleh Spike pada Google Map.
+
+### View Map Screen
+Pada layar ini, titik tengah map secara otomatis akan diletakkan pada posisi Jerry. Terdapat 3 buah tombol pada bagian atas map, yaitu tombol kompas, jerry, dan GPS. Tombol <b>kompas</b> digunakan untuk memunculkan kompas. Tombol <b>Jerry</b> digunakan untuk melihat posisi Jerry pada map. Sedangkan tombol <b>GPS</b> digunakan untuk melihat posisi <i>user</i> pada saat ini. Tombol <b>+</b> dan <b>-</b> dapat digunakan untuk mengatur zooming pada map.
+<br><b>Note:</b> Jika Latitude dan Longitude yang diberitahu oleh Spike kosong, berarti terdapat masalah pada koneksi internet.
+
+### Catch Jerry! Screen
+Pada layar ini terdapat sebuah tombol, yaitu tombol <b>Catch!</b>. Ketika user menekan tombol ini, maka aplikasi ini akan secara otomatis menggunakan kamera untuk mendeteksi dan membaca sebuah QR Code. Untuk membaca QR Code, cukup arahkan saja kamera ke QR Code. Setelah berhasil dibaca, program secara otomatis akan mengirimkan plaintext dari QR Code tersebut ke server untuk divalidasi. Response dari server akan ditampilkan pada bagian Status dan Result. <b>Status</b> akan berisi apakah pengiriman data ke server berhasil. Bisa berupa angka 200, 403, 400, dsb. Sedangkan <b>Result</b> akan berisi respon dari server terhadap QR Code yang telah dibaca dan dikirimkan ke server.
