@@ -34,7 +34,7 @@ Anda dibebaskan dalam berkreasi mendesain tampilan selama fitur-fitur pada spesi
 <b>Response</b>: {"lat":"-6.890323","long":"107.610381","valid_until":1425833999}
 
 ## Catch
-<b>Header request</b> <br\>
+<b>Header request</b> <br\><br\>
 Content-type: application/json <br\>
 <b>Parameter request </b>
 <ul type = "list-style-type:disc"> 
@@ -46,6 +46,9 @@ Content-type: application/json <br\>
 <li> status : <b>200 -> OK</b> (pengumpulan sukses, secret_token sesuai) </li>
 <li> status : <b>400 -> MISSING PARAMETER</b> (paramter yang dikirim tidak lengkap yaitu 2 parameter) </li>
 <li> status : <b>403 -> FORBIDDEN </b>(terdapat parameter yang salah (nim atau secret token) </li>
-## License
 
-MIT License
+## License
+<ul type = "list-style-type:disc">
+<li>MIT License</li>
+<li>"Tom and Jerry" are TM and copyright Turner Entertainment (where the rights stand today via Warner Bros). All rights reserved. Any reproduction, duplication or distribution of these materials in any form is expressly prohibited. </li>
+</ul>
