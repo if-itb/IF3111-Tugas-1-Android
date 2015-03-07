@@ -40,6 +40,7 @@ import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static pbd.jerrytracker.R.*;
@@ -67,6 +68,7 @@ public class TrackersActivity extends FragmentActivity implements SensorEventLis
     private double longitude;
     private long validuntil_epoch;
     private Date locationends;
+    private SimpleDateFormat simplelocationends;
     private long timeremains;
 
     @Override
@@ -124,7 +126,7 @@ public class TrackersActivity extends FragmentActivity implements SensorEventLis
                     longitude = Double.valueOf(longitude_str);
                     validuntil_epoch = Integer.valueOf(valid_str);
                     long current_time = System.currentTimeMillis()/1000;
-                    locationends = new Date(validuntil_epoch);
+                    locationends = new Date(validuntil_epoch*1000);
                     timeremains = validuntil_epoch - current_time;
                     Log.d("valid_until in strings",valid_str);
                     Log.d("valid until in long",String.valueOf(validuntil_epoch));
@@ -135,7 +137,7 @@ public class TrackersActivity extends FragmentActivity implements SensorEventLis
                     new CountDownTimer(timeremains*1000,1000){
                         public void onTick(long secondsleft) {
                             TextView timeview = (TextView) findViewById(id.textView);
-                            timeview.setText("Jerry will move in: "+ secondsleft/1000);
+                            timeview.setText("Jerry will move in: "+ secondsleft/1000 + "\n(" + locationends.toString() + ")");
                             Log.d("time remains", String.valueOf(secondsleft));
                         }
                         public void onFinish(){
@@ -331,8 +333,8 @@ public class TrackersActivity extends FragmentActivity implements SensorEventLis
      */
     private void setUpMap() {
         Log.d("TrackersActivity","map set");
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-6.898198, 107.612409),10));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-6.898198, 107.612409),13));
         if(latitude!=0&&longitude!=0)
-            mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Jerry Location, valid until: " + locationends.toString()));
+            mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Jerry Location"));
     }
 }
