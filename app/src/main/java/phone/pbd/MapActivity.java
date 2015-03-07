@@ -310,7 +310,7 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
             googleMap.animateCamera(CameraUpdateFactory.zoomTo(10));
             googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!"));
             if (countDownTimer != null) countDownTimer.cancel();
-            countDownTimer = new CountDownTimer(/*position.getValidUntilInDouble() - System.currentTimeMillis()*/50000, 1000) {
+            countDownTimer = new CountDownTimer(position.getValUntilRemainingInMilliseconds(), 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
 //                    Date d = new Date(millisUntilFinished);
