@@ -141,7 +141,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         // Get longitude of the current location
         double longitude = myLocation.getLongitude();
 
-
         mPolyline = mMap.addPolyline(new PolylineOptions()
                 .add(new LatLng(latitude, longitude), new LatLng(lat, lon))
                 .width(5)
@@ -280,7 +279,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 lat = Double.parseDouble(result.getString("lat"));
                 lon = Double.parseDouble(result.getString("long"));
                 val = Integer.parseInt(result.getString("valid_until"));
-                Toast toastmap = Toast.makeText(MapsActivity.this,"your lat : "+lat+",your long : "+lon,Toast.LENGTH_LONG);
+                Toast toastmap = Toast.makeText(MapsActivity.this,"your lat : "+lat+", your long : "+lon,Toast.LENGTH_LONG);
                 toastmap.show();
             } catch (JSONException e) {
                 e.printStackTrace();
