@@ -1,7 +1,6 @@
 package tony.tom_and_jerry;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -9,7 +8,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -20,7 +18,9 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -28,7 +28,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.apache.http.HttpResponse;
@@ -49,6 +48,7 @@ public class MapActivity extends Activity implements SensorEventListener {
     private LatLng jerryPosition;
     private TextView jerryCoordinateText, tomCoordinateText,timeLimitText;
     private ImageView compassImage;
+    private Switch compassSwitchView;
     private boolean showTomPos = false;
 
     /* Magnet Sensor Variables */
@@ -62,7 +62,7 @@ public class MapActivity extends Activity implements SensorEventListener {
     private float[] mR = new float[9];
     private float[] mOrientation = new float[3];
     private float mCurrentDegree = 0f;
-
+    private boolean compassOn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,10 +92,39 @@ public class MapActivity extends Activity implements SensorEventListener {
         timeLimitText.setSingleLine(false);
         timeLimitText.setTypeface(fontType);
 
+        compassSwitchView = (Switch) findViewById(R.id.compassSwitch);
+        compassSwitchView.setTypeface(fontType);
+
         Button tomPosButton = (Button) findViewById(R.id.tomPositionButton);
         tomPosButton.setTypeface(fontType);
 
         compassImage = (ImageView) findViewById(R.id.compass);
+        //attach a listener to check for changes in state
+        compassSwitchView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView,
+                                         boolean isChecked) {
+
+                if (isChecked) {
+                    compassOn = true;
+                    compassImage.setAlpha(1f);
+                }
+                else {
+                    compassOn = false;
+                    compassImage.setAlpha(0.0f);
+                }
+            }
+        });
+
+        if (compassSwitchView.isChecked()) {
+            compassOn = true;
+            compassImage.setAlpha(1f);
+        }
+        else {
+            compassOn = false;
+            compassImage.setAlpha(0.0f);
+        }
     }
 
     @Override
@@ -159,26 +188,31 @@ public class MapActivity extends Activity implements SensorEventListener {
                 double longitude = jObject.getDouble("long");
                 int validUntil = jObject.getInt("valid_until");
 
-                long nowTime = System.currentTimeMillis();
-                int duration = validUntil - (int)nowTime;
+                long nowTime = System.currentTimeMillis()/1000L;
+                long duration = validUntil - nowTime;
 
-                new CountDownTimer(duration, 1000) {
+                if (duration < 0) {
+                    new JerryTracker().execute("http://167.205.32.46/pbd/api/track?nim=13512018");
+                }
+                else {
+                    new CountDownTimer(duration * 1000, 1000) {
 
-                    @Override
-                    public void onTick(long millisUntilFinished) {
-                        int hour, minute, second;
-                        hour = ((int)(millisUntilFinished)/1000) / 3600;
-                        minute = (((int)millisUntilFinished)/1000 - hour * 3600) / 60;
-                        second = ((int)millisUntilFinished/1000 - hour * 3600) % 60;
-                        timeLimitText.setText("Searching\nTimeLeft\n" + hour + ":" + minute + ":" + second);
-                    }
+                        @Override
+                        public void onTick(long millisUntilFinished) {
+                            int hour, minute, second;
+                            int dur = (int) millisUntilFinished / 1000;
+                            hour = dur / 3600;
+                            minute = (dur - hour * 3600) / 60;
+                            second = (dur - hour * 3600) % 60;
+                            timeLimitText.setText("Searching\nTimeLeft\n" + hour + ":" + minute + ":" + second);
+                        }
 
-                    @Override
-                    public void onFinish() {
-                        new JerryTracker().execute("http://167.205.32.46/pbd/api/track?nim=13512018");
-                    }
-                }.start();
-
+                        @Override
+                        public void onFinish() {
+                            new JerryTracker().execute("http://167.205.32.46/pbd/api/track?nim=13512018");
+                        }
+                    }.start();
+                }
                 /* Get Jerry's Position */
                 jerryPosition = new LatLng(latitude,longitude);
                 jerryCoordinateText.setText("Jerry's Position\n" + "Lat: " + jerryPosition.latitude + "\nLong: " + jerryPosition.longitude);
@@ -244,31 +278,33 @@ public class MapActivity extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor == mAccelerometer) {
-            System.arraycopy(event.values, 0, mLastAccelerometer, 0, event.values.length);
-            mLastAccelerometerSet = true;
-        } else if (event.sensor == mMagnetometer) {
-            System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
-            mLastMagnetometerSet = true;
-        }
-        if (mLastAccelerometerSet && mLastMagnetometerSet) {
-            SensorManager.getRotationMatrix(mR, null, mLastAccelerometer, mLastMagnetometer);
-            SensorManager.getOrientation(mR, mOrientation);
-            float azimuthInRadians = mOrientation[0];
-            float azimuthInDegress = (float)(Math.toDegrees(azimuthInRadians)+360)%360;
-            RotateAnimation ra = new RotateAnimation(
-                    mCurrentDegree,
-                    -azimuthInDegress,
-                    Animation.RELATIVE_TO_SELF, 0.5f,
-                    Animation.RELATIVE_TO_SELF,
-                    0.5f);
+        if (compassOn) {
+            if (event.sensor == mAccelerometer) {
+                System.arraycopy(event.values, 0, mLastAccelerometer, 0, event.values.length);
+                mLastAccelerometerSet = true;
+            } else if (event.sensor == mMagnetometer) {
+                System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
+                mLastMagnetometerSet = true;
+            }
+            if (mLastAccelerometerSet && mLastMagnetometerSet) {
+                SensorManager.getRotationMatrix(mR, null, mLastAccelerometer, mLastMagnetometer);
+                SensorManager.getOrientation(mR, mOrientation);
+                float azimuthInRadians = mOrientation[0];
+                float azimuthInDegress = (float) (Math.toDegrees(azimuthInRadians) + 360) % 360;
+                RotateAnimation ra = new RotateAnimation(
+                        mCurrentDegree,
+                        -azimuthInDegress,
+                        Animation.RELATIVE_TO_SELF, 0.5f,
+                        Animation.RELATIVE_TO_SELF,
+                        0.5f);
 
-            ra.setDuration(250);
+                ra.setDuration(250);
 
-            ra.setFillAfter(true);
+                ra.setFillAfter(true);
 
-            compassImage.startAnimation(ra);
-            mCurrentDegree = -azimuthInDegress;
+                compassImage.startAnimation(ra);
+                mCurrentDegree = -azimuthInDegress;
+            }
         }
     }
 

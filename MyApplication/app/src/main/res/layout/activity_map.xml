@@ -24,30 +24,41 @@
         android:layout_weight="1">
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/my_position"
             android:id="@+id/tomPositionButton"
             android:clickable="true"
             android:onClick="locateTomButton"
             android:textSize="9dp"
-            android:layout_gravity="center_vertical" />
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.1" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/tomPosition"
             android:textIsSelectable="false"
             android:layout_gravity="center_vertical"
-            android:layout_weight="0.5" />
+            android:layout_weight="0.2" />
+
+        <Switch
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/compassSwitch"
+            android:layout_weight="0.1"
+            android:checked="true"
+            android:layout_gravity="center_vertical" />
 
         <ImageView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/compass"
             android:src="@drawable/ic_compass"
+            android:alpha="1"
             android:adjustViewBounds="true"
-            android:scaleType="fitCenter" />
+            android:scaleType="fitCenter"
+            android:layout_weight="0.1" />
 
     </LinearLayout>
 
