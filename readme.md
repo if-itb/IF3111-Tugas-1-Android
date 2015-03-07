@@ -29,6 +29,9 @@ Anda dibebaskan dalam berkreasi mendesain tampilan selama fitur-fitur pada spesi
 
 <b>Alamat Server: 167.205.32.46/pbd </b>
 
+## Track
+<b>Request: <EndPoint>/api/track?nim=13512018 </b> <br\>
+<b>Response: {"lat":"-6.890323","long":"107.610381","valid_until":1425833999} </b>
 
 ## License
 
