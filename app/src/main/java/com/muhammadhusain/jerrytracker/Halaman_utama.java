@@ -1,9 +1,11 @@
 package com.muhammadhusain.jerrytracker;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 
 public class Halaman_utama extends ActionBarActivity {
@@ -21,6 +23,12 @@ public class Halaman_utama extends ActionBarActivity {
         getMenuInflater().inflate(R.menu.menu_halaman_utama, menu);
         return true;
     }
+
+    public void onClick(View view) {
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
