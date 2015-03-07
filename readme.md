@@ -11,7 +11,7 @@ Di kawasan ITB, terdapat banyak kucing yang berkeliaran. Salah satu kucing yang 
 <li><b>Geomagnetic Sensor</b><br\>Peserta diminta memanfaatkan Geomagnetic Sensor untuk menggambarkan arah mata angin yang menunjukkan arah utara dan selatan dengan benar.</li>
 <li><b>QR-Code Scanner</b><br\>Setelah mendapatkan posisi Jerry, peserta harus menangkap Jerry dengan melakukan scanning token dari QR-code yang disediakan dan dikirimkan ke server. Peserta diharapkan mencoba menggunakan library yang sudah tersedia di internet. (contoh : http://examples.javacodegeeks.com/android/android-barcode-and-qr-scanner-example/) </li>
 </ol>
-<br\> 
+
 ## Non Functional Requirement
 
 <ul type ="list-style-type:disc">
@@ -21,7 +21,7 @@ Di kawasan ITB, terdapat banyak kucing yang berkeliaran. Salah satu kucing yang 
 <li>Source code diusahakan agar terstruktur dengan baik (Silahkan membaca guidelines standar yang dirilis di https://source.android.com/source/code-style.html) </li>
 <li>Minimal Android API 9 (GingerBread).</li> </ul>
 
-## Spesifikasi Tampilan
+## Spesifikasi Tampilan <\br>
 Anda dibebaskan dalam berkreasi mendesain tampilan selama fitur-fitur pada spesifikasi aplikasi tercapai dan aplikasi dapat digunakan sesuai dengan alur pengujian yang diberikan.
 
 <b> Response Status </b> <br\>
