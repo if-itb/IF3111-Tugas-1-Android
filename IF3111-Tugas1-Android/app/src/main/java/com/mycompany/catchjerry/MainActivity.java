@@ -228,8 +228,8 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
             else {
                 result = response.getStatusLine().getStatusCode() + " ERROR";
             }
-            Log.d("cek",result);
-            Toast.makeText(getApplicationContext(),result,Toast.LENGTH_LONG).show();
+            Log.d("[SCAN RESULT]",result);
+
         } catch (Exception ex) {
             Log.d("[POST]", "[POST] send post caught exception");
         } finally {
