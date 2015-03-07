@@ -3,6 +3,7 @@ package com.example.afik.tomnjerry;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -21,6 +22,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -34,7 +36,6 @@ import java.util.List;
 public class MainActivity extends Activity {
     private static final int REQUEST_QR = 4;
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
-    boolean lock;
     String content;
 
     @Override
@@ -60,8 +61,32 @@ public class MainActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_QR) {
             content = data.getStringExtra("SCAN_RESULT");
-            new HttpAsyncTask().execute("http:167.205.32.46/pbd/api/catch");
+            String respond = POST("http://167.205.32.46/pbd/api/catch");
+            Log.d("respond", respond);
+            JSONObject respon = null;
+            int code;
+            try {
+                respond = respond.substring(1,respond.length());
+                respon = new JSONObject(respond);
+                code = respon.getInt("code");
+                if (code == 200) {
+                    Log.d("Success: ", "send");
+                    Toast.makeText(getBaseContext(), "Token valid!", Toast.LENGTH_LONG).show();
+                }
+                else if (code == 400){
+                    Log.d("Param: ", "400");
+                    Toast.makeText(getBaseContext(), "Incomplete parameters", Toast.LENGTH_LONG).show();
+                }
+                else if (code == 403){
+                    Log.d("Wrong: ", "403");
+                    Toast.makeText(getBaseContext(), "Wrong parameters", Toast.LENGTH_LONG).show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
+
+            //new HttpAsyncTask().execute();
         }
     }
 
@@ -101,7 +126,6 @@ public class MainActivity extends Activity {
         return downloadDialog.show();
     }
 
-
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
@@ -111,12 +135,12 @@ public class MainActivity extends Activity {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            if (result.equals("200 OK"))
+            if (result.equals("200"))
                 Toast.makeText(getBaseContext(), "Token valid!", Toast.LENGTH_LONG).show();
-            else if (result.equals("400 MISSING PARAMETER")){
+            else if (result.equals("400")){
                 Toast.makeText(getBaseContext(), "Incomplete parameters", Toast.LENGTH_LONG).show();
             }
-            else if (result.equals("403 FORBIDDEN")){
+            else if (result.equals("403")){
                 Toast.makeText(getBaseContext(), "Wrong parameters", Toast.LENGTH_LONG).show();
             }
         }
