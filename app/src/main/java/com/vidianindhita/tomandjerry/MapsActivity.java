@@ -198,8 +198,6 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
                 //get the extras that are returned from the intent
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                //Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
-                //toast.show();
                 SendLocation(contents);
             }
         }
@@ -262,7 +260,6 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
 
                                 @Override
                                 public void onTick(long millisUntilFinished) {
-                                    //clock.setText("Remaining time :" + millisUntilFinished/1000);
                                     long seconds = millisUntilFinished/1000;
                                     long second = seconds % 60;
                                     long minute = seconds / 60 % 60;
@@ -312,7 +309,13 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
                             String message = data.getString("message");
 
                             //message output
-                            Toast.makeText(getApplicationContext(),message,Toast.LENGTH_LONG).show();
+                            if (code == 200) {
+                                Toast.makeText(getApplicationContext(), "Congratulations! You save the cheese!", Toast.LENGTH_LONG).show();
+                            } else if (code == 400) {
+                                Toast.makeText(getApplicationContext(), "Oops! There's missing parameter!", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Oops! It's forbidden!", Toast.LENGTH_LONG).show();
+                            }
                         }
                         catch (JSONException e){
 
