@@ -2,6 +2,7 @@ package com.example.rikysamuel.tomjerry;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -110,4 +111,6 @@ public class fragmentStart extends Fragment {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
+
+
 }
