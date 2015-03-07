@@ -14,6 +14,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by Rikysamuel on 3/6/2015.
  */
@@ -85,7 +88,14 @@ public class fragmentStart extends Fragment {
                 response = data.getExtras().getString("response");
             }
             TextView t = (TextView) getActivity().findViewById(R.id.textView);
-            t.setText("response: " + response);
+            try {
+                JSONObject jso = new JSONObject(response);
+                String msg = jso.getString("message");
+                int code = jso.getInt("code");
+                t.setText("Message: " + msg + " with code: " + code);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 

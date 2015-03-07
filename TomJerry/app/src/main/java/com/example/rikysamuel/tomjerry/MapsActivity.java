@@ -50,7 +50,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private float currentDegree = 0f;
     private SensorManager mSensorManager;
     String contents;
-    TextView text1, text2;
 
 
     @Override
@@ -59,8 +58,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         setContentView(R.layout.activity_maps);
 
         Bundle extras = getIntent().getExtras();
-        text1 = (TextView) findViewById(R.id.textView4);
-        text2 = (TextView) findViewById(R.id.textView5);
 
         //get the data
         longitude = extras.getDouble("long");
@@ -192,9 +189,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
         // Zoom in the Google Map
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-
-        // Setting latitude and longitude in the TextView tv_location
-        text1.setText("Latitude:" +  latitude  + ", Longitude:"+ longitude );
 
     }
 
