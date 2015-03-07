@@ -29,6 +29,7 @@ Prosedur penangkapan dilakukan dengan pemanggilan api catch pada endpoint dengan
 
 ## License
 "Tom and Jerry" are TM and copyright Turner Entertainment (where the rights stand today via Warner Bros).
-Google Map
+
+Google Map License
 
 MIT License
