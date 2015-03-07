@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">JerryTracker</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_qrcode_scanner">QRCodeScannerActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 </resources>
