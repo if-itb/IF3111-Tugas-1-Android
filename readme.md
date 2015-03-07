@@ -15,8 +15,8 @@ Dalam tugas ini, peserta diharapkan dapat membuat aplikasi android yang membantu
 Functional Requirement
 
 > 1. GPS Tracking
-
-> Posisi yang diberikan Spike berbentuk latitude dan longitude. Lama persembunyian Jerry juga diberikan dalam waktu UTC+7. Setelah waktu persembunyian habis, posisi Jerry akan berubah.
+>
+ Posisi yang diberikan Spike berbentuk latitude dan longitude. Lama persembunyian Jerry juga diberikan dalam waktu UTC+7. Setelah waktu persembunyian habis, posisi Jerry akan berubah.
 	Aplikasi dapat menampilkan posisi Jerry. Untuk jenis tampilan dibebaskan kepada peserta (misalnya map, atau penunjuk arah, atau indikator sederhana lainnya), silahkan dibuat sekreatif mungkin.
 
 >2. Geomagnetic Sensor
