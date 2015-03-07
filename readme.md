@@ -50,7 +50,7 @@ Content-type: application/json <br\>
 ## License
 <ul type ="list-style-type:disc">
 <li>MIT License </li>
-<li>"Tom and Jerry" are TM and copyright Turner Entertainment (where the rights stand today via Warner Bros). All rights reserved. Any reproduction, duplication or distribution of these materials in any form is expressly prohibited.</li>
+<li>"Tom and Jerry" are TM and copyright Turner Entertainment (where the rights stand today via Warner Bros). All rights reserved. Any reproduction, duplication or distribution of these materials in any form is expressly prohibited.</li> </ul>
 
 ## HOW TO PLAY "Catch Jerry"
 ## MAIN SCREEN
