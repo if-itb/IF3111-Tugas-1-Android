@@ -6,30 +6,50 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.example.afik.tomnjerry.MainActivity">
 
-    <Button
+    <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Where&apos;s Jerry?"
-        android:id="@+id/toMaps"
+        android:id="@+id/ibMaps"
+        android:src="@drawable/map_100"
+        android:clickable="true"
+        android:onClick="onClickMaps"
+        android:maxHeight="50dp"
+        android:maxWidth="50dp"
+        android:paddingBottom="10dp"
+        android:focusable="false"
+        android:focusableInTouchMode="true"
+        android:paddingTop="10dp"
+        android:layout_marginBottom="50dp"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="132dp"
-        android:typeface="monospace"
-        android:theme="@style/Base.TextAppearance.AppCompat.Button"
-        android:onClick="onClickMaps" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="20dp" />
 
-    <Button
+    <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tell spike"
-        android:id="@+id/toQr"
-        android:typeface="monospace"
-        android:theme="@style/Base.TextAppearance.AppCompat.Button"
-        android:layout_alignTop="@+id/toMaps"
-        android:layout_marginTop="66dp"
-        android:layout_alignRight="@+id/toMaps"
-        android:layout_alignEnd="@+id/toMaps"
-        android:layout_alignLeft="@+id/toMaps"
-        android:layout_alignStart="@+id/toMaps"
-        android:onClick="onClickQR" />
+        android:id="@+id/ibQr"
+        android:src="@drawable/qr_100"
+        android:clickable="true"
+        android:focusable="false"
+        android:focusableInTouchMode="true"
+        android:maxHeight="50dp"
+        android:maxWidth="50dp"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:layout_alignTop="@+id/ibMaps"
+        android:layout_toRightOf="@+id/ibMaps"
+        android:layout_toEndOf="@+id/ibMaps"
+        android:onClick="scanQR" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="0dp"
+        android:src="@drawable/header"
+        android:layout_above="@+id/ibQr"
+        android:layout_marginBottom="30dp" />
 </RelativeLayout>

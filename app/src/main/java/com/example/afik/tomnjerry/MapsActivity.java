@@ -1,42 +1,64 @@
 package com.example.afik.tomnjerry;
 
+import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Toast;
+import android.os.Handler;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONArray;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLConnection;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener {
     private double lat, lon;
-    private int valid_until;
+    private String valid_until;
+    private String dvalid;
     private GoogleMap mMap;
     private ImageView image;
     private float currentDegree = 0f;
     private SensorManager mSensorManager;
+    JSONObject json;
+    private final String url_string = "http://167.205.32.46/pbd/api/track?nim=13512077";
 
     //TextView tvHeading;
 
@@ -44,12 +66,19 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        setUpMapIfNeeded();
-        // our compass image
-        image = (ImageView) findViewById(R.id.imageViewCompass);
+        if (isConnected()) {
 
-        // initialize your android device sensor capabilities
-        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+            setUpMapIfNeeded();
+            // our compass image
+            image = (ImageView) findViewById(R.id.imageViewCompass);
+
+            // initialize your android device sensor capabilities
+            mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        }
+        else {
+            Toast toast = Toast.makeText(this, "You are not connected", Toast.LENGTH_LONG);
+            toast.show();
+        }
     }
 
     @Override
@@ -57,7 +86,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         super.onResume();
         setUpMapIfNeeded();
         // for the system's orientation sensor registered listeners
-        mSensorManager.registerListener((android.hardware.SensorEventListener) this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_GAME);
     }
 
@@ -124,7 +153,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                setUpMap();
+                //setUpMap();
+                callAsynchronousTask();
             }
         }
     }
@@ -136,67 +166,137 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap(){
-        getLongLat();
-        System.out.println("lat :" + lat + " long : " + lon);
-        mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("Jerry's here"));
-    }
+        //callAsynchronousTask();
+        //JSONParse JSONParse = new JSONParse();
 
 
-    private void getLongLat() {
-        try {
-            URL url = new URL("http:167.205.32.46/pbd/api/track?nim=13512077");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000 /* milliseconds */);
-            conn.setConnectTimeout(15000 /* milliseconds */);
-            conn.setRequestMethod("GET");
-            conn.setDoInput(true);
-            // Starts the query
-            conn.connect();
-            InputStream stream = conn.getInputStream();
+//        long epoch = Long.parseLong(valid_until);
+//        Date valid = new Date(epoch*1000);
+//        Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        dvalid = formatter.format(valid);
 
-            String data = convertInputStreamToString(stream);
-            System.out.println(data);
-            readAndParseJSON(data);
-            stream.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void readAndParseJSON(String in) {
-        try {
-            JSONObject reader = new JSONObject(in);
-            lat = reader.getDouble("lat");
-            lon = reader.getDouble("lon");
-            valid_until = reader.getInt("valid_until");
-
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
 
     }
 
-    public static String convertInputStreamToString(InputStream ists)
-            throws IOException {
-        if (ists != null) {
-            StringBuilder sb = new StringBuilder();
-            String line;
-
-            try {
-                BufferedReader r1 = new BufferedReader(new InputStreamReader(
-                        ists, "UTF-8"));
-                while ((line = r1.readLine()) != null) {
-                    sb.append(line).append("\n");
-                }
-            } finally {
-                ists.close();
+    public void callAsynchronousTask() {
+        final Handler handler = new Handler();
+        Timer timer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    public void run() {
+                        try {
+                            new JSONParse().execute("http://167.205.32.46/pbd/api/track?nim=13512077");
+                        } catch (Exception e) {
+                            // TODO Auto-generated catch block
+                        }
+                    }
+                });
             }
-            return sb.toString();
-        } else {
-            return "";
+        };
+        timer.schedule(doAsynchronousTask, 0, 50000); //execute in every 50000 ms
+    }
+
+    private class JSONParse extends AsyncTask<String, Void ,LatLng> {
+        @Override
+        protected LatLng doInBackground(String... args) {
+            LatLng loc=null;
+            try {
+                String jsons = getJSONFromUrl(args[0]);
+                JSONObject reader = new JSONObject(jsons);
+                lat = reader.getDouble("lat");
+                Log.d("lat :", String.valueOf(lat));
+                lon = reader.getDouble("long");
+                Log.d("lon :", String.valueOf(lon));
+                valid_until = reader.getString("valid_until");
+                loc = new LatLng(lat,lon);
+                System.out.println("lat :" + lat + " long : " + lon);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                loc = new LatLng(0,0);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            return loc;
         }
+        @Override
+        protected void onPostExecute(LatLng coordinate) {
+            mMap.setMyLocationEnabled(true);
+            CameraUpdate Loc = CameraUpdateFactory.newLatLngZoom(coordinate, 17);
+            mMap.animateCamera(Loc);
+            String snippet_text = "until " + valid_until;
+            Marker Jerry = mMap.addMarker(new MarkerOptions()
+                    .position(coordinate)
+                    .title("Jerry is here")
+                    .snippet(snippet_text));
+            Jerry.showInfoWindow();
+        }
+    }
+
+    public String getJSONFromUrl(String... params) throws MalformedURLException {
+       String response = "";
+       for(String url: params){
+            DefaultHttpClient client = new DefaultHttpClient();
+            HttpGet httpGet = new HttpGet(url);
+            try{
+                HttpResponse execute = client.execute(httpGet);
+                InputStream content = execute.getEntity().getContent();
+                BufferedReader br = new BufferedReader(new InputStreamReader(content));
+                String s = "";
+                while((s = br.readLine()) != null){
+                    response += s;
+                }
+            } catch (ClientProtocolException e){
+                e.printStackTrace();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+        response = response.substring(1,response.length());
+        Log.d("Response ", response);
+        return response;
+//        String response = "";
+//        InputStream is = null;
+//        String js="";
+//        //Making HTTP request
+//        try {
+//            URL url = new URL(url_string);
+//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//            conn.setReadTimeout(10000 /* milliseconds */);
+//            conn.setConnectTimeout(15000 /* milliseconds */);
+//            conn.setRequestMethod("GET");
+//            conn.setDoInput(true);
+//            conn.connect();
+//            is = conn.getInputStream();
+//
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        } catch (ClientProtocolException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            js = convertInputStreamToString(is);
+//        } catch (Exception e) {
+//            Log.e("Buffer Error", "Error converting result " + e.toString());
+//        }
+//        return response;
+    }
+
+    static String convertInputStreamToString(java.io.InputStream is) {
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
+    }
+
+    public boolean isConnected(){
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected())
+            return true;
+        else
+            return false;
     }
 }
 
