@@ -17,7 +17,7 @@ Di kawasan ITB, terdapat banyak kucing yang berkeliaran. Salah satu kucing yang 
 	  
 ### Non-Functional Requirement
 	- Aplikasi diharapkan menggunakan daya baterai sesedikit mungkin.
-	- Aplikasi dapat meminta ulang lokasi Jerry kepada Spike (server yang digunakan) saat Jerry telah berpindah tempat 
+	- Aplikasi dapat meminta ulang lokasi Jerry kepada Spike (server yang digunakan) saat Jerry berpindah tempat 
 	  (waktu yang disediakan dari server telah habis) tanpa mengharuskan user menekan tombol refresh.
 	- Aplikasi memiliki source code yang terstruktur dengan baik.  
 	- Aplikasi menggunakan minimal Android API 9 (GingerBread).
