@@ -288,6 +288,7 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
                 //mTextView.setText("That didn't work!");
             }
         });
+
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
     }
