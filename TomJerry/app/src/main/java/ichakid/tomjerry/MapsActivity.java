@@ -2,6 +2,7 @@ package ichakid.tomjerry;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,10 +11,15 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.SystemClock;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -23,6 +29,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -37,9 +45,10 @@ import org.json.JSONObject;
 import java.util.concurrent.ExecutionException;
 import android.os.Handler;
 
-public class MapsActivity extends Activity implements SensorEventListener {
+public class MapsActivity extends FragmentActivity implements LocationListener, SensorEventListener {
+    private LatLng myPosition;
     private LatLng JERRY;                   //lokasi Jerry
-    Marker jerry;
+    private Marker jerry;
     private GoogleMap mMap;
     private ImageView imgCompass;           //Gambar compass
     private float currentDegree = 0f;       //variabel untuk menyimpan sudut putaran gambar compass
@@ -55,6 +64,7 @@ public class MapsActivity extends Activity implements SensorEventListener {
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     private long time = 0;
     private TextView textCounter;
+    private LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,7 +131,7 @@ public class MapsActivity extends Activity implements SensorEventListener {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
@@ -136,12 +146,24 @@ public class MapsActivity extends Activity implements SensorEventListener {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() throws ExecutionException, InterruptedException {
+        SupportMapFragment fm = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mMap = fm.getMap();
+        mMap.setMyLocationEnabled(true);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String provider = locationManager.getBestProvider(criteria, true);
+        Location location = locationManager.getLastKnownLocation(provider);
+        myPosition = new LatLng(location.getLatitude(), location.getLongitude());
+        if(location!=null){
+            onLocationChanged(location);
+        }
+        locationManager.requestLocationUpdates(provider, 20000, 0, this);
         getJerryPosition();
         jerry = mMap.addMarker(new MarkerOptions()
                 .position(JERRY)
                 .title("Jerry")
                 .icon(BitmapDescriptorFactory
-                    .fromResource(R.drawable.jerry)));
+                        .fromResource(R.drawable.jerry)));
     }
 
     public void getJerryPosition() throws ExecutionException, InterruptedException {
@@ -154,14 +176,10 @@ public class MapsActivity extends Activity implements SensorEventListener {
             String lon = json.getString("long");
             String valid_until = json.getString("valid_until");
             time = Long.parseLong(valid_until) * 1000;
-            System.out.println(0);
-            time = System.currentTimeMillis() + 10 * 1000;
             JERRY = new LatLng(Float.parseFloat(lat), Float.parseFloat(lon));
-            System.out.println(1);
             new CountDownTimer((time - System.currentTimeMillis()), 1000){
                 public void onTick(long millisUntilFinished){
                     long cur = (time - System.currentTimeMillis())/1000;
-                    System.out.println(2);
                     textCounter.setText(cur / 3600 + ":" + cur % 3600 / 60 + ":" + cur % 3600 % 60 );
                 }
                 public void onFinish() {
@@ -169,7 +187,6 @@ public class MapsActivity extends Activity implements SensorEventListener {
                     try {
                         getJerryPosition();
                         animateMarker(JERRY);
-                        System.out.println(3);
                     } catch (ExecutionException e) {
                         e.printStackTrace();
                     } catch (InterruptedException e) {
@@ -297,5 +314,28 @@ public class MapsActivity extends Activity implements SensorEventListener {
                 }
             }
         });
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        TextView tvLocation = (TextView) findViewById(R.id.tv_location);
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+        myPosition = new LatLng(latitude, longitude);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(myPosition));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+        tvLocation.setText("Latitude:" +  latitude  + ", Longitude:"+ longitude );
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
     }
 }
