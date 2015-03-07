@@ -25,42 +25,79 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends Activity {
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
+    private ScheduledExecutorService scheduleTaskExecutor;
+    JSONObject json = null;
+    long epochTime;
+    int nanana = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        JSONObject json = null;
-        long epochTime;
-        TextView lat = (TextView) findViewById(R.id.textViewLatitude);
-        TextView lon = (TextView) findViewById(R.id.textViewLongitude);
-        TextView dat = (TextView) findViewById(R.id.textViewExpiryDate);
+        final TextView lat = (TextView) findViewById(R.id.textViewLatitude);
+        final TextView lon = (TextView) findViewById(R.id.textViewLongitude);
+        final TextView dat = (TextView) findViewById(R.id.textViewExpiryDate);
+        final TextView ref = (TextView) findViewById(R.id.textViewRefresh);
+        scheduleTaskExecutor = Executors.newScheduledThreadPool(5);
 
-        try {
-            json = new GetJSON().execute("http://167.205.32.46/pbd/api/track?nim=13512055.json").get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+        scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
+            public void run() {
+                nanana = nanana + 1;
 
-        try {
-            if(json != null) {
-                lat.setText("Latitude: " + json.getDouble("lat"));
-                lon.setText("Longitude: " + json.getDouble("long"));
+                try {
+                    json = new GetJSON().execute("http://167.205.32.46/pbd/api/track?nim=13512055.json").get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
 
-                epochTime = json.getLong("valid_until");
+                // UI update
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        try {
+                            if(json != null) {
+                                lat.setText("Latitude: " + json.getDouble("lat"));
+                                lon.setText("Longitude: " + json.getDouble("long"));
 
-                dat.setText("Valid until: " + convertEpochToDate(epochTime));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+                                epochTime = json.getLong("valid_until");
+
+                                dat.setText("Valid until: " + convertEpochToDate(epochTime));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        ref.setText("refreshed" + nanana);
+                    }
+                });
+                }
+            }, 0, 30, TimeUnit.SECONDS);
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
     }
 
     public void mapButtonOnClick(View view){

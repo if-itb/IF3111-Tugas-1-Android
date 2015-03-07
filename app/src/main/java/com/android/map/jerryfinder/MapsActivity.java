@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -37,6 +40,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener {
+    private ScheduledExecutorService scheduleTaskExecutor;
 
     private GoogleMap mMap;
     private JSONObject json;
@@ -53,6 +57,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private float[] mOrientation = new float[3];
     private float mCurrentDegree = 0f;
 
+    int nanana = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,17 +69,31 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         mPointer = (ImageView) findViewById(R.id.compass_pointer);
 
-        try {
-            json = new GetJSON().execute("http://167.205.32.46/pbd/api/track?nim=13512055.json").get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
         // map
         createMapView();
-        addMarker();
+
+        scheduleTaskExecutor = Executors.newScheduledThreadPool(5);
+
+        scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
+            public void run() {
+                try {
+                    json = new GetJSON().execute("http://167.205.32.46/pbd/api/track?nim=13512055.json").get();
+                    nanana = nanana + 1;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+
+                // UI update
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        // add jerry's position marker
+                        addMarker();
+                    }
+                });
+            }
+        }, 0, 30, TimeUnit.SECONDS);
     }
 
     @Override
@@ -112,7 +132,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             float cameraZoom = 17;
             double longitude = 0;
             double latitude = 0;
-
 
             try {
                 longitude = json.getDouble("long");

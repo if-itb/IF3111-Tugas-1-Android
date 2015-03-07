@@ -52,6 +52,13 @@
             android:layout_below="@+id/textViewLatitude"
             android:layout_gravity="center_horizontal" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textViewRefresh"
+            android:layout_below="@+id/textViewExpiryDate"
+            android:layout_gravity="center_horizontal" />
+
         <Button
             android:id="@+id/button1"
             android:layout_width="150dp"
