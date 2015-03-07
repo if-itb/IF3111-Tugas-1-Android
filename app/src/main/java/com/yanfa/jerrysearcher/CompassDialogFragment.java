@@ -7,19 +7,24 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  * Created by Yanfa on 06/03/2015.
  */
-public class FinderDialogFragment extends DialogFragment implements SensorEventListener {
+public class CompassDialogFragment extends DialogFragment implements SensorEventListener {
 
     private ImageView compassView;
     private float currentDegree = 0f;
@@ -47,7 +52,6 @@ public class FinderDialogFragment extends DialogFragment implements SensorEventL
         // for the system's orientation sensor registered listeners
         sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_GAME);
-
         return dialog;
     }
 

@@ -133,7 +133,7 @@ public class MapFragment extends Fragment {
                     public void onResponse(String response) {
                         // Display the first 500 characters of the response string.
                         //langTut.setText("Response is: "+ response);
-                        //Log.d("json",response.substring(3,response.length()));
+                        Log.d("json",response.substring(3,response.length()));
                         jsonRet = "" + response.substring(3,response.length()).replace("long", "lon");
                         data = gson.fromJson(jsonRet, Data.class);
                         langTut = new LatLng(Float.parseFloat(data.getLat()), Float.parseFloat(data.getLon()));
@@ -141,7 +141,8 @@ public class MapFragment extends Fragment {
                         setUpMapIfNeeded();
                         MainActivity.loadBar.setVisibility(View.GONE);
                         Calendar c = Calendar.getInstance();
-                        long diffSeconds = Data.validTil.getTime() - c.get(Calendar.SECOND);
+                        long now = new Date().getTime();
+                        long diffSeconds = (Data.validTil.getTime()*1000) - (now);
                         new CountDownTimer(diffSeconds, 1000){
                             @Override
                             public void onTick(long millisUntilFinished) {
@@ -149,7 +150,7 @@ public class MapFragment extends Fragment {
                                 day = (millisUntilFinished/1000/3600/24);
                                 hour = (millisUntilFinished/1000/3600)%24;
                                 minute = (millisUntilFinished /1000/60)%60 ;
-                                sec = (millisUntilFinished /1000)%60;
+                                sec = (millisUntilFinished/1000)%60;
                                 timesRemaining.setText("Times Remaining : "+ day +":"+ hour +":"
                                         + minute + ":" + sec);
                             }

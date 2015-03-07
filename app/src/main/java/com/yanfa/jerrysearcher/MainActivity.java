@@ -1,23 +1,20 @@
 package com.yanfa.jerrysearcher;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -50,6 +47,7 @@ public class MainActivity extends FragmentActivity{
 
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         loading = true;
@@ -61,7 +59,7 @@ public class MainActivity extends FragmentActivity{
         sm = (SensorManager)getSystemService(SENSOR_SERVICE);
         fm = getSupportFragmentManager();
 
-        fm.beginTransaction().replace(R.id.container, new  MapFragment())
+        fm.beginTransaction().replace(R.id.container, new MapFragment())
                 .setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).commit();
 
         QRButton = (Button) findViewById(R.id.QRButton);
@@ -71,15 +69,37 @@ public class MainActivity extends FragmentActivity{
                 scanQR(v);
             }
         });
+//        QRButton.setOnTouchListener(new View.OnTouchListener() {
+//            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                QRButton.setScaleX(0.9f);
+//                QRButton.setScaleY(0.9f);
+//                return false;
+//            }
+//
+//
+//        });
 
         jerryFinderButton = (Button)findViewById(R.id.jerryButton);
         jerryFinderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new FinderDialogFragment()
+                new CompassDialogFragment()
                         .show(fm, "MyDialog");
             }
+
+
         });
+//        jerryFinderButton.setOnTouchListener(new View.OnTouchListener() {
+//            @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                jerryFinderButton.setScaleX(0.9f);
+//                jerryFinderButton.setScaleY(0.9f);
+//                return false;
+//            }
+//        });
     }
 
     @Override
