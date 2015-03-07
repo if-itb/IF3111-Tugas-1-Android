@@ -1,16 +1,12 @@
 package eld.tracker;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
@@ -19,6 +15,8 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -28,7 +26,6 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
 import android.hardware.Sensor;
@@ -61,7 +58,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener, LocationListener{
-    //Map attributes
+    // Map Attributes
     private LatLng tes = new LatLng(-5.890323,107.610381);
     private LatLng JerryPosition = tes;
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
@@ -70,104 +67,79 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private TextView text;
     private String contents = "";
 
-    //Compass attributes
+    // Compass Attributes
     private ImageView image;
     private float currentDegree = 0f;
     private SensorManager mSensorManager;
+
+    // Jerry Image
+    private ImageView jerry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        // My Location
         // Getting Google Play availability status
         int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
 
         // Showing status
         if(status!= ConnectionResult.SUCCESS){ // Google Play Services are not available
-
             int requestCode = 10;
             Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status, this, requestCode);
             dialog.show();
-
-        }else { // Google Play Services are available
+        }
+        else { // Google Play Services are available
             // Getting reference to the SupportMapFragment of activity_main.xml
             SupportMapFragment fm = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-
             // Getting GoogleMap object from the fragment
             mMap = fm.getMap();
-
             // Enabling MyLocation Layer of Google Map
             mMap.setMyLocationEnabled(true);
-
             // Getting LocationManager object from System Service LOCATION_SERVICE
             LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
             // Creating a criteria object to retrieve provider
             Criteria criteria = new Criteria();
-
             // Getting the name of the best provider
             String provider = locationManager.getBestProvider(criteria, true);
-
             // Getting Current Location
             Location location = locationManager.getLastKnownLocation(provider);
-
             if(location!=null){
                 onLocationChanged(location);
             }
             locationManager.requestLocationUpdates(provider, 20000, 0, this);
 
-            getRequest();
-            text = (TextView) findViewById(R.id.textView2);
-            text.setText(String.valueOf(time));
+            // Setting TextView for Time Left
+            text = (TextView) findViewById(R.id.textView);
+            text.setText("Time Left : " + String.valueOf(time) + " second");
 
-            // setting compass
+            // Getting Request from Server
+            getRequest();
+
+            // Setting ImageView for Jerry
+            jerry = (ImageView) findViewById(R.id.imageViewJerry);
+            jerry.setOnClickListener(
+                    new View.OnClickListener() {
+                        public void onClick(View v) {
+                            CameraPosition cameraPosition = new CameraPosition.Builder()
+                                    .target(JerryPosition)      // Sets the center of the map to LatLng (refer to previous snippet)
+                                    .zoom(17)                   // Sets the zoom
+                                    .build();                   // Creates a CameraPosition from the builder
+                            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                        }
+                    }
+            );
+
+            // Setting ImageView for Compass
             image = (ImageView) findViewById(R.id.imageViewCompass);
             mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-            //setting maps
+
+            // Setting Map
             setUpMapIfNeeded();
         }
-
-//        boolean dummy = false;
-//        while (!isConnected){
-//            if(!dummy) {
-//                Toast toast = Toast.makeText(MapsActivity.this, "No Internet Access", Toast.LENGTH_LONG);
-//                toast.show();
-//            }
-//            else{
-//                Toast toast = Toast.makeText(MapsActivity.this, "STILL No Internet Access???", Toast.LENGTH_LONG);
-//                toast.show();
-//            }
-//            Handler handler = new Handler();
-//            handler.postDelayed(new Runnable() {
-//                public void run() {
-//
-//                }
-//            }, 2000);
-//            Toast toast = Toast.makeText(MapsActivity.this,"Please Activate The Internet Access",Toast.LENGTH_LONG);
-//            toast.show();
-//            handler.postDelayed(new Runnable() {
-//                public void run() {
-//
-//                }
-//            }, 5000);
-//            if(!dummy) dummy = true;
-//        }
-
-
-//        if(!isNetworkAvailable()){
-//            Toast toast = Toast.makeText(MapsActivity.this, "No Internet Access", Toast.LENGTH_LONG);
-//            toast.show();
-//        }
-//        else {
-
-//        }
     }
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -182,59 +154,36 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         mSensorManager.unregisterListener(this);
     }
 
-    /**
-     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
-     * installed) and the map has not already been instantiated.. This will ensure that we only ever
-     * call {@link #setUpMap()} once when {@link #mMap} is not null.
-     * <p/>
-     * If it isn't installed {@link SupportMapFragment} (and
-     * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
-     * install/update the Google Play services APK on their device.
-     * <p/>
-     * A user can return to this FragmentActivity after following the prompt and correctly
-     * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
-     * have been completely destroyed during this process (it is likely that it would only be
-     * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
-     * method in {@link #onResume()} to guarantee that it will be called.
-     */
     @Override
     public void onLocationChanged(Location location) {
-
         TextView tvLocation = (TextView) findViewById(R.id.tv_location);
-
         // Getting latitude of the current location
         double latitude = location.getLatitude();
-
         // Getting longitude of the current location
         double longitude = location.getLongitude();
-
         // Creating a LatLng object for the current location
         LatLng latLng = new LatLng(latitude, longitude);
-
         // Showing the current location in Google Map
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-
         // Zoom in the Google Map
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
         // Setting latitude and longitude in the TextView tv_location
         tvLocation.setText("Latitude:" +  latitude  + ", Longitude:"+ longitude );
-
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-
+        // TODO Auto-generated method stub
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-
+        // TODO Auto-generated method stub
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-
+        // TODO Auto-generated method stub
     }
 
     private void setUpMapIfNeeded() {
@@ -250,31 +199,24 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
     }
 
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
     private void setUpMap() {
         if(time == 0){
             getRequest();
         }
         mMap.clear();
-        mMap.addMarker(new MarkerOptions().position(JerryPosition).title("Jerry is here!!!"));
+        mMap.addMarker(new MarkerOptions().position(JerryPosition).title("Catch Me if You Can").icon(BitmapDescriptorFactory.fromResource(R.drawable.jerry1)));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JerryPosition, 17));
     }
-
 
     @Override
     public void onSensorChanged(SensorEvent event) {
         float degree = Math.round(event.values[0]);
         RotateAnimation ra = new RotateAnimation(
-                currentDegree,
-                -degree,
-                Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF,
-                0.5f);
+            currentDegree,
+            -degree,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f);
         ra.setDuration(210);
         ra.setFillAfter(true);
         image.startAnimation(ra);
@@ -283,11 +225,10 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        //not in use
+        // TODO Auto-generated method stub
     }
 
-    // QRcode
-    //product qr code mode
+    // QRCode
     public void scanQR(View v) {
         try {
             //start the scanning activity from the com.google.zxing.client.android.SCAN intent
@@ -300,7 +241,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
     }
 
-    //alert dialog for downloadDialog
+    // Alert Dialog for Downloading
     private static AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo) {
         AlertDialog.Builder downloadDialog = new AlertDialog.Builder(act);
         downloadDialog.setTitle(title);
@@ -324,7 +265,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         return downloadDialog.show();
     }
 
-    //on ActivityResult method
+    // Sending Token to Server after Scanning
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
@@ -338,7 +279,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
     }
 
-    //GetRequest
+    // Asking Spike about Jerry Position
     public void getRequest(){
         Toast toast = Toast.makeText(MapsActivity.this,"Getting new Request from server",Toast.LENGTH_LONG);
         toast.show();
@@ -391,7 +332,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 JerryPosition = new LatLng(lat,lng);
                 new CountDownTimer((time - System.currentTimeMillis()), 1000) {
                     public void onTick(long millisUntilFinished) {
-                        text.setText(String.valueOf((time - System.currentTimeMillis()) / 1000) + " seconds");
+                        long x = (time-System.currentTimeMillis())/1000;
+                        text.setText("Time Left : " +
+                                String.valueOf(x/3600) + " hour(s) " +
+                                String.valueOf(x % 3600/60) + " minute(s) " +
+                                String.valueOf((x % 3600)%60) + " second(s)");
                     }
                     public void onFinish() {
                         time = 0;
@@ -408,7 +353,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
     }
 
-    //Post
+    // Telling Spike about Jerry Catching
     public void postRequest(){
         PostTask PT = new PostTask();
         PT.execute();
