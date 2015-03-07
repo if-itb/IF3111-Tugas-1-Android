@@ -87,4 +87,4 @@ Response status:
 
 ## License
 
-MIT License
+ITB License
