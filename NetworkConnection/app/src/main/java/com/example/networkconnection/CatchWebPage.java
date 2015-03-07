@@ -46,12 +46,13 @@ public class CatchWebPage extends AsyncTask<String, Void, String> {
 
     private TextView dataField;
     private Context context;
+    private String token;
 
-    public CatchWebPage(Context context, TextView dataField) {
+    public CatchWebPage(Context context,String token, TextView dataField) {
         this.context = context;
         this.dataField = dataField;
+        this.token=token;
     }
-
 
     //check Internet conenction.
     private void checkInternetConenction() {
@@ -81,7 +82,7 @@ public class CatchWebPage extends AsyncTask<String, Void, String> {
         String link = (String) arg0[0];
         Map<String, String> comment = new HashMap<String, String>();
         comment.put("nim","13512097");
-        comment.put("token","tomandjerry");
+        comment.put("token",this.token);
         HttpResponse httpResponse=null;
         HttpEntity httpEntity=null;
         String response=null;
@@ -119,8 +120,6 @@ public class CatchWebPage extends AsyncTask<String, Void, String> {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
-        Log.d("Why?",holder.toString());
 
         //sets the post request as the resulting string
         httpost.setEntity(se);

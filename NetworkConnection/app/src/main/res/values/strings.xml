@@ -9,4 +9,5 @@
     <string name="google">http://www.tutorialspoint.com</string>
     <string name="Catch">catch</string>
     <string name="pbd">http://167.205.32.46/pbd/api/track?nim=</string>
+    <string name="Track">track</string>
 </resources>

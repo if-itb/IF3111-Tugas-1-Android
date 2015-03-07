@@ -1,6 +1,7 @@
 package com.example.networkconnection;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -10,19 +11,32 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
+
 public class DownloadWebPage extends AsyncTask<String, Void, String> {
 
-    private TextView dataField;
     private Context context;
-    public DownloadWebPage(Context context,TextView dataField) {
+    public DownloadWebPage(Context context) {
         this.context = context;
-        this.dataField = dataField;
     }
-
 
     //check Internet conenction.
     private void checkInternetConenction(){
@@ -51,7 +65,8 @@ public class DownloadWebPage extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... arg0) {
-        try{
+        //HttpUrlConnection version
+        /*try{
             String link = (String)arg0[0];
             URL url = new URL(link);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -71,10 +86,33 @@ public class DownloadWebPage extends AsyncTask<String, Void, String> {
             return webPage;
         }catch(Exception e){
             return new String("Exception: " + e.getMessage());
+        }*/
+
+        //uses HttpClient
+        String link = (String)arg0[0];
+        StringBuilder infoLocBuilder = new StringBuilder();
+        HttpClient client = new DefaultHttpClient();
+        HttpGet httpGet = new HttpGet(link);
+        try {
+            HttpResponse response = client.execute(httpGet);
+            StatusLine statusLine = response.getStatusLine();
+            int statusCode = statusLine.getStatusCode();
+            if (statusCode == 200) {
+                HttpEntity entity = response.getEntity();
+                InputStream content = entity.getContent();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    infoLocBuilder.append(line);
+                }
+            } else {
+                Log.e("ParseJsonError","Failed to download file");
+            }
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }
-    @Override
-    protected void onPostExecute(String result){
-        this.dataField.setText(result);
+        return infoLocBuilder.toString();
     }
 }
