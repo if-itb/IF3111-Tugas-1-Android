@@ -52,7 +52,9 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
@@ -72,7 +74,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     JSONArray LatLong = null;
     int it = 0;
     double jLat = 0, jLong=0;
-    String responsePost;
+    String secret_token;
 
     TextView txtResponse;
     TextView txtToken;
@@ -160,6 +162,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
                 txtToken.setText(contents);
+                secret_token = contents;
             }
         }
     }
@@ -318,10 +321,34 @@ public class MainActivity extends Activity implements SensorEventListener {
         HttpPost httpPost =  new HttpPost(URL);
         InputStream inputStream = null;
         String result = "";
+        JSONObject dataToJSON =  new JSONObject();
+        StringEntity se;
         try{
+            dataToJSON.put("nim","13512043");
+            dataToJSON.put("token",secret_token);
+            try {
+                se = new StringEntity(dataToJSON.toString());
+                httpPost.setEntity(se);
+                HttpResponse response =  httpClient.execute(httpPost);
+                inputStream = response.getEntity().getContent();
+                if(inputStream != null)
+                    result = convertInputStreamToString(inputStream);
+                else {
+                    result = "Did not work!";
+                }
+            }catch(UnsupportedEncodingException e){
+                e.printStackTrace();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+        }catch(JSONException e){
+            e.printStackTrace();
+        }
+        /*try{
+
             List nameValuePairs = new ArrayList();
             nameValuePairs.add(new BasicNameValuePair("nim","13512043"));
-            nameValuePairs.add(new BasicNameValuePair("token",txtToken.toString()));
+            nameValuePairs.add(new BasicNameValuePair("token","\""+secret_token+"\""));
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
             HttpResponse response =  httpClient.execute(httpPost);
             inputStream = response.getEntity().getContent();
@@ -335,6 +362,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         }catch (IOException e){
             e.printStackTrace();
         }
+        */
         return result;
     }
 
