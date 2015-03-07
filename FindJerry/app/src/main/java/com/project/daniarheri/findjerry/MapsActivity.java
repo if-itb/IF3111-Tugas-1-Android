@@ -3,20 +3,15 @@ package com.project.daniarheri.findjerry;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
@@ -31,43 +26,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener {
@@ -87,6 +46,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     MarkerOptions mapMarkerMe = new MarkerOptions();
     MarkerOptions mapMarkerJerry = new MarkerOptions();
+    TrackJerry tracker = new TrackJerry();
+    CatchJerry catcher = new CatchJerry();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,14 +121,13 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
     }
 
+
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // TODO Auto-generated method stub
 
     }
 
     private void updateMap(float lat, float lon) {
-        mMap.addMarker(mapMarkerJerry.position(new LatLng(lat, lon)).title("Jerry's Position")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerjerry)));
 
         CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(lat, lon));
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(18);
@@ -177,25 +137,21 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     }
 
-
-    private void setUpMap() {
-        double lat = -6.890608, lon = 107.609861;
-        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(lat, lon));
+    private void updateCamera(){
+        CameraUpdate center = CameraUpdateFactory.newLatLng(tracker.getLatLing());
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
 
         mMap.moveCamera(center);
         mMap.animateCamera(zoom);
+    }
 
-        mMap.addMarker(mapMarkerMe.position(new LatLng(lat, lon)).title("My Position")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerme)));
-
-
+    private void setUpMap() {
         try {
-            RequestTask RT = new RequestTask();
-            RT.execute("http://167.205.32.46/pbd/api/track?nim=13512064");
-            String responseString = null;
-            responseString = RT.get();
-            extractResponseString(responseString);
+            tracker.findJerry("http://167.205.32.46/pbd/api/track?nim=13512064");
+            mMap.addMarker(mapMarkerJerry.position(tracker.getLatLing()).title("Jerry's Position")
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerjerry)));
+            updateCamera();
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -212,26 +168,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     }
 
-    private void extractResponseString(String jsonStr) {
-        if (jsonStr != null) {
-            try {
-                JSONObject jsonObj = new JSONObject(jsonStr);
-                String lantitude = jsonObj.getString("lat");
-                String longitude = jsonObj.getString("long");
-                String validTime = jsonObj.getString("valid_until");
-
-                // convert date
-                Long epoch = Long.parseLong(validTime);
-                String date = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new java.util.Date (epoch*1000));
-
-                Toast toast = Toast.makeText(this, "Valid sampai :  " + date , Toast.LENGTH_LONG);
-                toast.show();
-                updateMap(Float.parseFloat(lantitude), Float.parseFloat(longitude));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     public void scanQR(View v) {
         try {
@@ -274,11 +210,22 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 //get the extras that are returned from the intent
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                try {
+                    catcher.catchJerry(contents);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Toast toast;
+                if (catcher.IsSuccess()) {
+                    toast = Toast.makeText(this, "Jerry catched! Congratulation Tom..", Toast.LENGTH_LONG);
+                    mMap.clear();
+                    updateCamera();
+                }else
+                    toast = Toast.makeText(this, "Jerry already gone! Better luck next time", Toast.LENGTH_LONG);
                 toast.show();
             }
         }
     }
-
-
 }
