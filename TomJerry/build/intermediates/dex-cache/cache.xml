@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="D:\Aplikasi\TomJerry\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
+        <dex dex="D:\Aplikasi\TomJerry\app\build\intermediates\pre-dexed\debug\classes-c101ac2232b1865facdf80ae2c7181781a946121.jar" />
+    </item>
+    <item
+        jar="D:\Aplikasi\TomJerry\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\libs\internal_impl-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
+        <dex dex="D:\Aplikasi\TomJerry\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-7af16a08a192d48c801ff98097cf4a93c8cd267a.jar" />
+    </item>
+    <item
+        jar="D:\Aplikasi\TomJerry\app\build\intermediates\exploded-aar\com.google.android.gms\play-services\6.5.87\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="dd9247ea0fabe8ee479638c4b4a23e93752be256">
+        <dex dex="D:\Aplikasi\TomJerry\app\build\intermediates\pre-dexed\debug\classes-ecdbf0ef4d82fe066106fe44ffccb5c72faedf20.jar" />
+    </item>
+    <item
+        jar="C:\Users\Mochamad Lutfi F\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\21.0.3\support-annotations-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
+        <dex dex="D:\Aplikasi\TomJerry\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.3-1027d280bc542120e14aaf37f112c397d6e34318.jar" />
+    </item>
+    <item
+        jar="D:\Aplikasi\TomJerry\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
+        <dex dex="D:\Aplikasi\TomJerry\app\build\intermediates\pre-dexed\debug\classes-e325e17396225e13a1ab55a9cd713e3baf2ee91a.jar" />
+    </item>
+
+</items>
