@@ -26,19 +26,22 @@ import org.json.JSONObject;
 public class Map2 extends FragmentActivity {
 
     final Gson gson = new Gson();
-    public static LatLng langTut;
     public String RetrJson;
-    public String Latit, Longit, ValUn;
+    public Double Latit, Longit, ValUn;
     public static LatLng koor;
+
+    private RequestQueue requestQueue;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("json","");
         setContentView(R.layout.activity_map2);
+        koor = new LatLng(0,0);
+        requestQueue = Volley.newRequestQueue(this);
         JerryPosition();
+
     }
 
     @Override
@@ -87,24 +90,27 @@ public class Map2 extends FragmentActivity {
     }
 
     private void JerryPosition(){
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://167.205.32.46/pbd/api/track?nim=13512037";
+
+        String url ="http://167.205.32.46/pbd/api/track?nim=13512029";
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("json", response.substring(3, response.length()));
+                        String a;
                         RetrJson = "" + response.substring(3,response.length()).replace("long", "lon");
+                        a=response.substring(3,response.length()).replace("long", "lon");
+                        Log.d("jsonn5", a);
                         try {
-                            JSONObject parsing= new JSONObject(response);
-                            Latit = parsing.getString("lat");
-                            Longit = parsing.getString("long");
-                            ValUn = parsing.getString("valid_until");
-                            koor = new LatLng(Double.parseDouble(Latit),Double.parseDouble(Longit));
-                            Log.d("json", koor.toString());
-                            setUpMapIfNeeded();
+                            Log.d("jasonn6",a);
+                            JSONObject parsing= new JSONObject(a);
+                            Latit = parsing.getDouble("lat");
+                            Longit = parsing.getDouble("long");
+                            ValUn = parsing.getDouble("valid_until");
+                            koor = new LatLng(Latit,Longit);
+                            System.out.println(koor.latitude);
+                            setUpMap();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -117,7 +123,7 @@ public class Map2 extends FragmentActivity {
                 }
         );
         // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        requestQueue.add(stringRequest);
 
     }
 }
