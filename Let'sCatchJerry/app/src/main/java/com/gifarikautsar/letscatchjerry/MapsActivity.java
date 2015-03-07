@@ -19,7 +19,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
-import android.view.Menu;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
@@ -32,13 +31,13 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -53,7 +52,6 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 public class MapsActivity extends FragmentActivity implements LocationListener, SensorEventListener {
@@ -67,6 +65,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private TextView textCounter;
     private long time = 0;
     private String QRContent = "";
+    private ImageView imageJerry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +75,16 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         //Compass
         image = (ImageView) findViewById(R.id.imageViewCompass);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        //Jerry Location
+        imageJerry = (ImageView) findViewById(R.id.imageJerry);
+        imageJerry.setOnClickListener(
+                new View.OnClickListener() {
+                    public void onClick(View v) {
+                        setUpMap();
+                    }
+                }
+        );
 
         //Maps
         int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
@@ -127,7 +136,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(latLng)      // Sets the center of the map to LatLng (refer to previous snippet)
-                .zoom(18)                   // Sets the zoom
+                .zoom(20)                   // Sets the zoom
                 .build();                   // Creates a CameraPosition from the builder
         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
@@ -220,11 +229,11 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
 
     private void setUpMap() {
         googleMap.clear();
-        googleMap.addMarker(new MarkerOptions().position(Jerry).title("Catch Me! :3"));
+        googleMap.addMarker(new MarkerOptions().position(Jerry).title("Catch me! :p").icon(BitmapDescriptorFactory.fromResource(R.drawable.jerry)));
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(Jerry));
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(Jerry)      // Sets the center of the map to LatLng (refer to previous snippet)
-                .zoom(18)                   // Sets the zoom
+                .zoom(20)                   // Sets the zoom
                 .build();                   // Creates a CameraPosition from the builder
         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
@@ -283,7 +292,8 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
                 Jerry = new LatLng(lat,lng);
                 new CountDownTimer((time - System.currentTimeMillis()), 1000){
                     public void onTick(long millisUntilFinished){
-                        textCounter.setText(String.valueOf((time - System.currentTimeMillis())/1000) + " seconds left");
+                        long cur = (time - System.currentTimeMillis())/1000;
+                       textCounter.setText(cur / 3600 + ":" + cur % 3600 / 60 + ":" + cur % 3600 % 60 );
                     }
                     public void onFinish() {
                         time = 0;
@@ -343,9 +353,38 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            Toast toast = Toast.makeText(MapsActivity.this, result, Toast.LENGTH_LONG);
-            toast.show();
+            String message = "";
+            int code = 0;
+            String title = "Result";
+            try {
+                JSONObject json = new JSONObject(result);
+                message = json.getString("message");
+                code = Integer.parseInt(json.getString("code"));
+                if(code == 200){
+                    title = "Success!";
+                    time = 0;
+                    getRequest();
+                }
+                else if (code == 400){
+                    title = "Missing Parameter";
+                }
+                else if (code == 403){
+                    title = "Forbidden";
+                }
+                AlertDialog alertDialog = new AlertDialog.Builder(MapsActivity.this).create();
+                alertDialog.setTitle(title);
+                alertDialog.setMessage(result);
+                alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+                alertDialog.setIcon(R.drawable.logo);
+                alertDialog.show();
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
         }
     }
-
 }
