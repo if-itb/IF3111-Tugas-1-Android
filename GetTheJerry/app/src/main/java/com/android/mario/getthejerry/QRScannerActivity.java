@@ -6,15 +6,37 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Mario on 07/03/2015.
  */
 public class QRScannerActivity extends ActionBarActivity {
+
+    private final String URL = "http://167.205.32.46/pbd/api/catch";
+
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     private String contents, format;
 
@@ -79,9 +101,62 @@ public class QRScannerActivity extends ActionBarActivity {
             if (resultCode == RESULT_OK) {
                 //get the extras that are returned from the intent
                 contents = intent.getStringExtra("SCAN_RESULT");
+                ViewPosition.setToken(contents);
                 format = intent.getStringExtra("SCAN_RESULT_FORMAT");
+
+                Catcher catcher = new Catcher();
+                catcher.execute();
+
                 Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
                 toast.show();
+            }
+        }
+    }
+
+    class Catcher extends AsyncTask<String, String, String>{
+
+        @Override
+        protected String doInBackground(String... params) {
+            HttpClient httpClient = new DefaultHttpClient();
+            String response = "";
+            HttpResponse httpResponse = null;
+            HttpPost httpPost = new HttpPost(URL);
+            try {
+                List<BasicNameValuePair> Parameters = new ArrayList();
+                Parameters.add(new BasicNameValuePair("nim","13512016"));
+                Parameters.add(new BasicNameValuePair("token",ViewPosition.getToken()));
+                httpPost.setEntity(new UrlEncodedFormEntity(Parameters));
+                httpResponse = httpClient.execute(httpPost);
+                InputStream content = httpResponse.getEntity().getContent();
+                BufferedReader buffer = new BufferedReader(new InputStreamReader(content));
+                String s = "";
+                while ((s = buffer.readLine())!= null) {
+                    response += s;
+                }
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String s){
+            super.onPostExecute(s);
+            TextView konten = (TextView) findViewById(R.id.contentText);
+            TextView status = (TextView) findViewById(R.id.statusText);
+
+            try {
+                JSONObject jsonObject = new JSONObject(s);
+                String result = jsonObject.getString("message");
+                int kode = jsonObject.getInt("code");
+                ViewPosition.setStatus(kode);
+
+                konten.setText("Konten : "+result);
+                status.setText("Status : "+String.valueOf(kode));
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
     }
