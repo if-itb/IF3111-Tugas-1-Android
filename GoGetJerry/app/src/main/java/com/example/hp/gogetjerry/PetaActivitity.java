@@ -276,7 +276,7 @@ public class PetaActivitity extends ActionBarActivity implements SensorEventList
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(jerryPosition,17));
                 MarkerOptions mopt = new MarkerOptions().position(jerryPosition).title("Jerry's here!");
                 mopt.icon(BitmapDescriptorFactory.fromResource(R.drawable.jerry));
-         
+
                 mMap.addMarker(mopt);
                 Log.d("LAT ", String.valueOf(Latitude));
             } catch (JSONException e){
