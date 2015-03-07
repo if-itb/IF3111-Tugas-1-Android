@@ -54,21 +54,6 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
-
-    private void setUpMap() {
-
-        mMap.addMarker(new MarkerOptions().position(new LatLng(6, 7)).title("Marker"));
-    }
-
-    public boolean isConnected(){
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected())
-            return true;
-        else
-            return false;
-    }
-
     private class JSONParse extends AsyncTask<String, String, JSONObject> {
 
         @Override

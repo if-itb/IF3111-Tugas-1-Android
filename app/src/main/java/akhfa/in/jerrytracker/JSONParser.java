@@ -125,7 +125,7 @@ public class JSONParser {
             if(inputStream != null) {
                 result = convertInputStreamToString(inputStream);
                 Log.d("Url = ", httpPost.getURI().toString());
-                Log.d("Hasil Code: ", "" + httpResponse.getStatusLine().getStatusCode());
+                Log.d("Hasil Code: ", "" + result);
             }
             else
                 result = "Did not work!";
