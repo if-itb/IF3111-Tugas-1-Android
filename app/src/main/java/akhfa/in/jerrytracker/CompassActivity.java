@@ -23,8 +23,6 @@ public class CompassActivity extends Activity implements SensorEventListener {
     // device sensor manager
     private SensorManager mSensorManager;
 
-    TextView tvHeading;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
