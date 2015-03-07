@@ -40,6 +40,26 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(Globals.sBypass) {
+            Globals.sBypass = false;
+            try {
+                new DownloadJerryInfoTask().execute(Globals.TRACK_ENDPOINT).get(1, TimeUnit.MINUTES);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                e.printStackTrace();
+            }
+            Toast.makeText(this,"Jerry got away!!",Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, ShowMap.class);
+            startActivity(intent);
+        }
+    }
+
     public void askSpike(View view) {
         //TODO shit here, ask for the location and start next activity
         String stringUrl = Globals.TRACK_ENDPOINT;

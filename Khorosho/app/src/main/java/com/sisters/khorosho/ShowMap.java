@@ -114,6 +114,7 @@ public class ShowMap extends ActionBarActivity {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
+                Globals.sBypass=true;
                 finish();
             }
         };

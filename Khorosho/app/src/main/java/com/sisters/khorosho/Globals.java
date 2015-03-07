@@ -8,6 +8,8 @@ public class Globals {
     public static final String CATCH_ENDPOINT = "http://167.205.32.46/pbd/api/catch";
     public static final String NIM = "13512046";
 
+    public static volatile boolean sBypass=false;
+
     public static double sJerryLat;
     public static double sJerryLong;
     public static long sValidUntil;
