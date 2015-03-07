@@ -11,6 +11,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
@@ -27,9 +28,23 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class MapsActivity extends Activity implements SensorEventListener {
@@ -139,7 +154,6 @@ public class MapsActivity extends Activity implements SensorEventListener {
         RequestTask req = new RequestTask();
         req.execute("http://167.205.32.46/pbd/api/track?nim=13512084");
         String response = (String) req.get();
-//        LatLng loc = null;
         try {
             JSONObject json = new JSONObject(response);
             String lat = json.getString("lat");
@@ -220,8 +234,23 @@ public class MapsActivity extends Activity implements SensorEventListener {
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
                 Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
                 toast.show();
+                try {
+                    makePostRequest(contents);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
+    public void makePostRequest(String token) throws ExecutionException, InterruptedException {
+        PostTask pt = new PostTask();
+        pt.execute("http://167.205.32.46/pbd/api/catch", token);
+        String response = pt.get().toString();
+        Log.d("Http Post Response:", response);
+        Toast toast = Toast.makeText(this, "Http Post Response:" + response, Toast.LENGTH_LONG);
+        toast.show();
+    }
 }
