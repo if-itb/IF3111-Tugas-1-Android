@@ -14,9 +14,9 @@ class Coordinate_View extends FlxGroup
 	public function new() 
 	{		
 		super();
-		textLat = new FlxText();
+		textLat = new FlxText(0,0,0,"",16);
 		textLat.text = "Lat: -";
-		textLon = new FlxText();	
+		textLon = new FlxText(0,0,0,"",16);	
 		textLon.text = "Lon: -";
 		
 		add(textLat);

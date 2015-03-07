@@ -42,17 +42,18 @@ class State_Tracker extends FlxState
 		add(AppCore.gpsTracker.coordinate.view);
 		
 		AppCore.targetTracker.coordinate.view = new Coordinate_View();
-		AppCore.targetTracker.coordinate.view.textLat.x = FlxG.width - AppCore.targetTracker.coordinate.view.textLat.width - 100;
+		AppCore.targetTracker.coordinate.view.textLat.x = FlxG.width - AppCore.targetTracker.coordinate.view.textLat.width - 200;
 		AppCore.targetTracker.coordinate.view.textLat.alignment = "right";
 		AppCore.targetTracker.coordinate.view.textLat.y = AppCore.gpsTracker.coordinate.view.textLat.y;
 		AppCore.targetTracker.coordinate.view.textLon.alignment = "right";
-		AppCore.targetTracker.coordinate.view.textLon.x = FlxG.width-AppCore.targetTracker.coordinate.view.textLat.width-100;
+		AppCore.targetTracker.coordinate.view.textLon.x = FlxG.width-AppCore.targetTracker.coordinate.view.textLat.width-200;
 		AppCore.targetTracker.coordinate.view.textLon.y = AppCore.targetTracker.coordinate.view.textLat.y+25;
 		add(AppCore.targetTracker.coordinate.view);
 		
 		buttonReturn = new FlxButton(0, 0, "Return", returnToTitle);
 		buttonReturn.x = FlxG.width - buttonReturn.width - 10;
 		buttonReturn.y = FlxG.height - buttonReturn.height - 10;
+		buttonReturn.label.size = 16;
 		add(buttonReturn);
 		
 		AppCore.targetTracker.dataGetURL();

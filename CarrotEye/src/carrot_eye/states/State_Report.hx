@@ -29,6 +29,7 @@ class State_Report extends FlxState
 		buttonReturn = new FlxButton(0, 0, "Return", returnToTitle);
 		buttonReturn.x = FlxG.width - buttonReturn.width - 10;
 		buttonReturn.y = FlxG.height - buttonReturn.height - 10;
+		buttonReturn.label.size = 16;
 		add(buttonReturn);
 		
 		AppCore.submission.dataPostURL(AppCore.appGlobal.nim, AppCore.appGlobal.token);

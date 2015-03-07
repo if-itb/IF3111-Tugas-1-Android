@@ -26,7 +26,13 @@ class State_Title extends FlxState
 		tf.size = 20;
 		
 		textTrackMode = new FlxButton(200, 200, "Tracker Mode", goToTracker);
+		textTrackMode.label.size = 16;
+		textTrackMode.setGraphicSize(100, 50);
+		textTrackMode.updateHitbox();
 		textReportMode = new FlxButton(textTrackMode.x, textTrackMode.y + 200, "Report Mode", goToReport);
+		textReportMode.label.size = 16;
+		textReportMode.setGraphicSize(100, 50);
+		textReportMode.updateHitbox();		
 		
 		add(textTrackMode);
 		add(textReportMode);

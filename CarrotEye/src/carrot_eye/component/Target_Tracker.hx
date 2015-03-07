@@ -1,5 +1,6 @@
 package carrot_eye.component;
 import haxe.Json;
+import openfl.errors.Error;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.Lib;
@@ -53,7 +54,12 @@ class Target_Tracker
 	
 	public function getDataFailed(e_:Event):Void
 	{		
-		trace(e_.target.data);
+		//trace(e_.target.data);
+		
+		if (this.coordinate.view != null) {
+			this.coordinate.view.textLat.text = "Lat: ERROR!";
+			this.coordinate.view.textLon.text = "Lon: ERROR!";
+		}
 		isLoading = false;
 	}
 	

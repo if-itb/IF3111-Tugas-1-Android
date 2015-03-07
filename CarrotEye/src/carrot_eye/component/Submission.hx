@@ -65,6 +65,12 @@ class Submission
 	{
 		//trace(e_.target.data);
 		isLoading = false;
+		
+		if (view != null) {
+			view.textToken.text = "Token: ERROR!";
+			view.textMessage.text = "Message: ERROR!";
+			view.textCode.text = "Code: ERROR!";
+		}
 	}
 	
 	// ACCESSOR
