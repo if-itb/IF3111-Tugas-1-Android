@@ -1,7 +1,6 @@
 package binangkit.lingga.jelink.tomandjerry;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,7 +8,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.support.v4.app.FragmentActivity;
 import android.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.app.Activity;
@@ -32,7 +30,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,54 +40,55 @@ import java.util.Map;
 
 /**
  * Created by jelink on 3/4/2015.
+ * QR Scanner reference : http://examples.javacodegeeks.com/android/android-barcode-and-qr-scanner-example/
+ * Compass reference : http://www.javacodegeeks.com/2013/09/android-compass-code-example.html
  */
 public class MainActivity extends ActionBarActivity implements SensorEventListener{
-    // define the display assembly compass picture
-    private ImageView image;
-    // QR constant
+    /**
+     *  ATRIBUT-ATRIBUT
+     *  */
+
+    /** KOMPAS */
+    /** Gambar kompas */
+    private ImageView compassImage;
+    /** QR constant */
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
-
-    // record the compass picture angle turned
+    /** derajat kompas */
     private float currentDegree = 0f;
-
-    // device sensor manager
+    /** Tampilan pada layout untuk derajat */
+    TextView degHeading;
+    /** device sensor manager */
     private SensorManager mSensorManager;
 
-    // Map ITB
+    /** PETA ITB */
+    /** Fragment untuk peta ITB */
     private final MapsFragment MapITB = new MapsFragment();
+    /** Fragment manager */
+    FragmentManager fragmentManager;
 
-    private final Context me = this;
-
-    TextView tvHeading;
-
+    /** METHOD-METHOD */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Set content view
+        // Set layout
         setContentView(R.layout.activity_main);
-
-        // Get lokasi dari spike
+        // Ambil lokasi dari server spike
         getLocationFromSpike();
-
-        // Image untuk kompas
-        image = (ImageView) findViewById(R.id.imageViewCompass);
-
-        // TextView that will tell the user what degree is he heading
-        tvHeading = (TextView) findViewById(R.id.tvHeading);
-
-        // initialize your android device sensor capabilities
+        // Instansiasi image untuk kompas
+        compassImage = (ImageView) findViewById(R.id.imageViewCompass);
+        // Menginisialisasi degHeading dengan elemen layout yang akan menuliskan derajat
+        degHeading = (TextView) findViewById(R.id.tvHeading);
+        // Inisailisasi sensor manager
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-
-        //inisialisasi map
-        FragmentManager fragmentManager = getFragmentManager();
+        // Inisialisasi peta ITB dari fragment ke layout
+        fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.map_view, MapITB).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE).commit();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        // for the system's orientation sensor registered listeners
+        // meregister listener
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_GAME);
     }
@@ -98,50 +96,42 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     @Override
     protected void onPause() {
         super.onPause();
-
-        // to stop the listener and save battery
+        // menghentikan listener untuk menghemat baterai
         mSensorManager.unregisterListener(this);
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-
-        // get the angle around the z-axis rotated
+        // cari sudut rotasi sumbu z
         float degree = Math.round(event.values[0]);
-
-        tvHeading.setText("Heading: " + Float.toString(degree) + " degrees");
-
-        // create a rotation animation (reverse turn degree degrees)
+        // menuliskan ke elemen layout degHeading
+        degHeading.setText("Heading: " + Float.toString(degree) + " degrees");
+        // animasi rotasi
         RotateAnimation ra = new RotateAnimation(
                 currentDegree,
                 -degree,
                 Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF,
-                0.5f);
-
-        // how long the animation will take place
+                Animation.RELATIVE_TO_SELF, 0.5f);
+        // durasi animasi
         ra.setDuration(210);
-
-        // set the animation after the end of the reservation status
         ra.setFillAfter(true);
-
-        // Start the animation
-        image.startAnimation(ra);
+        // Start animasi
+        compassImage.startAnimation(ra);
         currentDegree = -degree;
-
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // not in use
+        // do nothing
     }
 
+    /** Scan QR Code untuk mendapatkan token */
     public void scanQR(View v) {
         try {
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
             startActivityForResult(intent, 0);
-        } catch (ActivityNotFoundException anfe) {
+        } catch (ActivityNotFoundException exc) {
             showDialog(MainActivity.this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
         }
     }
@@ -157,7 +147,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                 try {
                     act.startActivity(intent);
                 } catch (ActivityNotFoundException anfe) {
-
+                    // do nothing
                 }
             }
         });
@@ -168,81 +158,78 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         return downloadDialog.show();
     }
 
+    /** Bila scan QR menemukan token, mengirimnya ke Spike */
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-
-                //Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
-                //toast.show();
-
                 sendTokenToSpike("13512059", contents);
             }
         }
     }
 
-    public void sendTokenToSpike(final String nim, final String token){
+    /** Mengirimkan token dan nim ke server spike */
+    public void sendTokenToSpike(final String nim, final String token) {
         RequestQueue queue = Volley.newRequestQueue(this);
+        final int status_code;
         final String url = "http://167.205.32.46/pbd/api/catch";
-        StringRequest postRequest = new StringRequest(Request.Method.POST, url,
-            new Response.Listener<String>()
-            {
+        final StringRequest postRequest = new StringRequest(Request.Method.POST, url,
+            // bila ada response (network code 200)
+            new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    // response
-                    Log.d("debug res", response);
                     long code;
                     String message;
-                    Gson gson = new Gson();
                     response = response.substring(response.indexOf('{'),response.lastIndexOf('}')+1);
-                    String json = gson.toJson(response);
                     try {
                         JSONObject jsonObj = new JSONObject(response);
                         code = jsonObj.getLong("code");
                         message = jsonObj.getString("message");
                         if(code == 200) {
-                            Toast toast = Toast.makeText(me, "Congrats! You found Jerry!!", Toast.LENGTH_LONG);
-                            toast.show();
+                            displayMessage("Congrats! You found Jerry!!");
                         }
                         else{
-                                Toast toast = Toast.makeText(me, "Error with code " + code + " " + message, Toast.LENGTH_LONG);
-                                toast.show();
-                            }
+                            displayMessage("Error with code " + code + " " + message);
                         }
-                    catch (JSONException e){
-                        Log.d("debug res", "exception json");
+                    }
+                    catch (JSONException e) {
+                        displayMessage("JSON parsing error");
                     }
                 }
             },
-            new Response.ErrorListener()
-            {
+            // bila tidak ada response (network code bukan 200)
+            new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     // error
-                    Log.d("debug res", error.getMessage());
-                    }
+                    displayMessage("Token salah, jangan curang yaa");
+                }
             }
         ) {
-        @Override
-            protected Map<String, String> getParams()
-            {
+            @Override
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("nim", nim);
                 params.put("token", token);
                 return params;
             }
         };
+        // Add the request to the RequestQueue.
         queue.add(postRequest);
-
     }
 
-    public void getLocationFromSpike(){
-        // Instantiate the RequestQueue.
+    /** Menampilkan message pada toast, pada context ini */
+    public void displayMessage(String message) {
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+    }
+
+    /** Merequest lokasi Jerry kepada Spike menggunakan method Get **/
+    public void getLocationFromSpike() {
+        // Mengeset request code
         RequestQueue queue = Volley.newRequestQueue(this);
         String url ="http://167.205.32.46/pbd/api/track?nim=13512059";
-
-        // Request a string response from the provided URL.
+        // Melakukan request
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
@@ -250,11 +237,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                         double lat=0;
                         double lng=0;
                         long time=0;
-
                         // hapus formatting utf
-                        Gson gson = new Gson();
                         response = response.substring(response.indexOf('{'),response.lastIndexOf('}')+1);
-                        String json = gson.toJson(response);
                         try {
                             JSONObject jsonObj = new JSONObject(response);
                             lat = jsonObj.getDouble("lat");
@@ -269,27 +253,30 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                             new CountDownTimer(time*1000 - sekarang, 1000) {
 
                                 public void onTick(long millisUntilFinished) {
-                                    //mTextField.setText("seconds remaining: " + millisUntilFinished / 1000);
                                     ((TextView)findViewById(R.id.sisa_waktu)).setText("sisa waktu : " + millisUntilFinished/1000);
                                 }
 
                                 public void onFinish() {
-                                    //mTextField.setText("done!");
-                                    //MapITB.setJerry(-6.890754, 107.609435);
                                     getLocationFromSpike();
                                 }
                             }.start();
                         }
-                        catch (JSONException e){
-                            Log.d("debug res", "exception json");
+                        catch (JSONException e) {
+                            displayMessage("JSON parsing error");
                         }
-                        // tulis ke log
-                        Log.d("debug res", "Response is: " + response + " " + lat + " " + lng + " " + time);
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("debug res", "That didn't work!");
+                displayMessage("Mohon tunggu, tidak dapat menjangkau server.");
+                new CountDownTimer(5000, 1000) {
+                    public void onFinish() {
+                        getLocationFromSpike();
+                    }
+                    public void onTick(long ms) {
+                        //do notinng
+                    }
+                }.start();
             }
         });
         // Add the request to the RequestQueue.
