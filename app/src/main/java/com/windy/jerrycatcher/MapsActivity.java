@@ -303,11 +303,18 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
                             public void onResponse(String response) {
                                 String temp = response.substring(response.indexOf("{"), response.lastIndexOf("}") + 1);
                                 String message;
+                                int code;
                                 try {
                                     JSONObject json = new JSONObject(temp);
                                     message = json.getString("message");
-                                    Toast toast = Toast.makeText(getBaseContext(), "Success!", Toast.LENGTH_LONG);
-                                    toast.show();
+                                    code = json.getInt("code");
+                                    if (code == 200) {
+                                        Toast toast = Toast.makeText(getBaseContext(), "Success!", Toast.LENGTH_LONG);
+                                        toast.show();
+                                    } else {
+                                        Toast toast = Toast.makeText(getBaseContext(), "Oops, Missing Parameter", Toast.LENGTH_LONG);
+                                        toast.show();
+                                    }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
