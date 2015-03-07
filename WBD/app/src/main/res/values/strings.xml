@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">WBD</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="respons">Respon OK,
+        penangkapan dilakukan dengan benar!</string>
+    <string name="title_activity_response_status">ResponseStatus</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="tangkapjerry">Tangkap Jerry</string>
+    <string name="ambilQR">ambil QR Code</string>
+    <string name="gambar">gambarjerry</string>
+
+
+</resources>
