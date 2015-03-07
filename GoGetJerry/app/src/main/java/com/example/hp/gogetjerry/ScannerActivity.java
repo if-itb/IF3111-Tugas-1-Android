@@ -7,19 +7,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -40,12 +38,14 @@ public class ScannerActivity extends Activity {
     static final String url = "http://167.205.32.46/pbd/api/catch";
     String secret_token;
     TextView isCaught;
+    ImageView ivIsCaught;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scanner);
         isCaught = (TextView) findViewById(R.id.isCaught);
+        ivIsCaught = (ImageView) findViewById(R.id.imageViewIsCaught);
         scanQR();
     }
 
@@ -161,18 +161,20 @@ public class ScannerActivity extends Activity {
             JSONObject jsonResponse;
             String responseStatus;
 
-            String toBeChecked = "Success: 13512080 -> ";
-            toBeChecked += secret_token;
             try {
                 jsonResponse = new JSONObject(s);
-                responseStatus = jsonResponse.getString("message");
-                if (responseStatus.equals(toBeChecked)){
+                responseStatus = jsonResponse.getString("code");
+                if (responseStatus.equals("200")){
+                    ivIsCaught.setImageResource(R.drawable.caught);
                     isCaught.setText("Jerry is caught! Well done!");
-                } else {
+                } else if (responseStatus.equals("403")) {
+                    ivIsCaught.setImageResource(R.drawable.freejerry);
                     isCaught.setText("Whoops, Jerry is not here. Go find Jerry!");
+                } else {
+                    isCaught.setText("Sorry, you encounter an error.");
                 }
                 Log.d("Status response", responseStatus);
-                Log.d("Check", toBeChecked);
+
             } catch (JSONException e){
                 e.printStackTrace();
             }

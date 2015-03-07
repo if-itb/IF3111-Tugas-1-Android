@@ -6,6 +6,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -20,6 +21,7 @@ import android.widget.SimpleAdapter;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -41,6 +43,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class PetaActivitity extends ActionBarActivity implements SensorEventListener {
 
@@ -67,7 +71,7 @@ public class PetaActivitity extends ActionBarActivity implements SensorEventList
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 //        new GetAPITrack().execute("http://167.205.32.46/pbd/api/track?nim=13512080");
         Log.d("LATITUDE", String.valueOf(Latitude));
-        setUpMapIfNeeded();
+        callAsyncTask();
     }
 
     @Override
@@ -78,6 +82,27 @@ public class PetaActivitity extends ActionBarActivity implements SensorEventList
         //for the system's orientation sensor registered listeners
         mSensorManager.registerListener(this,mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_GAME);
+    }
+
+    public void callAsyncTask(){
+        final Handler handler = new Handler();
+        Timer timer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask(){
+
+            @Override
+            public void run() {
+                handler.post(new Runnable(){
+                   public void run(){
+                       try{
+                           setUpMapIfNeeded();
+                       } catch (Exception e){
+                           e.printStackTrace();
+                       }
+                   }
+                });
+            }
+        };
+        timer.schedule(doAsynchronousTask,0,5000); //execute in every 5 s
     }
 
     /**
@@ -249,7 +274,10 @@ public class PetaActivitity extends ActionBarActivity implements SensorEventList
                 mMap.setMyLocationEnabled(true);
                 mMap.addCircle(new CircleOptions().center(jerryPosition).radius(10000));
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(jerryPosition,17));
-                mMap.addMarker(new MarkerOptions().position(jerryPosition).title("Jerry's here!"));
+                MarkerOptions mopt = new MarkerOptions().position(jerryPosition).title("Jerry's here!");
+                mopt.icon(BitmapDescriptorFactory.fromResource(R.drawable.jerry));
+         
+                mMap.addMarker(mopt);
                 Log.d("LAT ", String.valueOf(Latitude));
             } catch (JSONException e){
                 e.printStackTrace();
