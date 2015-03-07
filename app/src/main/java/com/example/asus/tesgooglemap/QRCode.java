@@ -138,17 +138,15 @@ public class QRCode extends Activity {
             Log.d("1", "OK");
             Toast toast = Toast.makeText(this, "Great! Jerry was caught", Toast.LENGTH_LONG);
             toast.show();
-            finish();
         } else if(hr.getStatusLine().getStatusCode() == 400) {
             Log.d("2", "MISSING PARAMETER");
             Toast toast = Toast.makeText(this, "Oops! Your tools not complete", Toast.LENGTH_LONG);
             toast.show();
-            finish();
         } else {
             Log.d("3", "FORBIDDEN");
             Toast toast = Toast.makeText(this, "Wait, your tools are wrong", Toast.LENGTH_LONG);
             toast.show();
-            finish();
         }
+        finish();
     }
 }

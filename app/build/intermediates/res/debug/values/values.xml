@@ -199,7 +199,7 @@
     <string name="accept">Accept</string>
     <!-- From: file:/D:/File/Kodingan/Android/TesGoogleMap/app/src/main/res/values/strings.xml -->
     <eat-comment/>
-    <string name="app_name">TesGoogleMap</string>
+    <string name="app_name">Where is Jerry?</string>
     <!-- From: file:/D:/File/Kodingan/Android/TesGoogleMap/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/6.5.87/res/values/common_strings.xml -->
     <eat-comment/>
     <string name="common_android_wear_notification_needs_update_text">An application requires an update to the Android Wear app.</string>
@@ -256,7 +256,7 @@ https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend
     <string name="store_picture_title">Save image</string>
     <!-- From: file:/D:/File/Kodingan/Android/TesGoogleMap/app/src/main/res/values/strings.xml -->
     <eat-comment/>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps">Jerry?</string>
     <!-- From: file:/D:/File/Kodingan/Android/TesGoogleMap/app/build/intermediates/exploded-aar/com.google.android.gms/play-services/6.5.87/res/values/wallet_strings.xml -->
     <eat-comment/>
     <string name="wallet_buy_button_place_holder" translation_description="Text on a button that allows a user to make a payment with Google Wallet [CHAR LIMIT=30]">Buy with Google</string>

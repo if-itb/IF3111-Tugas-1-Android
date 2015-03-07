@@ -427,8 +427,10 @@ int drawable ic_plusone_medium_off_client 0x7f02004f
 int drawable ic_plusone_small_off_client 0x7f020050
 int drawable ic_plusone_standard_off_client 0x7f020051
 int drawable ic_plusone_tall_off_client 0x7f020052
-int drawable powered_by_google_dark 0x7f020053
-int drawable powered_by_google_light 0x7f020054
+int drawable jerry_caught 0x7f020053
+int drawable jerry_mouse 0x7f020054
+int drawable powered_by_google_dark 0x7f020055
+int drawable powered_by_google_light 0x7f020056
 int id action_bar 0x7f090045
 int id action_bar_activity_content 0x7f090000
 int id action_bar_container 0x7f090044
@@ -475,6 +477,7 @@ int id icon 0x7f09003a
 int id ifRoom 0x7f09001d
 int id image 0x7f090037
 int id imageViewCompass 0x7f090054
+int id imageViewJerry 0x7f090057
 int id listMode 0x7f090009
 int id list_item 0x7f090039
 int id map 0x7f090053
@@ -490,7 +493,7 @@ int id progress_horizontal 0x7f090006
 int id radio 0x7f09003f
 int id sandbox 0x7f090026
 int id satellite 0x7f090019
-int id scanner 0x7f090057
+int id scanner 0x7f090056
 int id search_badge 0x7f090049
 int id search_bar 0x7f090048
 int id search_button 0x7f09004a
@@ -511,7 +514,6 @@ int id strict_sandbox 0x7f090027
 int id submit_area 0x7f090050
 int id tabMode 0x7f09000b
 int id terrain 0x7f09001a
-int id textView1 0x7f090056
 int id title 0x7f09003b
 int id up 0x7f090008
 int id useLogo 0x7f090012
@@ -543,7 +545,7 @@ int layout abc_search_dropdown_item_icons_2line 0x7f030014
 int layout abc_search_view 0x7f030015
 int layout abc_simple_dropdown_hint 0x7f030016
 int layout activity_maps 0x7f030017
-int layout bar_code 0x7f030018
+int layout qr_code 0x7f030018
 int layout support_simple_spinner_dropdown_item 0x7f030019
 int raw gtm_analytics 0x7f050000
 int string abc_action_bar_home_description 0x7f0b0000

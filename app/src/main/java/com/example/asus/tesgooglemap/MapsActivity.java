@@ -1,7 +1,6 @@
 package com.example.asus.tesgooglemap;
 
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -11,7 +10,6 @@ import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
@@ -25,16 +23,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener, OnInfoWindowClickListener {
 
@@ -58,8 +51,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     // device sensor manager
     private SensorManager mSensorManager;
-
-    static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,9 +113,13 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-            //start the scanning activity from the com.google.zxing.client.android.SCAN intent
-            Intent i = new Intent(this, QRCode.class);
-            startActivity(i);
+        String date_valid_until = unixToDate(valid_until);
+        Toast toast = Toast.makeText(this, "Time-hiding's Jerry: " + date_valid_until, Toast.LENGTH_LONG);
+        toast.show();
+
+        //start the scanning activity from the com.google.zxing.client.android.SCAN intent
+        Intent i = new Intent(this, QRCode.class);
+        startActivity(i);
     }
 
     /**
@@ -181,7 +176,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             mMap.addMarker(new MarkerOptions().position(new LatLng(Latitude, Longitude)).title("Jerry is here!"));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Latitude, Longitude), 18));
         }
-
     }
 
     /**
@@ -220,6 +214,15 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
      */
     private void setUpMap() {
 
+    }
+
+    private String unixToDate(String unix_timestamp) {
+        long timestamp = Long.parseLong(unix_timestamp) * 1000;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d H:mm", Locale.getDefault());
+        String date = sdf.format(timestamp);
+
+        return date.toString();
     }
 
 }

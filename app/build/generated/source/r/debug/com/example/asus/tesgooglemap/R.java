@@ -1687,8 +1687,10 @@ containing a value of this type.
         public static final int ic_plusone_small_off_client=0x7f020050;
         public static final int ic_plusone_standard_off_client=0x7f020051;
         public static final int ic_plusone_tall_off_client=0x7f020052;
-        public static final int powered_by_google_dark=0x7f020053;
-        public static final int powered_by_google_light=0x7f020054;
+        public static final int jerry_caught=0x7f020053;
+        public static final int jerry_mouse=0x7f020054;
+        public static final int powered_by_google_dark=0x7f020055;
+        public static final int powered_by_google_light=0x7f020056;
     }
     public static final class id {
         public static final int action_bar=0x7f090045;
@@ -1737,6 +1739,7 @@ containing a value of this type.
         public static final int ifRoom=0x7f09001d;
         public static final int image=0x7f090037;
         public static final int imageViewCompass=0x7f090054;
+        public static final int imageViewJerry=0x7f090057;
         public static final int listMode=0x7f090009;
         public static final int list_item=0x7f090039;
         public static final int map=0x7f090053;
@@ -1752,7 +1755,7 @@ containing a value of this type.
         public static final int radio=0x7f09003f;
         public static final int sandbox=0x7f090026;
         public static final int satellite=0x7f090019;
-        public static final int scanner=0x7f090057;
+        public static final int scanner=0x7f090056;
         public static final int search_badge=0x7f090049;
         public static final int search_bar=0x7f090048;
         public static final int search_button=0x7f09004a;
@@ -1773,7 +1776,6 @@ containing a value of this type.
         public static final int submit_area=0x7f090050;
         public static final int tabMode=0x7f09000b;
         public static final int terrain=0x7f09001a;
-        public static final int textView1=0x7f090056;
         public static final int title=0x7f09003b;
         public static final int up=0x7f090008;
         public static final int useLogo=0x7f090012;
@@ -1809,7 +1811,7 @@ containing a value of this type.
         public static final int abc_search_view=0x7f030015;
         public static final int abc_simple_dropdown_hint=0x7f030016;
         public static final int activity_maps=0x7f030017;
-        public static final int bar_code=0x7f030018;
+        public static final int qr_code=0x7f030018;
         public static final int support_simple_spinner_dropdown_item=0x7f030019;
     }
     public static final class raw {
