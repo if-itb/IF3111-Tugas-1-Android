@@ -4,9 +4,19 @@ Dalam tugas ini, peserta diharapkan dapat membuat aplikasi android yang membantu
 
 ## Latar Belakang
 
+Jerry harus segera ditangkap, oleh karena itu aplikasi ini ada.
+
 ## Spesifikasi Aplikasi
 
+- Aplikasi dapat menampilkan posisi Jerry dengan bertanya kepada Spike
+- Aplikasi dapat menampilkan kompas
+- Aplikasi dapat menggunakan QR Code scanner untuk menangkap Jerry
+
 ## Spesifikasi Endpoint
+
+Alamat Server: 167.205.32.46/pbd
+TRACK : [GET] /api/track?nim=<NIM_ANDA>
+CATCH : [POST] /api/catch
 
 ## License
 
