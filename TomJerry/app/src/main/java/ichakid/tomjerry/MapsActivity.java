@@ -1,15 +1,22 @@
 package ichakid.tomjerry;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,6 +38,15 @@ public class MapsActivity extends Activity implements SensorEventListener {
     private ImageView imgCompass;           //Gambar compass
     private float currentDegree = 0f;       //variabel untuk menyimpan sudut putaran gambar compass
     private SensorManager mSensorManager;
+    private Sensor accelerometer;
+    private Sensor magnetometer;
+    private float[] lastAccelerometer = new float[3];
+    private float[] lastMagnetometer = new float[3];
+    private boolean lastAccelerometerSet = false;
+    private boolean lastMagnetometerSet = false;
+    private float[] mR = new float[9];
+    private float[] orientation = new float[3];
+    static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +66,9 @@ public class MapsActivity extends Activity implements SensorEventListener {
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
 
         imgCompass = (ImageView) findViewById(R.id.imageViewCompass);
-        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     }
 
     @Override
@@ -63,13 +81,16 @@ public class MapsActivity extends Activity implements SensorEventListener {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
+//        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
     }
 
     @Override
     protected void onPause(){
         super.onPause();
-        mSensorManager.unregisterListener(this);
+        mSensorManager.unregisterListener(this, accelerometer);
+        mSensorManager.unregisterListener(this, magnetometer);
     }
 
     /**
@@ -133,22 +154,74 @@ public class MapsActivity extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        //Mendapatkan sudut di z-axis
-        float degree = Math.round(event.values[0]);
-        RotateAnimation ra = new RotateAnimation(
-                currentDegree,
-                -degree,
-                Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF, 0.5f
-        );
-        ra.setDuration(210);
-        ra.setFillAfter(true);
-        imgCompass.startAnimation(ra);
-        currentDegree = -degree;
+        if (event.sensor == accelerometer) {
+            System.arraycopy(event.values, 0, lastAccelerometer, 0, event.values.length);
+            lastAccelerometerSet = true;
+        } else if (event.sensor == magnetometer) {
+            System.arraycopy(event.values, 0, lastMagnetometer, 0, event.values.length);
+            lastMagnetometerSet = true;
+        }
+        if (lastAccelerometerSet && lastMagnetometerSet) {
+            SensorManager.getRotationMatrix(mR, null, lastAccelerometer, lastMagnetometer);
+            SensorManager.getOrientation(mR, orientation);
+            float azimuthInRadians = orientation[0];
+            float azimuthInDegress = (float)(Math.toDegrees(azimuthInRadians)+360)%360;
+            RotateAnimation ra = new RotateAnimation(
+                    currentDegree,
+                    -azimuthInDegress,
+                    Animation.RELATIVE_TO_SELF, 0.5f,
+                    Animation.RELATIVE_TO_SELF,
+                    0.5f);
+            ra.setDuration(250);
+            ra.setFillAfter(true);
+            imgCompass.startAnimation(ra);
+            currentDegree = -azimuthInDegress;
+        }
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
+    public void scanQR(View v){
+        try {
+            Intent intent = new Intent(ACTION_SCAN);
+            intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
+            startActivityForResult(intent, 0);
+        } catch (ActivityNotFoundException e){
+            showDialog(MapsActivity.this, "No Scanner Found", "Download a QR Code scanner app?", "Yes", "No").show();
+        }
     }
+
+    private static AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo) {
+        AlertDialog.Builder downloadDialog = new AlertDialog.Builder(act);
+        downloadDialog.setTitle(title);
+        downloadDialog.setMessage(message);
+        downloadDialog.setPositiveButton(buttonYes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Uri uri = Uri.parse("market://search?q=pname:" + "com.google.zxing.client.android");
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                try {
+                    act.startActivity(intent);
+                } catch (ActivityNotFoundException anfe) {
+                }
+            }
+        });
+        downloadDialog.setNegativeButton(buttonNo, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        return downloadDialog.show();
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == 0) {
+            if (resultCode == RESULT_OK) {
+                String contents = intent.getStringExtra("SCAN_RESULT");
+                String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
+                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                toast.show();
+            }
+        }
+    }
+
 }
