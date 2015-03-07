@@ -43,4 +43,9 @@ public class MainActivity extends ActionBarActivity {
         Intent iMap = new Intent (this, MapsActivity.class);
         startActivity(iMap);
     }
+
+    public void scanQRCode(View v) {
+        Intent iQR = new Intent (this, QRScanActivity.class);
+        startActivity(iQR);
+    }
 }
