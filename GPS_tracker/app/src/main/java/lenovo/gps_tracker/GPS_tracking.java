@@ -225,12 +225,12 @@ public class GPS_tracking extends FragmentActivity implements SensorEventListene
             Date date = new Date();
             now =  date.getTime();
 
-//            String now = new SimpleDateFormat("dd/MM/yyyy hh:mm").format(new Date(l));
+//            String test = new SimpleDateFormat("dd/MM/yyyy hh:mm").format(new Date(125320));
 //            period = (TextView) findViewById(R.id.valid_until);
-//            period.setText("Valid until : " + now);
+//            period.setText("Valid until : " + test);
 
             expire = (TextView) findViewById(R.id.expire);
-            new CountDownTimer(valid*1000 - now, 1000) {
+            new CountDownTimer(valid*1000 - System.currentTimeMillis(), 1000) {
 
                 public void onFinish() {
                     expire.setText("");
