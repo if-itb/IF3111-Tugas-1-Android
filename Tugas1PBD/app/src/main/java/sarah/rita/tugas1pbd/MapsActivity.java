@@ -1,11 +1,14 @@
 package sarah.rita.tugas1pbd;
 
+import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.app.Activity;
@@ -29,14 +32,19 @@ import android.net.Uri;
 import android.view.View;
 import android.widget.Toast;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener {
@@ -56,16 +64,19 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     TextView tvHeading;
 
-    double latit,longit;
-    long validuntil;
+    double latit, longit;
+    long valid12;
+    long now = System.currentTimeMillis();
+    long estimatedtime;
+
+    String postMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        String result = "";
+        new GetTask().execute(getApplicationContext());
 
         super.onCreate(savedInstanceState);
-        String result = "";
-        new Task().execute(getApplicationContext());
-
         setContentView(R.layout.activity_maps);
 
         //
@@ -78,6 +89,10 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         setUpMapIfNeeded();
+        estimatedtime=10000;
+        estimatedtime = (valid12*1000) - now ;
+        timer();
+
     }
 
     @Override
@@ -102,7 +117,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     public void onSensorChanged(SensorEvent event) {
         // get the angle around the z-axis rotated
         float degree = Math.round(event.values[0]);
-        tvHeading.setText("Heading: " + Float.toString(degree) + " degrees");
+//        tvHeading.setText("Heading: " + Float.toString(degree) + " degrees");
 
         // create a rotation animation (reverse turn degree degrees)
         RotateAnimation ra = new RotateAnimation(currentDegree, -degree, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
@@ -158,7 +173,12 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(latit, longit)).title("Marker"));
+        Marker a = null;
+        a= mMap.addMarker(new MarkerOptions().position(new LatLng(latit, longit)).title("Jerry"));
+        // Move the camera instantly to location with a zoom of 15.
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latit, longit), 10));
+        // Zoom in, animating the camera.
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
     }
 
 
@@ -206,11 +226,31 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
                 Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
                 toast.show();
+                postMessage = contents;
+                new PostTask().execute();
+
             }
         }
     }
 
-    public class Task extends AsyncTask<Context, String, String> {
+    public void timer (){
+        new CountDownTimer(estimatedtime, 1000) {
+            public void onTick(long millisUntilFinished) {
+                tvHeading.setText(Long.toString(estimatedtime/1000));
+                estimatedtime = millisUntilFinished;
+            }
+
+            public void onFinish() {
+              new GetTask().execute(getApplicationContext());
+                estimatedtime = (valid12*1000) - now ;
+                setUpMap();
+                timer();
+            }
+        }.start();
+
+    }
+
+    public class GetTask extends AsyncTask<Context, String, String> {
 
         @Override
         protected String doInBackground(Context... params) {
@@ -220,7 +260,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             HttpGet request = new HttpGet("http://167.205.32.46/pbd/api/track?nim=13512009");
             HttpResponse response;
             String result = "";
-
 
             try {
                 response = client.execute(request);
@@ -232,15 +271,15 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 while ((line = rd.readLine()) != null) {
                     result += line;
                 }
-
-                result=result.substring(result.indexOf("{"),result.indexOf("}")+1);
+                result = result.substring(result.indexOf("{"), result.indexOf("}") + 1);
 
                 try {
                     JSONObject res = new JSONObject(result);
                     latit = res.getDouble("lat");
                     longit = res.getDouble("long");
-                    validuntil = res.getLong("valid_until");
-                    Log.d("Result",result);
+                    valid12 = res.getLong("valid_until");
+
+                    Log.d("Result", result);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -254,5 +293,80 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             return result;
         }
 
+    }
+
+    public class PostTask extends AsyncTask<Void, Void, JSONObject> {
+        private final String TAG = "HttpClient";
+        private JSONObject result = null;
+
+        @Override
+        protected JSONObject doInBackground(Void... params) {
+        String sendMessage;
+
+            try {
+                DefaultHttpClient httpclient = new DefaultHttpClient();
+                HttpPost httpPostRequest = new HttpPost("http://167.205.32.46/pbd/api/catch");
+
+                JSONObject sendObject = new JSONObject();
+                sendObject.put("nim","13512009");
+                sendObject.put("token",postMessage);
+                sendMessage = sendObject.toString();
+
+                StringEntity se;
+                se = new StringEntity(sendMessage);
+
+                // Set HTTP parameters
+                httpPostRequest.setEntity(se);
+                httpPostRequest.setHeader("Accept", "application/json");
+                httpPostRequest.setHeader("Content-type", "application/json");
+
+                long t = System.currentTimeMillis();
+                HttpResponse response = (HttpResponse) httpclient.execute(httpPostRequest);
+                Log.i(TAG, "HTTPResponse received in [" + (System.currentTimeMillis() - t) + "ms]");
+
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    // Read the content stream
+                    InputStream instream = entity.getContent();
+
+                    // convert content stream to a String
+                    String resultString = convertStreamToString(instream);
+                    instream.close();
+                    resultString = resultString.substring(1, resultString.length() - 1); // remove wrapping "[" and "]"
+
+                    JSONObject jsonObjRecv = new JSONObject(resultString);
+
+                    // Raw DEBUG output of our received JSON object:
+                    Log.i(TAG, "<JSONObject>\n" + jsonObjRecv.toString() + "\n</JSONObject>");
+
+                    return jsonObjRecv;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private String convertStreamToString(InputStream is) {
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            StringBuilder sb = new StringBuilder();
+
+            String line = null;
+            try {
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line + "\n");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return sb.toString();
+        }
     }
 }
