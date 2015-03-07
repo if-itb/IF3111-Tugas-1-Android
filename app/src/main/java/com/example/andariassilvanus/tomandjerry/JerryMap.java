@@ -11,6 +11,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -71,16 +72,21 @@ public class JerryMap extends FragmentActivity implements SensorEventListener {
         setContentView(R.layout.activity_jerry_map);
         setUpMapIfNeeded();
         setUpCompass();
-        long valid = valid_until - (System.currentTimeMillis()/1000);
-        if (valid<1800) {
-            while (valid > 0 && valid<1800) {
-                if (valid <= 0) {
-                    getRequest();
-                }
-                else
-                    valid = valid_until - (System.currentTimeMillis() / 1000);
-            }
-        }
+//        Toast trop = Toast.makeText(JerryMap.this, "time now: "+valid_until, Toast.LENGTH_LONG);
+//        trop.show();
+//        double valid = valid_until - (System.currentTimeMillis()/1000);
+//        if (valid<1800) {
+//            while (valid > 0 && valid<1800) {
+//                if (valid <= 0) {
+//                    getRequest();
+//                }
+//                else {
+//                    valid = valid_until - (System.currentTimeMillis() / 1000);
+//                    Toast trep = Toast.makeText(JerryMap.this, (int) valid, Toast.LENGTH_LONG);
+//                    trep.show();
+//                }
+//            }
+//        }
     }
 
     @Override
@@ -104,7 +110,7 @@ public class JerryMap extends FragmentActivity implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         // get the angle around the z-axis rotated
         float degree = Math.round(event.values[0]);
-        tvHeading.setText("Heading: " + Float.toString(degree) + " degrees");
+//        tvHeading.setText("Heading: " + Float.toString(degree) + " degrees");
         // create a rotation animation (reverse turn degree degrees)
         RotateAnimation ra = new RotateAnimation(
                 currentDegree,
@@ -215,10 +221,10 @@ public class JerryMap extends FragmentActivity implements SensorEventListener {
         if(requestCode == 0){
             if(resultCode == RESULT_OK){
                 //get the extras that are returned from the intent
-                String contents = intent.getStringExtra("SCAN_RESULT");
+                contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
-                toast.show();
+//                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+//                toast.show();
             }
         }
     }
@@ -270,15 +276,27 @@ public class JerryMap extends FragmentActivity implements SensorEventListener {
             try{
                 double lat = Double.parseDouble(result.getString("lat"));
                 double lon = Double.parseDouble(result.getString("long"));
-                valid_until = Long.parseLong(result.getString("valid_until"));
+                valid_until = Long.parseLong(result.getString("valid_until"))*1000;
                 jerry_whereabouts = new LatLng(lat, lon);
-                Toast toast = Toast.makeText(JerryMap.this, "Jerry Position ("+ lat + "," + lon + ")", Toast.LENGTH_LONG);
-                toast.show();
+
+                new CountDownTimer((valid_until-System.currentTimeMillis()),1000){
+                    public void onTick (long r){
+                        long ETA = (valid_until - System.currentTimeMillis()) / 1000;
+                        tvHeading.setText(String.valueOf(
+                                (ETA/3600) + "jam " + (ETA%3600 / 60) + " menit " + (ETA%3600 %60) + " detik ketika Jerry akan berpindah lokasi"
+                        ));
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        setUpMapIfNeeded();
+                    }
+                }.start();
             } catch(JSONException e){e.printStackTrace();}
             //setUpMap();
 
             mMap.clear();
-            mMap.addMarker(new MarkerOptions().position(jerry_whereabouts).title("Marker"));
+            mMap.addMarker(new MarkerOptions().position(jerry_whereabouts).title("Jerry is Here!"));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(jerry_whereabouts, 17));
         }
     }
@@ -311,7 +329,12 @@ public class JerryMap extends FragmentActivity implements SensorEventListener {
                     while ((line = buffRead.readLine()) != null) {
                         SB.append(line);
                     }
-                    content = SB.toString();
+                    json = new JSONObject(SB.toString());
+                    if (json.getInt("code")==200)
+                        content = "Jerry berhasil ditangkap!";
+                    else
+                        content = "Jerry gagal ditangkap!";
+//                    content = SB.toString();
                 }
             } catch (JSONException | IOException e) {
                 e.printStackTrace();
@@ -322,7 +345,7 @@ public class JerryMap extends FragmentActivity implements SensorEventListener {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            Toast trep = Toast.makeText(JerryMap.this, result, Toast.LENGTH_LONG);
+            Toast trep = Toast.makeText(JerryMap.this, "Result: "+result, Toast.LENGTH_LONG);
             trep.show();
         }
     }
