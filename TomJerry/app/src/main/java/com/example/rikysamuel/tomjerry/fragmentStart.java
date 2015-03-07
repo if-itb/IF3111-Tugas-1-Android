@@ -87,14 +87,19 @@ public class fragmentStart extends Fragment {
             if (data.hasExtra("response")){
                 response = data.getExtras().getString("response");
             }
-            TextView t = (TextView) getActivity().findViewById(R.id.textView);
-            try {
-                JSONObject jso = new JSONObject(response);
-                String msg = jso.getString("message");
-                int code = jso.getInt("code");
-                t.setText("Message: " + msg + " with code: " + code);
-            } catch (JSONException e) {
-                e.printStackTrace();
+            if (response!=null){
+                TextView t = (TextView) getActivity().findViewById(R.id.textView);
+                try {
+                    JSONObject jso = new JSONObject(response);
+                    String msg = jso.getString("message");
+                    int code = jso.getInt("code");
+                    t.setText("Message: " + msg + " with code: " + code);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else{
+                TextView t = (TextView) getActivity().findViewById(R.id.textView);
+                t.setText("No response");
             }
         }
     }
