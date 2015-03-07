@@ -39,6 +39,7 @@
             android:name=".QRCodeScannerActivity"
             android:label="@string/title_activity_qrcode_scanner" >
         </activity>
+
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main" >
@@ -48,10 +49,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".CompassActivity"
-            android:label="@string/title_activity_compass" >
-        </activity>
+
     </application>
 
 </manifest>
