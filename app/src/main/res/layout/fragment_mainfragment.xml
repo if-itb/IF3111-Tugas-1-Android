@@ -1,0 +1,26 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" tools:context="tegar.catchjerry.Fragment1">
+
+    <!-- TODO: Update blank fragment layout -->
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Tangkap Jerry"
+        android:id="@+id/textView4"
+        android:layout_gravity="center_horizontal|top"
+        android:textSize="40dp"
+        android:layout_marginTop="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:text="Jerry adalah tikus legendaris di ITB, bantu Tom untuk menangkap Jerry! Gunakan QRCode Scanner, Map dan Kompas untuk menangkapnya!"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:layout_gravity="center"
+        android:layout_margin="20dp" />
+
+</FrameLayout>

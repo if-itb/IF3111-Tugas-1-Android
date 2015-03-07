@@ -1,0 +1,53 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" tools:context="tegar.catchjerry.Fragment1">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <Button
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:text="Show Map"
+        android:id="@+id/button"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="30dp"
+        android:maxWidth="30dp"
+        android:onClick="showMap"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Show Map"
+        android:id="@+id/title"
+        android:layout_gravity="center_horizontal|top"
+        android:textSize="40dp"
+        android:layout_marginTop="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@+id/longitude"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@+id/latitude"
+        android:layout_gravity="center"
+        android:layout_marginTop="-40dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@+id/expired"
+        android:layout_gravity="center"
+        android:layout_marginTop="40dp" />
+
+</FrameLayout>
