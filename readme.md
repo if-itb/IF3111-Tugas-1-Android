@@ -10,4 +10,11 @@ Dalam tugas ini, peserta diharapkan dapat membuat aplikasi android yang membantu
 
 ## License
 
+## Cara Pakai
+Buka aplikasi. Pada halaman awal terdapat peta yang menunjukkan posisi kita dan posisi jerry. Posisi kita ditandai dengan titik biru sedangkan posisi jerry ditandai dengan sebuah pointer bewarna merah.
+
+Tekan tombol bewarna ungu di bawah untuk mengirim QRCode ke endpoint
+Pengguna dapat mengubah nim di bagian setting yang terdapat pada action bar.
+Aplikasi secara otomatis mengambil lokasi dari server.
+
 MIT License
