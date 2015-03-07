@@ -24,13 +24,13 @@ Setelah mencapai posisi Jerry, Jerry dapat ditangkap menggunakan QR-Code Scanner
 
 ## Spesifikasi Endpoint
 
-### Alamat Server: 167.205.32.46/pbd
+### 1. Alamat Server: 167.205.32.46/pbd
 
-### TRACK : [GET] /api/track?nim=<NIM_ANDA>
+### 2. TRACK : [GET] /api/track?nim=<NIM_ANDA>
 
 Contoh kembalian : { “lat”: “-6.890323”, “long”: “107.610381”, “valid_until”:1425833999 }
 
-### CATCH : [POST] /api/catch
+### 3. CATCH : [POST] /api/catch
 
 Response status:
 - status: 200 OK (Apabila pengumpulan sukses dengan token sesuai)
