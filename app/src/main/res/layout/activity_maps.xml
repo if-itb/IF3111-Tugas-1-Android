@@ -14,16 +14,6 @@
     </TableRow>
 
     <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="fill_parent">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/imageView" />
-    </TableRow>
-
-    <TableRow
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
@@ -33,32 +23,36 @@
             android:layout_height="fill_parent"
             android:weightSum="1">
 
-            <Button
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Scan QR Code"
+                    android:id="@+id/button"
+                    android:layout_column="0"
+                    android:layout_weight="0.5"
+                    android:onClick="scanQR" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:id="@+id/textView2"
+                    android:text="Notification" />
+
+            </LinearLayout>
+
+            <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Scan QR Code"
-                android:id="@+id/button"
-                android:layout_column="0"
-                android:layout_weight="0.5"
-                android:onClick="scanQR" />
+                android:id="@+id/pointer"
+                android:src="@drawable/compass" />
 
         </LinearLayout>
-    </TableRow>
-
-    <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"></TableRow>
-
-    <TableRow
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="New Text"
-            android:id="@+id/textView"
-            android:layout_column="0" />
     </TableRow>
 
 

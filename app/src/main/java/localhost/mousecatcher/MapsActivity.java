@@ -3,6 +3,10 @@ package localhost.mousecatcher;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Point;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Debug;
 import android.os.Handler;
@@ -10,6 +14,9 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,9 +59,21 @@ import java.util.concurrent.Future;
 import util.Request;
 import util.Response;
 
-public class MapsActivity extends FragmentActivity {
+public class MapsActivity extends FragmentActivity implements SensorEventListener{
 
+    private ImageView mPointer;
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+    private Sensor mMagnetometer;
+    private float[] mLastAccelerometer = new float[3];
+    private float[] mLastMagnetometer = new float[3];
+    private boolean mLastAccelerometerSet = false;
+    private boolean mLastMagnetometerSet = false;
+    private float[] mR = new float[9];
+    private float[] mOrientation = new float[3];
+    private float mCurrentDegree = 0f;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private TextView notifTextView;
     Handler handler = new Handler();
     Runnable r = new Runnable() {
         public void run() {
@@ -68,12 +87,60 @@ public class MapsActivity extends FragmentActivity {
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
         handler.post(r);
+        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        mPointer = (ImageView) findViewById(R.id.pointer);
+        notifTextView = (TextView) findViewById(R.id.textView2);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
+    }
+
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this, mAccelerometer);
+        mSensorManager.unregisterListener(this, mMagnetometer);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor == mAccelerometer) {
+            System.arraycopy(event.values, 0, mLastAccelerometer, 0, event.values.length);
+            mLastAccelerometerSet = true;
+        } else if (event.sensor == mMagnetometer) {
+            System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
+            mLastMagnetometerSet = true;
+        }
+        if (mLastAccelerometerSet && mLastMagnetometerSet) {
+            SensorManager.getRotationMatrix(mR, null, mLastAccelerometer, mLastMagnetometer);
+            SensorManager.getOrientation(mR, mOrientation);
+            float azimuthInRadians = mOrientation[0];
+            float azimuthInDegress = (float)(Math.toDegrees(azimuthInRadians)+360)%360;
+            RotateAnimation ra = new RotateAnimation(
+                    mCurrentDegree,
+                    -azimuthInDegress,
+                    Animation.RELATIVE_TO_SELF, 0.5f,
+                    Animation.RELATIVE_TO_SELF,
+                    0.5f);
+
+            ra.setDuration(250);
+
+            ra.setFillAfter(true);
+
+            mPointer.startAnimation(ra);
+            mCurrentDegree = -azimuthInDegress;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
     /**
      * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
@@ -98,6 +165,7 @@ public class MapsActivity extends FragmentActivity {
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
+                mMap.setMyLocationEnabled(true);
                 setUpMap();
             }
         }
@@ -116,7 +184,7 @@ public class MapsActivity extends FragmentActivity {
     public void scanQR (View view) {
         try {
             Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-            intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
+            intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
             startActivityForResult(intent, 0);
         } catch (ActivityNotFoundException anfe) {
 
@@ -149,7 +217,15 @@ public class MapsActivity extends FragmentActivity {
                         try {
                             HttpResponse response = httpClient.execute(httpPost);
                             // write response to log
+                            final String s = "Http Post Response:" + String.valueOf(response.getStatusLine().getStatusCode());
                             Log.d("Http Post Response:", String.valueOf(response.getStatusLine().getStatusCode()));
+                            notifTextView.post( new Runnable() {
+                                @Override
+                                public void run() {
+                                    notifTextView.setText(s);
+                                    Log.d("View:","Setting notification");
+                                }
+                            });
                         } catch (ClientProtocolException e) {
                             // Log exception
                             e.printStackTrace();
@@ -164,7 +240,7 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
-    class RetrieveFeedTask extends AsyncTask<Void, Void, String> {
+class RetrieveFeedTask extends AsyncTask<Void, Void, String> {
 
         private Exception exception;
         private double lat;
@@ -212,7 +288,8 @@ public class MapsActivity extends FragmentActivity {
                             .title("Jerry Position"));
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             builder.include(m.getPosition());
-
+            if (mMap.getMyLocation() != null) builder.include(new LatLng(mMap.getMyLocation().getLatitude(),mMap.getMyLocation().getLongitude()));
+            Log.d("Location : ",lat + " "+ lon);
             LatLngBounds bounds = builder.build();
             int padding = 0; // offset from edges of the map in pixels
             CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
