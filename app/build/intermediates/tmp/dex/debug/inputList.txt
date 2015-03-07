@@ -1,0 +1,6 @@
+C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\classes\debug
+C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.3-77463bfa8acf2a579d84c52482aa6552cd49f1c7.jar
+C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-9dacb719c154829ea4ac944f155c032094627ac3.jar
+C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\pre-dexed\debug\classes-bb35f1625720e1066d3a01ac533bb6d1c6ab1d6c.jar
+C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\pre-dexed\debug\classes-8c2fce3a06e4018bfdb440212900181c938b578b.jar
+C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\pre-dexed\debug\classes-32222117aba7174637c1d5a20bb2f9cf2927bc0b.jar
