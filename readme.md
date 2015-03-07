@@ -41,7 +41,7 @@ Content-type: application/json <br\><br\>
 <li> nim: 13512018</li>
 <li> token: <secret_token> (hasil QR Code Scanning)</li></ul> 
 
-<b> Response Status </b> <br\>
+<b> Response Status </b>
 <ul type ="list-style-type:disc">
 <li> status : <b>200 -> OK</b> (pengumpulan sukses, secret_token sesuai) </li>
 <li> status : <b>400 -> MISSING PARAMETER</b> (paramter yang dikirim tidak lengkap yaitu 2 parameter) </li>
