@@ -23,14 +23,21 @@ Posisi yang diberikan Spike berbentuk latitude dan longitude. Lama persembunyian
 3. QR-Code Scanner
 	Setelah mendapatkan posisi Jerry, peserta harus menangkap Jerry dengan melakukan scanning token dari QR-code yang disediakan dan dikirimkan ke server. Peserta diharapkan mencoba menggunakan library yang sudah tersedia di internet.
 	(contoh : http://examples.javacodegeeks.com/android/android-barcode-and-qr-scanner-example/)
+
 Non Functional Requirement
-- Perangkat smartphone saat ini memiliki fitur yang sangat lengkap. Namun salah satu tantangan dalam menggunakan fitur-fitur tersebut adalah penggunaan daya baterai sesedikit mungkin karena daya baterai yang terbatas. 
+> Perangkat smartphone saat ini memiliki fitur yang sangat lengkap. Namun salah satu tantangan dalam menggunakan fitur-fitur tersebut adalah penggunaan daya baterai sesedikit mungkin karena daya baterai yang terbatas. 
   Oleh karena itu pada tugas kali ini, peserta diharapkan memikirkan strategi yang baik agar aplikasi membutuhkan daya sesedikit mungkin.
-- Aplikasi harus user friendly, artinya user tidak perlu selalu menekan tombol refresh untuk mendapatkan informasi terbaru dari Spike
-- Source code diusahakan agar terstruktur dengan baik (Silahkan membaca guidelines standar yang dirilis di https://source.android.com/source/code-style.html)
-- Minimal Android API 9 (GingerBread).
+  
+> Aplikasi harus user friendly, artinya user tidak perlu selalu menekan tombol refresh untuk mendapatkan informasi terbaru dari Spike
+
+> Source code diusahakan agar terstruktur dengan baik (Silahkan membaca guidelines standar yang dirilis di https://source.android.com/source/code-style.html)
+
+> Minimal Android API 9 (GingerBread)
+
 ## Spesifikasi Endpoint
-	Alamat Server: 167.205.32.46/pbd
+
+Alamat Server: 167.205.32.46/pbd
+
 	TRACK : [GET] /api/track?nim=<NIM_ANDA>
 	contoh pemanggilan:
 	  /api/track?nim=13512000 (167.205.32.46/pbd/api/track?nim=13512000)
