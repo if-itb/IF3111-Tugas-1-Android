@@ -135,6 +135,7 @@ public class AndroidQRScanner extends Activity {
                 }
                 sendResponseMessage(httpResponse);
 
+
             }
         }
     }
@@ -174,3 +175,4 @@ public class AndroidQRScanner extends Activity {
     }
 
 }
+

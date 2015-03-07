@@ -10,6 +10,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -30,8 +31,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
+
+import static java.lang.System.currentTimeMillis;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener {
 
@@ -58,7 +66,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private static final String TAG_Validuntil = "valid_until";
 
     static double Longitude, Latitude;
-    String valid_until;
+    static String valid_until;
 
 
 
@@ -142,20 +150,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     Latitude = jsonObj.getDouble(TAG_latitude);
                     Longitude = jsonObj.getDouble(TAG_longitude);
                     valid_until = jsonObj.getString(TAG_Validuntil);
-                    // Getting JSON Array node
-
-                    // looping through All Contacts
-
-                        // Phone node is JSON Object
-
-                        // tmp hashmap for single contact
-
-
-                    // adding each child node to HashMap key => value
-
-                    // adding contact to contact list
-
-                } catch (JSONException e) {
+              } catch (JSONException e) {
                     e.printStackTrace();
                 }
             } else {
@@ -173,9 +168,21 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 pDialog.dismiss();
                 mMap.addMarker(new MarkerOptions().position(new LatLng(Latitude, Longitude)).title("Marker"));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Latitude, Longitude), 19));
+
+
+                String formatted_timestamp = "";
+            try {
+                formatted_timestamp = unixToDate(valid_until); // timestamp in seconds
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            Log.d("1", formatted_timestamp);
+            TextView t = (TextView) findViewById(R.id.tvHeading);
+            t.setText("Valid until : " + formatted_timestamp);
+
         }
 
-    }
+}
 
     @Override
     protected void onResume() {
@@ -237,5 +244,15 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         Intent intent = new Intent(this, AndroidQRScanner.class);
         startActivity(intent);
     }
+
+    private String unixToDate(String unix_timestamp) throws ParseException {
+        long timestamp = Long.parseLong(unix_timestamp) * 1000;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d H:mm", Locale.CANADA);
+        String date = sdf.format(timestamp);
+
+        return date.toString();
+    }
+
 
  }
