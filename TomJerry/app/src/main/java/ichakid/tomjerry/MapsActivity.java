@@ -1,7 +1,15 @@
 package ichakid.tomjerry;
 
 import android.app.Activity;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -17,10 +25,12 @@ import org.json.JSONObject;
 
 import java.util.concurrent.ExecutionException;
 
-public class MapsActivity extends Activity {
-    private LatLng JERRY;
-    static final LatLng KIEL = new LatLng(53.551, 9.993);
-    private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+public class MapsActivity extends Activity implements SensorEventListener {
+    private LatLng JERRY;                   //lokasi Jerry
+    private GoogleMap mMap;
+    private ImageView imgCompass;           //Gambar compass
+    private float currentDegree = 0f;       //variabel untuk menyimpan sudut putaran gambar compass
+    private SensorManager mSensorManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +47,10 @@ public class MapsActivity extends Activity {
         //Memindahkan kamera langsung ke jerry dengan zoom 15
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JERRY, 15));
         //Zoom in, animasi kameranya
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
+
+        imgCompass = (ImageView) findViewById(R.id.imageViewCompass);
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
     }
 
     @Override
@@ -50,6 +63,13 @@ public class MapsActivity extends Activity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
+    }
+
+    @Override
+    protected void onPause(){
+        super.onPause();
+        mSensorManager.unregisterListener(this);
     }
 
     /**
@@ -87,13 +107,11 @@ public class MapsActivity extends Activity {
      */
     private void setUpMap() throws ExecutionException, InterruptedException {
         getJerryPosition();
-        Marker jerry = mMap.addMarker(new MarkerOptions().position(JERRY).title("Jerry"));
-        Marker kiel = mMap.addMarker(new MarkerOptions()
-                .position(KIEL)
-                .title("Kiel")
-                .snippet("Kiel is cool")
+        Marker jerry = mMap.addMarker(new MarkerOptions()
+                .position(JERRY)
+                .title("Jerry")
                 .icon(BitmapDescriptorFactory
-                        .fromResource(R.drawable.ic_launcher)));
+                    .fromResource(R.drawable.jerry)));
     }
 
     public void getJerryPosition() throws ExecutionException, InterruptedException {
@@ -106,11 +124,31 @@ public class MapsActivity extends Activity {
             String lat = json.getString("lat");
             String lon = json.getString("long");
             String valid_until = json.getString("valid_until");
-//            loc = new LatLng(Float.parseFloat(lat), Float.parseFloat(lon));
             JERRY = new LatLng(Float.parseFloat(lat), Float.parseFloat(lon));
 
         } catch (JSONException e){
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        //Mendapatkan sudut di z-axis
+        float degree = Math.round(event.values[0]);
+        RotateAnimation ra = new RotateAnimation(
+                currentDegree,
+                -degree,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f
+        );
+        ra.setDuration(210);
+        ra.setFillAfter(true);
+        imgCompass.startAnimation(ra);
+        currentDegree = -degree;
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
