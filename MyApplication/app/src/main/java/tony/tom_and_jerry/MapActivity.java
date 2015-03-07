@@ -2,7 +2,9 @@ package tony.tom_and_jerry;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -17,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -25,6 +28,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.apache.http.HttpResponse;
@@ -42,10 +46,9 @@ import java.io.IOException;
 
 public class MapActivity extends Activity implements SensorEventListener {
     private GoogleMap map;
-    private LatLng jerryPosition, tomPosition;
+    private LatLng jerryPosition;
     private TextView jerryCoordinateText, tomCoordinateText,timeLimitText;
     private ImageView compassImage;
-    private int duration;
     private boolean showTomPos = false;
 
     /* Magnet Sensor Variables */
@@ -71,17 +74,26 @@ public class MapActivity extends Activity implements SensorEventListener {
         mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+        map.setBuildingsEnabled(true);
 
-        new RequestJerryLocation().execute("http://167.205.32.46/pbd/api/track?nim=13512018");
+        new JerryTracker().execute("http://167.205.32.46/pbd/api/track?nim=13512018");
+
+        Typeface fontType = Typeface.createFromAsset(getAssets(), "fonts/chunkyness.ttf");
 
         jerryCoordinateText = (TextView) findViewById(R.id.jerryPosition);
         jerryCoordinateText.setSingleLine(false);
+        jerryCoordinateText.setTypeface(fontType);
 
         tomCoordinateText = (TextView) findViewById(R.id.tomPosition);
         tomCoordinateText.setSingleLine(false);
+        tomCoordinateText.setTypeface(fontType);
 
         timeLimitText = (TextView) findViewById(R.id.timeLimit);
         timeLimitText.setSingleLine(false);
+        timeLimitText.setTypeface(fontType);
+
+        Button tomPosButton = (Button) findViewById(R.id.tomPositionButton);
+        tomPosButton.setTypeface(fontType);
 
         compassImage = (ImageView) findViewById(R.id.compass);
     }
@@ -105,7 +117,8 @@ public class MapActivity extends Activity implements SensorEventListener {
         super.onDestroy();
     }
 
-    class RequestJerryLocation extends AsyncTask<String, String, String> {
+    /* asynchronus jerry tracker from http://167.205.32.46/pbd/api/track?nim=13512018 */
+    class JerryTracker extends AsyncTask<String, String, String> {
 
         @Override
         protected String doInBackground(String... uri) {
@@ -146,8 +159,8 @@ public class MapActivity extends Activity implements SensorEventListener {
                 double longitude = jObject.getDouble("long");
                 int validUntil = jObject.getInt("valid_until");
 
-                long unixTime = System.currentTimeMillis();
-                duration = validUntil - (int)unixTime;
+                long nowTime = System.currentTimeMillis();
+                int duration = validUntil - (int)nowTime;
 
                 new CountDownTimer(duration, 1000) {
 
@@ -162,7 +175,7 @@ public class MapActivity extends Activity implements SensorEventListener {
 
                     @Override
                     public void onFinish() {
-                        new RequestJerryLocation().execute("http://167.205.32.46/pbd/api/track?nim=13512018");
+                        new JerryTracker().execute("http://167.205.32.46/pbd/api/track?nim=13512018");
                     }
                 }.start();
 
@@ -183,19 +196,19 @@ public class MapActivity extends Activity implements SensorEventListener {
         }
     }
 
+    /* Tom Button Locator */
     public void locateTomButton(View view) {
-
         if (!showTomPos) {
-            LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-            Criteria criteria = new Criteria();
-            String provider = locationManager.getBestProvider(criteria, true);
-            Location location = locationManager.getLastKnownLocation(provider);
-            tomPosition = new LatLng(location.getLatitude(), location.getLongitude());
+            try {
+                LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+                String provider = locationManager.NETWORK_PROVIDER;
+                Location location = locationManager.getLastKnownLocation(provider);
+                LatLng tomPosition = new LatLng(location.getLatitude(), location.getLongitude());
+                tomCoordinateText.setText("\nLat: " + tomPosition.latitude + "\nLong: " + tomPosition.longitude);
+                showTomPos = true;
 
-            tomCoordinateText.setText("\nLat: " + tomPosition.latitude + "\nLong: " + tomPosition.longitude);
-            showTomPos = true;
-
-            focusOn(tomPosition,17.5f);
+                focusOn(tomPosition,17.5f);
+            } catch (NullPointerException nPE) {nPE.printStackTrace();}
         }
         else {
             tomCoordinateText.setText("\n");
@@ -203,12 +216,14 @@ public class MapActivity extends Activity implements SensorEventListener {
         }
     }
 
+    /* Jerry Button Locator */
     public void locateJerryButton(View view) {
         if (jerryPosition != null) {
             focusOn(jerryPosition, 19);
         }
     }
 
+    /* Switching activity to ScanActivity */
     public void qrCodeScanButton(View view) {
         Intent intent = new Intent(this,ScanActivity.class);
         if (intent != null) {
@@ -216,14 +231,16 @@ public class MapActivity extends Activity implements SensorEventListener {
         }
     }
 
+    /* Move and animate camera position */
     public void focusOn(LatLng focusTarget, float zoomSize) {
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(focusTarget)      // Sets the center of the map to Mountain View
-                .zoom(zoomSize)                   // Sets the zoom
-                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                .target(focusTarget)        // Sets the center of the map to Mountain View
+                .zoom(zoomSize)             // Sets the zoom
+                .tilt(45)                   // Sets the tilt of the camera to 45 degrees
                 .build();                   // Creates a CameraPosition from the builder
         map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
+
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -258,7 +275,6 @@ public class MapActivity extends Activity implements SensorEventListener {
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // TODO Auto-generated method stub
-
     }
 }
 

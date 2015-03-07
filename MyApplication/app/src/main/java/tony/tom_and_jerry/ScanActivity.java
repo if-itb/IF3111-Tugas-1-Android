@@ -5,10 +5,10 @@ import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -39,15 +39,19 @@ public class ScanActivity extends Activity {
     Button postButton;
 
     String secretTokenString;
-    String responseStatusString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan);
+
+        Typeface fontType = Typeface.createFromAsset(getAssets(), "fonts/chunkyness.ttf");
         secretTokenView = (TextView) findViewById(R.id.secretToken);
+        secretTokenView.setTypeface(fontType);
         responseStatusView = (TextView) findViewById(R.id.responseStatus);
+        responseStatusView.setTypeface(fontType);
         postButton = (Button) findViewById(R.id.postButton);
+        postButton.setTypeface(fontType);
 
         try {
             // start the scanning activity from the com.google.zxing.client.android.SCAN.intent
