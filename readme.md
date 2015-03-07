@@ -39,13 +39,8 @@ Content-type: application/json <br\><br\>
 <b>Parameter request </b>
 <ul type = "list-style-type:disc"> 
 <li> nim: 13512018</li>
-<li> token: <secret_token> (hasil QR Code Scanning)</li></ul> <br\><br\>
-<b> Response Status </b> <br\>
-<ul type ="list-style-type:disc">
-<li> status : <b>200 -> OK</b> (pengumpulan sukses, secret_token sesuai) </li>
-<li> status : <b>400 -> MISSING PARAMETER</b> (paramter yang dikirim tidak lengkap yaitu 2 parameter) </li>
-<li> status : <b>403 -> FORBIDDEN </b>(terdapat parameter yang salah (nim atau secret token) </li>
-</ul>
+<li> token: <secret_token> (hasil QR Code Scanning)</li></ul> 
+
 ## License
 
 MIT License
