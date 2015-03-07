@@ -89,6 +89,17 @@ public class MainActivity extends Activity implements LocationListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+        .addConnectionCallbacks(this)
+        .addOnConnectionFailedListener(this)
+        .addApi(LocationServices.API)
+        .build();
+
+		mLocationRequest = LocationRequest.create()
+		.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+		.setInterval(10 * 1000)        // 10 seconds, in milliseconds
+		.setFastestInterval(1 * 1000); // 1 second, in milliseconds
+        
         catched = false;
         
         timeView = (TextView) findViewById(R.id.timeTextView);
@@ -103,17 +114,6 @@ public class MainActivity extends Activity implements LocationListener,
         
         kompasImg = (ImageView) findViewById(R.id.kompasImg);
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-						        .addConnectionCallbacks(this)
-						        .addOnConnectionFailedListener(this)
-						        .addApi(LocationServices.API)
-						        .build();
-        
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(10 * 1000)        // 10 seconds, in milliseconds
-                .setFastestInterval(1 * 1000); // 1 second, in milliseconds
         
         new GetInfo().execute();
         initializeMap();
@@ -167,13 +167,8 @@ public class MainActivity extends Activity implements LocationListener,
     	double currentLatitude = location.getLatitude();
 	    double currentLongitude = location.getLongitude();
 	    LatLng latLng = new LatLng(currentLatitude, currentLongitude);
-
+	    Toast.makeText(this, currentLatitude+" "+currentLongitude, Toast.LENGTH_LONG).show();
 	    googleMap.clear();
-	    
-//	    MarkerOptions myloc = new MarkerOptions()
-//	        .position(latLng)
-//	        .title("Lokasi Saya");
-//	    googleMap.addMarker(myloc);
 	    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20));
 	    
 	    if (targetLatLng != null && !catched) {
@@ -449,12 +444,11 @@ public class MainActivity extends Activity implements LocationListener,
 					catched = true;
 					setStatus();
 					googleMap.clear();
+				} else {
+					if (time < System.currentTimeMillis())
+						new GetInfo().execute();
+		            initializeMap();					
 				}
-//				else {
-//					if (time < System.currentTimeMillis())
-//						new GetInfo().execute();
-//		            initializeMap();					
-//				}
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
