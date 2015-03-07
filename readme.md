@@ -37,7 +37,6 @@ Response status dari server terkait pengiriman token:
 ## Cara Penggunaan Aplikasi
 Aplikasi dapat dijalankan dengan cara mengimport project ke android studio dan melakukan run aplikasi nya pada device/emulator.
 
-Pemakaian:
 Terdapat label:
 1. Latitude		: latitude posisi jerry saat ini
 2. Longitude	: longitude posisi jerry saat ini
