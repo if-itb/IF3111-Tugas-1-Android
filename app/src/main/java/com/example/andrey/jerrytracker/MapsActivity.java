@@ -84,8 +84,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         getRequest();
-//        trackJerryAgain();
-
         //compass
         image = (ImageView) findViewById(R.id.imageViewCompass);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -138,6 +136,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
         locationManager.requestLocationUpdates(bestProvider,20000,0,this);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentposition, 15));
+
+        trackJerryAgain();
     }
 
     @Override
@@ -255,7 +255,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         clongitude = location.getLongitude();
         currentposition = new LatLng(clatitude, clongitude);
         float distancetojerry = getDistance(clatitude,clongitude,jlatitude,jlongitude);
-        locationTv.setText("Distance to Jerry is now: "+distancetojerry+" meters");
+        locationTv.setText("Current distance to Jerry: "+distancetojerry+" meters");
     }
 
     @Override
@@ -406,7 +406,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         jlongitude = Double.parseDouble(json.getString("long"));
                         validuntil = Long.parseLong(json.getString("valid_until"));
                         jerrymarker.remove();
-
                         setUpMap();
                         trackJerryAgain();
                     }
