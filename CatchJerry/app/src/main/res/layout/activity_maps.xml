@@ -1,0 +1,82 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+android:layout_height="match_parent" tools:context=".MapsActivity">
+
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:id="@+id/map"
+    tools:context=".MapsActivity"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentEnd="true"
+    android:layout_alignParentTop="true" />
+
+<Button
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Find Jerry"
+    android:id="@+id/buttonFindJerry"
+    android:layout_marginBottom="41dp"
+    android:nestedScrollingEnabled="false"
+    android:onClick="setUpMap"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentLeft="true"
+    android:layout_alignParentStart="true"
+    android:layout_marginLeft="60dp"
+    android:layout_marginStart="44dp" />
+
+<Button
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Catch!"
+    android:id="@+id/buttonQRCode"
+    android:onClick="scanQR"
+    android:layout_alignTop="@+id/buttonFindJerry"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentEnd="true"
+    android:layout_marginRight="51dp"
+    android:layout_marginEnd="51dp" />
+
+<ImageView
+    android:layout_width="100dp"
+    android:layout_height="100dp"
+    android:id="@+id/compass"
+    android:src="@drawable/compass"
+    android:adjustViewBounds="true"
+    android:layout_alignParentTop="true"
+    android:layout_toLeftOf="@+id/buttonFindJerry"
+    android:layout_toStartOf="@+id/buttonFindJerry"
+    android:layout_marginTop="25dp"
+    android:layout_marginRight="-125dp" />
+
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textAppearance="?android:attr/textAppearanceMedium"
+    android:text="Countdown:"
+    android:id="@+id/caption"
+    android:layout_alignBottom="@+id/countdown"
+    android:layout_toRightOf="@+id/buttonFindJerry"
+    android:layout_alignTop="@+id/compass"
+    android:layout_alignRight="@+id/buttonQRCode"
+    android:layout_marginTop="15dp"
+    android:layout_marginLeft="10dp"
+    android:paddingLeft="10dp"
+    android:paddingTop="10dp"
+    android:layout_marginRight="10dp" />
+
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textAppearance="?android:attr/textAppearanceLarge"
+    android:id="@+id/countdown"
+    android:layout_alignBottom="@+id/compass"
+    android:layout_alignLeft="@+id/buttonQRCode"
+    android:layout_alignStart="@+id/buttonQRCode"
+    android:layout_marginBottom="15dp"
+    android:layout_marginLeft="-50dp"
+    android:textSize="12dp"
+    android:layout_marginTop="-10dp" />
+
+</RelativeLayout>
+

@@ -7,6 +7,7 @@ Dalam tugas ini, peserta diharapkan dapat membuat aplikasi android yang membantu
 ## Spesifikasi Aplikasi
 
 ## Spesifikasi Endpoint
+ 167.205.32.46/pbd
 
 ## License
 
