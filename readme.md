@@ -26,7 +26,8 @@ sesedikit mungkin karena daya baterai yang terbatas. Oleh karena itu pada tugas 
 ###Spesifikasi Tampilan
 Anda dibebaskan dalam berkreasi mendesain tampilan selama fitur-fitur pada spesifikasi aplikasi tercapai dan aplikasi dapat digunakan sesuai dengan alur pengujian yang diberikan.
 
-## Spesifikasi Endpoint
+### Spesifikasi Endpoint
+Alamat Spike (server yang digunakan) berada di "167.205.32.46/pbd". API untuk meminta lokasi Jerry menggunakan request "/api/track?". API untuk mengirimkan laporan penangkapan Jerry menggunakan request "/api/catch"
 
 ## License
 
