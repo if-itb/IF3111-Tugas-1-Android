@@ -45,7 +45,7 @@ public class MenuActivity extends ActionBarActivity {
     }
 
     public void catchJerry(View v) {
-        Intent switchActivity = new Intent(MenuActivity.this, QRScanActivity.class);
+        Intent switchActivity = new Intent(MenuActivity.this, ScanActivity.class);
         MenuActivity.this.startActivity(switchActivity);
     }
 }

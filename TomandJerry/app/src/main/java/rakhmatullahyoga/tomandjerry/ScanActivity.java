@@ -6,60 +6,87 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.Toast;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONException;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 
-public class QRScanActivity extends ActionBarActivity {
-    /* action untuk scan QR code */
+public class ScanActivity extends ActionBarActivity {
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
-
     /* JSON attribute */
     private static final String url = "http://167.205.32.46/pbd/api/catch";
     private JSONObject tokenCatch = new JSONObject();
     private static final String TAG_NIM = "nim";
     private static final String TAG_TOKEN = "token";
     private static final String nim = "13512053";
+    private static String token;
+    private String response;
     private int responseStatus;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_qrscan);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
-                    .commit();
+    private class sendPost extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            ServiceHandler servHandler = new ServiceHandler();
+            List<NameValuePair> list = new ArrayList<NameValuePair>();
+            list.add(new BasicNameValuePair(TAG_NIM, nim));
+            list.add(new BasicNameValuePair(TAG_TOKEN, token));
+            String jsonStr = servHandler.makeServiceCall(url, ServiceHandler.POST, list);
+            try {
+                response = new String(jsonStr.getBytes("ISO-8859-1"), "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            Toast.makeText(getBaseContext(), response, Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_scan);
+        if (savedInstanceState == null) {
+            /*getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, new PlaceholderFragment())
+                    .commit();*/
+            try {
+                //start the scanning activity from the com.google.zxing.client.android.SCAN intent
+                Intent intent = new Intent(ACTION_SCAN);
+                intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
+                startActivityForResult(intent, 0);
+            } catch (ActivityNotFoundException anfe) {
+                //on catch, show the download dialog
+                showDialog(ScanActivity.this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
+            }
+        }
+    }
+
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_qrscan, menu);
+        getMenuInflater().inflate(R.menu.menu_scan, menu);
         return true;
     }
 
@@ -76,36 +103,6 @@ public class QRScanActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_qrscan, container, false);
-            return rootView;
-        }
-    }
-
-    //product qr code mode
-    public void scanQR(View v) {
-        try {
-            //start the scanning activity from the com.google.zxing.client.android.SCAN intent
-            Intent intent = new Intent(ACTION_SCAN);
-            intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
-            startActivityForResult(intent, 0);
-        } catch (ActivityNotFoundException anfe) {
-            //on catch, show the download dialog
-            showDialog(QRScanActivity.this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
-        }
     }
 
     //alert dialog for downloadDialog
@@ -130,19 +127,18 @@ public class QRScanActivity extends ActionBarActivity {
         return downloadDialog.show();
     }
 
-    //on ActivityResult method
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        String contents = "";
         String format;
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
                 //get the extras that are returned from the intent
-                contents = intent.getStringExtra("SCAN_RESULT");
+                token = intent.getStringExtra("SCAN_RESULT");
                 format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(this, "Content:" + token + " Format:" + format, Toast.LENGTH_LONG);
                 toast.show();
             }
         }
+        new sendPost().execute();
         /*try {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost httpPost = new HttpPost(url);
@@ -164,7 +160,7 @@ public class QRScanActivity extends ActionBarActivity {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
 
         switch (responseStatus) {
             case 200:
@@ -178,7 +174,6 @@ public class QRScanActivity extends ActionBarActivity {
                 break;
             default:
                 break;
-        }
+        }*/
     }
-
 }
