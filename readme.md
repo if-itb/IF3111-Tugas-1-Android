@@ -30,9 +30,16 @@ Anda dibebaskan dalam berkreasi mendesain tampilan selama fitur-fitur pada spesi
 <b>Alamat Server: 167.205.32.46/pbd </b>
 
 ## Track
-<b>Request: <EndPoint>/api/track?nim=13512018 </b> <br\>
-<b>Response: {"lat":"-6.890323","long":"107.610381","valid_until":1425833999} </b>
+<b>Request</b>: <EndPoint>/api/track?nim=13512018 <br\>
+<b>Response</b>: {"lat":"-6.890323","long":"107.610381","valid_until":1425833999}
 
+## Catch
+<b>Header request</b> <br\>
+Content-type: application/json <br\>
+<b>Parameter request </b> <br\>
+<ul type = "list-style-type:disc"> 
+<li> nim: 13512018</li>
+<li> token: <secret_token> (hasil QR Code Scanning)</li></ul>
 ## License
 
 MIT License
