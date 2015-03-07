@@ -1,12 +1,14 @@
 package akhfa.in.jerrytracker;
 
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -30,12 +32,14 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     //Buat json
     private static final String TAG_LATITUDE = "lat";
     private static final String TAG_LONGITUDE = "long";
+    private static final String TAG_VALID = "valid_until";
     private static final String url= "http://167.205.32.46/pbd/api/track?nim=13513601";
     static boolean jsonBool=false;
 
     //Buat Compass
     // define the display assembly compass picture
     private ImageView image;
+    private TextView timerTextView;
 
     // record the compass picture angle turned
     private float currentDegree = 0f;
@@ -43,6 +47,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     // device sensor manager
     private SensorManager mSensorManager;
 
+
+    //Buat timer
+    private long time;
+    private long timeDiff;
+    private String valid_until = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +61,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
         // compass image
         image = (ImageView) findViewById(R.id.compassImage);
+
+        timerTextView = (TextView) findViewById(R.id.timerTextView);
 
         // initialize your android device sensor capabilities
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -140,8 +151,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     //simpan di variable
                     String latitude = json.getString(TAG_LATITUDE);
                     String longitude = json.getString(TAG_LONGITUDE);
+                    valid_until = json.getString(TAG_VALID);
+
                     Log.e("lat",latitude);
                     Log.e("lat",longitude);
+                    Log.e("time", valid_until);
 
                     Double lat=Double.parseDouble(latitude.toString());
                     Double longi=Double.parseDouble(longitude.toString());
@@ -151,6 +165,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
                     //Update camera to point the marker
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, longi), 18.0f));
+                    countDownStart();
 
                 }catch(JSONException e)
                 {
@@ -163,5 +178,24 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
 
     }
+
+    public void countDownStart(){
+        time = Long.valueOf(valid_until)*1000;
+        timeDiff = time - System.currentTimeMillis();
+        new CountDownTimer(timeDiff, 1000){
+            @Override
+            public void onTick(long millisUntilFinished) {
+                long cur = (time - System.currentTimeMillis())/1000;
+                Log.e("different", "" + cur);
+                timerTextView.setText(cur/3600+":"+cur%3600/60+":"+cur%3600%60);
+                // validTextView.setText("Time before Jerry run = "+valid_until);
+                        }
+            @Override
+            public void onFinish() {
+                new JSONParse().execute();
+                timerTextView.setText("0");
+                }
+            }.start();
+        }
 }
 
