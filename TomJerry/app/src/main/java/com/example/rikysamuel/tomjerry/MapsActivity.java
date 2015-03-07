@@ -33,11 +33,16 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener,LocationListener{
 
@@ -50,6 +55,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private float currentDegree = 0f;
     private SensorManager mSensorManager;
     String contents;
+    int time = 10;
 
 
     @Override
@@ -169,6 +175,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 setUpMap();
             }
         }
+        new updatePos().execute("http://167.205.32.46/pbd/api/track?nim=13512089");
     }
 
     @Override
@@ -213,38 +220,46 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
      */
     private void setUpMap() {
         updatePos up = new updatePos();
-        up.execute("http://167.205.32.46/pbd/api/track?nim=13512089");
-//        LatLng coordinate = new LatLng(latitude, longitude);
-//        mMap.addMarker(new MarkerOptions().position(coordinate).title("Jerry's Position").icon(BitmapDescriptorFactory.fromResource(R.drawable.jerryicon50)));
-//
-//        // Move the camera instantly to location with a zoom of 17.
-//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 17));
-//
-//        // Zoom in, animating the camera.
-//        mMap.animateCamera(CameraUpdateFactory.zoomTo(17), 2000, null);
+
+        LatLng coordinate = new LatLng(latitude, longitude);
+        mMap.addMarker(new MarkerOptions().position(coordinate).title("Jerry's Position").icon(BitmapDescriptorFactory.fromResource(R.drawable.jerryicon50)));
+
+        // Move the camera instantly to location with a zoom of 17.
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 17));
+
+        // Zoom in, animating the camera.
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(17), 2000, null);
+    }
+
+    public String epochToDateTime(long epoch){
+        Date date = new Date(epoch*1000);
+        DateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+        format.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
+        String formatted = format.format(date);
+
+        format.setTimeZone(TimeZone.getTimeZone("Asia/Jakarta"));
+        System.out.println("asdasdadasd: " + TimeZone.getTimeZone("Asia/Jakarta").getDisplayName());
+        formatted = format.format(date);
+
+        return  formatted;
     }
 
     private class updatePos extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... uri){
-            HttpClient client = new DefaultHttpClient();
-            HttpGet request = new HttpGet(URI.create(uri[0]));
-            StringBuilder sb = null;
-            HttpResponse response;
-            try{
-                response = client.execute(request);
-                HttpEntity entity = response.getEntity();
+            HTTPClass httpget = new HTTPClass();
+            httpget.setUrl("http://167.205.32.46/pbd/api/track?nim=13512089");
+            String result = httpget.doGet();
+            try {
+                JSONObject json = new JSONObject(result);
+                latitude = json.getDouble("lat");
+                longitude = json.getDouble("long");
+                valid_until = json.getInt("valid_until");
 
-                BufferedHttpEntity buffEntity = new BufferedHttpEntity(entity);
-                BufferedReader buffRead = new BufferedReader(new InputStreamReader(buffEntity.getContent()));
-                String line;
-                sb = new StringBuilder();
-                while((line = buffRead.readLine()) != null){
-                    sb.append(line);
-                }
-            } catch(Exception e){ System.err.println(e);}
-
-            contents = sb.toString();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
             return contents;
         }
@@ -252,40 +267,21 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            LatLng coord = new LatLng(0,0);
-            try{
-                JSONObject j = new JSONObject(contents);
-                latitude = j.getDouble("lat");
-                longitude = j.getDouble("long");
-                valid_until = j.getInt("valid_until")*1000;
-                coord = new LatLng(latitude, longitude);
+            TextView t = (TextView) findViewById(R.id.textView6);
+            t.setText("Catch Jerry Before: " + epochToDateTime(valid_until));
+            setUpMap();
 
-                new CountDownTimer((valid_until-System.currentTimeMillis()),1000){
-                    public void onTick (long r){
-                        long ETA = (valid_until - System.currentTimeMillis()) / 1000;
-                        TextView t = (TextView) findViewById(R.id.textView6);
-                        t.setText(String.valueOf(
-                                (ETA/3600) + "jam " + (ETA%3600 / 60) + " menit " + (ETA%3600 %60) + " detik ketika Jerry akan berpindah lokasi"
-                        ));
-                    }
+            CountDownTimer c = new CountDownTimer((valid_until*1000 - System.currentTimeMillis() + 7 * 3600000), 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
 
-                    @Override
-                    public void onFinish() {
-                        setUpMapIfNeeded();
-                    }
-                }.start();
-            } catch(Exception e){e.printStackTrace();}
-
-            mMap.clear();
-//            setUpMap();
-
-            mMap.addMarker(new MarkerOptions().position(coord).title("Jerry's Position").icon(BitmapDescriptorFactory.fromResource(R.drawable.jerryicon50)));
-
-            // Move the camera instantly to location with a zoom of 17.
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coord, 17));
-
-            // Zoom in, animating the camera.
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(17), 2000, null);
+                }
+                @Override
+                public void onFinish() {
+                    new updatePos().execute("http://167.205.32.46/pbd/api/track?nim=13512089");
+                }
+            };
+            c.start();
         }
     }
 }
