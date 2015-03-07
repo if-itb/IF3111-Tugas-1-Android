@@ -1,0 +1,67 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"></TableLayout>
+
+    <FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffff"
+        android:layout_gravity="bottom"
+        tools:context="com.example.user.tomjerryif3111.MainActivity"
+        tools:ignore="MergeRootFrame" >
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/map"
+            tools:context=".MapsActivity"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            tools:layout="@layout/abc_expanded_menu_layout" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:background="#123456"
+            android:layout_width="fill_parent"
+            android:layout_height="58dp"
+            android:layout_gravity="top">
+
+            <ImageView
+                android:id="@+id/imageViewCompass"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="right|top"
+                android:src="@drawable/compass" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:background="#123456"
+            android:layout_width="fill_parent"
+            android:layout_height="58dp"
+            android:layout_gravity="center_horizontal|bottom">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="QR Code"
+                android:id="@+id/button"
+                android:onClick="scanQRCode"
+                android:layout_gravity="right|bottom" />
+
+
+        </LinearLayout>
+
+    </FrameLayout>
+</LinearLayout>
