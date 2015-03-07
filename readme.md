@@ -52,11 +52,11 @@ Content-type: application/json <br\>
 <li>MIT License </li>
 <li>"Tom and Jerry" are TM and copyright Turner Entertainment (where the rights stand today via Warner Bros). All rights reserved. Any reproduction, duplication or distribution of these materials in any form is expressly prohibited.</li> </ul>
 
-## HOW TO PLAY "Catch Jerry"
-## MAIN SCREEN
+## How To Play "Catch Jerry"
+## Main Screen
 Klik icon "Play" dan bersialah untuk melacak dan menangkap Jerry!
 
-## MAP SCREEN
+## Map Screen
 Anda akan langsung diarahkan ke tempat dimana Jerry berada. Posisi Jerry ditandai oleh tanda berbentuk balon warna merah pada peta. Anda dapat melihat posisi Jerry pada pojok kiri bawah (berbentuk Latitude dan Longitude). Anda bisa memencet icon berbentuk lup untuk memfokuskan diri Anda pada posisi Jerry pada Peta. Anda juga dapat melihat dimana posisi anda dengan mengklik tombol "My Position" pada bagian kiri bawah layar. Anda ditandai oleh lingkaran berwarna biru pada Peta. <br\
 Selain itu, pada bagian kanan bawah navigasi, anda dapat melihat ada kompas beserta switchnya. Anda dapat menggunakan kompas tersebut bila dibutuhkan. Lalu di bawah kompas, ada icon berbentuk Lup dan QRCode yang akan mengarahkan anda pada menu QR Code.
 
