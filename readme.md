@@ -8,12 +8,16 @@ Di kawasan ITB, terdapat banyak kucing yang berkeliaran. Salah satu kucing yang 
 
 ## Spesifikasi Aplikasi
 
-	- Aplikasi dapat menerima lokasi Jerry yang didapat dari Spike (server yang digunakan) melalui alamat http://167.205.32.46/pbd/api/track. 
+	- Aplikasi dapat meminta dan menerima lokasi Jerry yang didapat dari Spike (server yang digunakan)
+	  melalui alamat http://167.205.32.46/pbd/api/track. 
 	- Aplikasi dapat menampilkan navigasi kepada pengguna untuk menemukan Jerry menggunakan fitur GPS Tracking. 
 	- Aplikasi dapat menampilkan kompas menggunakan Geomagnetic Sensor pada android.
-	- Aplikasi dapat melakukan scanning terhadap QR code untuk melaporkan penangkapan Jerry.
-	- Aplikasi dapat meminta ulang lokasi Jerry kepada Spike (server yang digunakan) saat Jerry telah berpindah tempat (waktu yang tersedia telah habis).
-
+	- Aplikasi dapat melakukan scanning terhadap QR code dan mengirimkan hasil scanning ke Spike (server yang digunakan)
+	  untuk melaporkan penangkapan Jerry.
+	- Aplikasi dapat meminta ulang lokasi Jerry kepada Spike (server yang digunakan) 
+	  saat Jerry telah berpindah tempat (waktu yang tersedia telah habis) tanpa perlu menekan tombol refresh.
+	- Aplikasi menggunakan minimal Android API 9 (GingerBread).
+	
 ## Spesifikasi Endpoint
 
 	- Alamat Spike (server yang digunakan) berada di 167.205.32.46/pbd 
