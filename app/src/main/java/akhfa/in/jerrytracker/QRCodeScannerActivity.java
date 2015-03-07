@@ -1,6 +1,7 @@
 package akhfa.in.jerrytracker;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,12 +12,17 @@ import android.widget.Toast;
 
 import com.google.zxing.Result;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 
 public class QRCodeScannerActivity extends Activity implements ZXingScannerView.ResultHandler {
 
     private ZXingScannerView mScannerView;
+    private Laporan jerry;
+    private static final String url= "http://167.205.32.46/pbd/api/catch";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +56,33 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
         Toast toast = Toast.makeText(this, "Content:" + rawResult.getText() + " Format:" + rawResult.getBarcodeFormat().toString(), Toast.LENGTH_LONG);
         toast.show();
         mScannerView.stopCamera();
-        //setContentView(R.layout.activity_main);
+        jerry = new Laporan();
+        jerry.setNim("13513601");
+        jerry.setToken(rawResult.getText());
+
+        new LaporanAsyncTask().execute();
+        this.finish();
+    }
+
+    private class LaporanAsyncTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... urls) {
+            JSONObject laporan = new JSONObject();
+            try {
+                laporan.accumulate("nim", jerry.getNIM());
+                laporan.accumulate("token", jerry.getToken());
+                JSONParser jsonparser = new JSONParser();
+                jsonparser.sendJsonToUrl(url, laporan);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return "";
+        }
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(String result) {
+            Toast.makeText(getBaseContext(), "Data Sent!", Toast.LENGTH_LONG).show();
+        }
     }
 }

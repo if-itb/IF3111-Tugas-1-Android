@@ -2,6 +2,7 @@ package akhfa.in.jerrytracker;
 
 /**
  * Created by akhfa on 07/03/15.
+ * Untuk menampung data Json yang akan dikirim
  */
 public class Laporan {
     String nim;

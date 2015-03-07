@@ -43,17 +43,11 @@ public class MapsActivity extends FragmentActivity {
     }
 
     private void setUpMapIfNeeded() {
-        // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapsAkhfa))
                     .getMap();
-            // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                Log.e("Sukses", "sukses");
-                //Menampilkan tombol my location pada peta
-                //mMap.setMyLocationEnabled(true);
-                //Menampilkan marker
+                //execute parsing json from server
                 new JSONParse().execute();
 
             }
