@@ -13,19 +13,19 @@ Tom mempunyai teman seekor anjing pelacak yang bernama Spike. Dengan bantuan Spi
 Functional Requirement:
 
 1. GPS Tracking
-Posisi yang diberikan Spike berbentuk latitude dan longitude. Lama persembunyian Jerry juga diberikan dalam waktu UTC+7. Setelah waktu persembunyian habis, posisi Jerry akan berubah. Aplikasi dapat menampilkan posisi Jerry. Untuk jenis tampilan dibebaskan kepada peserta (misalnya map, atau penunjuk arah, atau indikator sederhana lainnya), silahkan dibuat se- kreatif mungkin.
+Posisi yang diberikan Spike berbentuk latitude dan longitude. Lama persembunyian Jerry juga diberikan dalam waktu UTC+7. Setelah waktu persembunyian habis, posisi Jerry akan berubah. Aplikasi dapat menampilkan posisi Jerry.
 
 2. Geomagnetic Sensor
-Peserta diminta memanfaatkan Geomagnetic Sensor untuk menggambarkan arah mata angin yang menunjukkan arah utara dan selatan dengan benar.
+Geomagnetic Sensor digunakan untuk menggambarkan arah mata angin yang menunjukkan arah utara dan selatan dengan benar.
 
 3. QR-Code Scanner
-Setelah mendapatkan posisi Jerry, peserta harus menangkap Jerry dengan melakukan scanning token dari QR-code yang disediakan dan dikirimkan ke server. Peserta diharapkan mencoba menggunakan library yang sudah tersedia di internet.
+Aplikasi dapat melakukan scanning token dari QR-code yang disediakan dan dikirimkan ke server.
 
 Non Functional Requirement:
 
-- Perangkat smartphone saat ini memiliki fitur yang sangat lengkap. Namun salah satu tantangan dalam menggunakan fitur-fitur tersebut adalah penggunaan daya baterai sesedikit mungkin karena daya baterai yang terbatas. Oleh karena itu pada tugas kali ini, peserta diharapkan memikirkan strategi yang baik agar aplikasi membutuhkan daya sesedikit mungkin.
+- Aplikasi diusahakan untuk membutuhkan daya sesedikit mungkin.
 - Aplikasi harus user friendly, artinya user tidak perlu selalu menekan tombol refresh untuk mendapatkan informasi terbaru dari Spike
-- Source code diusahakan agar terstruktur dengan baik (Silahkan membaca guidelines standar yang dirilis di https://source.android.com/source/code-style.html)
+- Source code diusahakan agar terstruktur dengan baik
 - Minimal Android API 9 (GingerBread).
 
 ## Spesifikasi Endpoint
