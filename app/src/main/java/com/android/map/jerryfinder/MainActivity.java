@@ -52,10 +52,9 @@ public class MainActivity extends Activity {
 
         scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
             public void run() {
-                nanana = nanana + 1;
-
                 try {
                     json = new GetJSON().execute("http://167.205.32.46/pbd/api/track?nim=13512055.json").get();
+                    //nanana = nanana + 1;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (ExecutionException e) {
@@ -77,17 +76,17 @@ public class MainActivity extends Activity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
-                        ref.setText("refreshed" + nanana);
+                        //ref.setText("refreshed" + nanana);
                     }
                 });
                 }
-            }, 0, 30, TimeUnit.SECONDS);
+            }, 0, 60, TimeUnit.SECONDS);
     }
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
+        scheduleTaskExecutor.shutdown();
     }
 
     @Override
