@@ -5,15 +5,19 @@ import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -22,33 +26,20 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
+import android.os.Handler;
 
 public class MapsActivity extends Activity implements SensorEventListener {
     private LatLng JERRY;                   //lokasi Jerry
+    Marker jerry;
     private GoogleMap mMap;
     private ImageView imgCompass;           //Gambar compass
     private float currentDegree = 0f;       //variabel untuk menyimpan sudut putaran gambar compass
@@ -62,6 +53,8 @@ public class MapsActivity extends Activity implements SensorEventListener {
     private float[] mR = new float[9];
     private float[] orientation = new float[3];
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
+    private long time = 0;
+    private TextView textCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +77,8 @@ public class MapsActivity extends Activity implements SensorEventListener {
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        textCounter = (TextView) findViewById(R.id.textCounter);
+        textCounter.setText(String.valueOf(time));
     }
 
     @Override
@@ -96,7 +91,6 @@ public class MapsActivity extends Activity implements SensorEventListener {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
     }
@@ -143,7 +137,7 @@ public class MapsActivity extends Activity implements SensorEventListener {
      */
     private void setUpMap() throws ExecutionException, InterruptedException {
         getJerryPosition();
-        Marker jerry = mMap.addMarker(new MarkerOptions()
+        jerry = mMap.addMarker(new MarkerOptions()
                 .position(JERRY)
                 .title("Jerry")
                 .icon(BitmapDescriptorFactory
@@ -159,8 +153,30 @@ public class MapsActivity extends Activity implements SensorEventListener {
             String lat = json.getString("lat");
             String lon = json.getString("long");
             String valid_until = json.getString("valid_until");
+            time = Long.parseLong(valid_until) * 1000;
+            System.out.println(0);
+            time = System.currentTimeMillis() + 10 * 1000;
             JERRY = new LatLng(Float.parseFloat(lat), Float.parseFloat(lon));
-
+            System.out.println(1);
+            new CountDownTimer((time - System.currentTimeMillis()), 1000){
+                public void onTick(long millisUntilFinished){
+                    long cur = (time - System.currentTimeMillis())/1000;
+                    System.out.println(2);
+                    textCounter.setText(cur / 3600 + ":" + cur % 3600 / 60 + ":" + cur % 3600 % 60 );
+                }
+                public void onFinish() {
+                    time = 0;
+                    try {
+                        getJerryPosition();
+                        animateMarker(JERRY);
+                        System.out.println(3);
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
         } catch (JSONException e){
             e.printStackTrace();
         }
@@ -252,5 +268,34 @@ public class MapsActivity extends Activity implements SensorEventListener {
         Log.d("Http Post Response:", response);
         Toast toast = Toast.makeText(this, "Http Post Response:" + response, Toast.LENGTH_LONG);
         toast.show();
+    }
+
+    public void animateMarker(final LatLng toPosition) {
+        final Handler handler = new Handler();
+        final long start = SystemClock.uptimeMillis();
+        Projection proj = mMap.getProjection();
+        Point startPoint = proj.toScreenLocation(jerry.getPosition());
+        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+        final long duration = 500;
+        final LinearInterpolator interpolator = new LinearInterpolator();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = SystemClock.uptimeMillis() - start;
+                float t = interpolator.getInterpolation((float) elapsed
+                        / duration);
+                double lng = t * toPosition.longitude + (1 - t)
+                        * startLatLng.longitude;
+                double lat = t * toPosition.latitude + (1 - t)
+                        * startLatLng.latitude;
+                jerry.setPosition(new LatLng(lat, lng));
+
+                if (t < 1.0) {
+                    handler.postDelayed(this, 16);
+                } else {
+                    jerry.setVisible(true);
+                }
+            }
+        });
     }
 }

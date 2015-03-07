@@ -29,8 +29,15 @@
         android:text="Catch Jerry"
         android:textSize="18dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="0dp"
-        android:layout_marginLeft="0dp" />
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="0"
+        android:id="@+id/textCounter"
+        android:layout_centerHorizontal="true"
+        android:background="#ffffffff" />
 
     </RelativeLayout>
