@@ -1,41 +1,47 @@
 package com.example.test;
 
 /* Import for Compass */
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+/* Import for JSON*/
+import org.json.*;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
 
+import com.google.android.gms.maps.model.LatLng;
 
+import com.google.android.gms.maps.model.MarkerOptions;
 /* Import for Maps */
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-
-
-
-
-
-/* Import for JSON*/
-import org.json.*;
 
 public class MainActivity extends FragmentActivity implements SensorEventListener {
 	/* HTTP Request */
-	private HTTPRequestGet HTTPreq = new HTTPRequestGet();
-	private TextView matalowh;
+	private TextView data;
 	
 	/* Map */
 	private GoogleMap map;
@@ -53,11 +59,74 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
     private float[] mOrientation = new float[3];
     private float mCurrentDegree = 0f;
 	
+    /* Process for Jerry Location */
+
+    class HTTPRequestGet extends AsyncTask<String, Void, String> {
+    	private String jsonString = "";
+    	private double latitude;
+    	private double longitude;
+    	private LatLng jerry_position;
+    	
+    	@Override
+        protected String doInBackground(String... urls) {
+    		HttpClient httpclient = new DefaultHttpClient();
+    		HttpResponse response;
+    		String responseString = null;
+    		try {
+    			response = httpclient.execute(new HttpGet(urls[0]));
+    			StatusLine statusLine = response.getStatusLine();
+    		if(statusLine.getStatusCode() == HttpStatus.SC_OK){
+    			ByteArrayOutputStream out;
+    			out = new ByteArrayOutputStream();
+    			response.getEntity().writeTo(out);
+    			responseString = out.toString();
+    			out.close();
+    		} else{
+    			//Closes the connection.
+    			response.getEntity().getContent().close();
+    			throw new IOException(statusLine.getReasonPhrase());
+    			}
+    		} catch (ClientProtocolException e) {
+    			//TODO Handle problems..
+    		} catch (IOException e) {
+    			//TODO Handle problems..
+    		}
+    		jsonString = responseString;
+    		Log.d("wew",responseString);
+    		return responseString;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+        	super.onPostExecute(result);
+        	
+	    	try {
+	    		JSONObject jObject = new JSONObject(result);
+	    		double latitude = jObject.getDouble("lat");
+	    		double longitude = jObject.getDouble("long");
+	    		jerry_position = new LatLng(latitude,longitude);
+	    	} catch (JSONException e) {
+	    		// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	data = (TextView) findViewById(R.id.dummy2);
+        	data.setText("Jerry's Latitude: " + jerry_position.latitude + "\nJerry's Longitude: "
+        			+ jerry_position.longitude
+        			);
+        	if (map != null) {
+        		map.addMarker(new MarkerOptions().position(jerry_position).title("Jerry"));
+        		map.setMyLocationEnabled(true);
+        	}
+        }
+    }
+    
 	/* Activities */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        new HTTPRequestGet().execute("http://167.205.32.46/pbd/api/track?nim=13512052");
         
         /* Compass Initialization */
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
@@ -94,10 +163,6 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
                 .build();                   // Creates a CameraPosition from the builder
                 map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-            }
-            else {
-            	matalowh = (TextView) findViewById(R.id.dummy2);
-            	matalowh.setText("matalowh");
             }
         }
     }
