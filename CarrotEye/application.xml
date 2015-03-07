@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<!-- NMML reference: https://gist.github.com/1763850 -->
+	
+	<!-- metadata, make sure 'package' is at least 3 segments (ie. com.mycompany.myproject) -->
+	<meta title="CarrotEye" package="carrot_eye.main.CarrotEye" version="1.0.0" company="Biolardi Yoshogi (Vsio Stitched / NeithR)" />
+	
+	<!-- output -->
+	<app main="carrot_eye.main.Main" file="CarrotEye" path="bin" />
+	
+	<window background="#111122" fps="60" />
+	<window width="480" height="640" unless="mobile" />
+	<window orientation="portrait" vsync="false" antialiasing="0" if="cpp" />
+	
+	<!-- classpath, haxe libs -->
+	<source path="src" />
+	<haxelib name="openfl" />
+	<haxelib name="actuate" />
+	<haxelib name="flixel" />
+	<haxelib name="flixel-addons" />
+	
+	<!-- assets -->
+	<icon path="assets/openfl.svg" />
+	<assets path="assets/img" rename="img" />
+	<assets path="assets/fonts" rename="fonts" />
+	
+	<haxedef name="FLX_NO_GAMEPAD" if="flash" />
+	<haxedef name="FLX_NO_DEBUG" unless="debug"/>
+	
+	<!-- optimize output
+	<haxeflag name="-dce full" /> -->
+	
+</project>
