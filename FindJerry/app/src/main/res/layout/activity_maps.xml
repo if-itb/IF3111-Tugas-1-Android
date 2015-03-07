@@ -1,0 +1,95 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".MapActivity" >
+
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:id="@+id/map" tools:context=".MapsActivity"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_alignParentLeft="true"
+    android:layout_marginLeft="0dp"
+    android:layout_alignParentTop="true"
+    android:layout_marginTop="0dp" />
+
+
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_gravity="right|top"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+
+
+        <ImageView
+            android:id="@+id/pointer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/compass"
+            android:layout_gravity="left|top"
+            android:layout_marginLeft="70dp"
+            android:layout_marginTop="59dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="70dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tVinfo"
+            android:text="Hello, I am a TextView"
+            android:layout_marginBottom="59dp"
+            android:layout_above="@+id/catchJerry"
+            android:layout_centerHorizontal="true" />
+
+        <Button
+            android:id="@+id/catchJerry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/Catch"
+            android:gravity="center"
+            android:onClick="scanQR"
+            android:clickable="true"
+            android:layout_row="14"
+            android:layout_column="70"
+            android:background="@drawable/btncatch"
+            android:layout_marginRight="68dp"
+            android:layout_marginEnd="68dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@+id/tVinfo"
+            android:layout_toStartOf="@+id/tVinfo" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/exit"
+            android:background="@drawable/btnexit"
+            android:onClick="exit"
+            android:layout_row="30"
+            android:layout_column="35"
+            android:layout_alignTop="@+id/pointer"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="79dp"
+            android:layout_marginEnd="79dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="My Location"
+            android:background="@drawable/btncatch"
+            android:id="@+id/btngps"
+            android:onClick="getLocation"
+            android:layout_marginLeft="49dp"
+            android:layout_marginStart="49dp"
+            android:layout_below="@+id/tVinfo"
+            android:layout_toRightOf="@+id/tVinfo"
+            android:layout_toEndOf="@+id/tVinfo" />
+    </RelativeLayout>
+
+</RelativeLayout>
