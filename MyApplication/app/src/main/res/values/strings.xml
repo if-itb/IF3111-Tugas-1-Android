@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Catch Jerry</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_map">MapActivity</string>
+    <string name="my_position">My Position</string>
+    <string name="title_activity_scan">ScanActivity</string>
+    <string name="post_secret_token">Send</string>
+</resources>
