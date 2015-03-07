@@ -71,7 +71,7 @@ public class JsonParser {
 
     }
 
-    public static int postData(String token){
+    public static JSONObject postData(String token) throws JSONException {
         String nim = "13512072";
 
         HttpClient httpClient = new DefaultHttpClient();
@@ -85,7 +85,10 @@ public class JsonParser {
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePair));
             HttpResponse response = httpClient.execute(httpPost);
 
-            return response.getStatusLine().getStatusCode();
+            HttpEntity httpEntity = response.getEntity();
+            iStream = httpEntity.getContent();
+
+            //return response.getStatusLine().getStatusCode();
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } catch (ClientProtocolException e) {
@@ -94,6 +97,22 @@ public class JsonParser {
             e.printStackTrace();
         }
 
-        return 0;
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(iStream));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            iStream.close();
+            json = sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        jsonObject = new JSONObject(json);
+
+        // return JSON Object
+        return jsonObject;
     }
 }

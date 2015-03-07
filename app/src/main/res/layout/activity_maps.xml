@@ -49,5 +49,35 @@
         android:layout_marginTop="25dp"
         android:layout_marginRight="-125dp" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Jerry&apos;s Position Countdown:"
+        android:id="@+id/caption"
+        android:layout_alignBottom="@+id/countdown"
+        android:layout_toRightOf="@+id/buttonFindJerry"
+        android:layout_alignTop="@+id/compass"
+        android:layout_alignRight="@+id/buttonQRCode"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/map_background"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:layout_marginRight="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/countdown"
+        android:layout_alignBottom="@+id/compass"
+        android:layout_alignLeft="@+id/buttonQRCode"
+        android:layout_alignStart="@+id/buttonQRCode"
+        android:layout_marginBottom="15dp"
+        android:layout_marginLeft="-50dp"
+        android:textSize="12dp"
+        android:layout_marginTop="-10dp" />
+
 </RelativeLayout>
 

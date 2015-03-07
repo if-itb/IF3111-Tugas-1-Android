@@ -15,6 +15,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +24,7 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -38,11 +40,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
+
 public class MapsActivity extends FragmentActivity implements SensorEventListener {
 
     // Untuk peta
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LatLng jerryPos;
+    private Long validTime;
+    private Long dateNow;
 
     // Untuk kompas
     private ImageView mPointer;
@@ -61,6 +67,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     private int response;
     private String contents;
+    private JSONObject postResponse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +76,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         // Peta
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+        setJerryPos();
+
 
         // Kompas
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
@@ -79,25 +88,22 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         // QR Code
         response = 0;
 
-        // My Location
-        // Go to my location when open
         mMap.setMyLocationEnabled(true);
+
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         String provider = locationManager.getBestProvider(criteria, true);
-        Location myLocation = locationManager.getLastKnownLocation("gps");
+        Location myLocation = locationManager.getLastKnownLocation(provider);
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         double latitude = myLocation.getLatitude();
         double longitude = myLocation.getLongitude();
         LatLng latLng = new LatLng(latitude, longitude);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(14));
 
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(latLng)             // Sets the center of the map to LatLng (refer to previous snippet)
-                .zoom(17)                   // Sets the zoom
-                .bearing(90)                // Sets the orientation of the camera to east
-                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-                .build();                   // Creates a CameraPosition from the builder
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
+        LatLng myCoordinates = new LatLng(latitude, longitude);
+        CameraUpdate yourLocation = CameraUpdateFactory.newLatLngZoom(myCoordinates, 12);
+        mMap.animateCamera(yourLocation);
     }
 
     @Override
@@ -122,38 +128,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             // not supported yet
             showDialog(MapsActivity.this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
         }
-    }
-
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
-    public void setUpMap(View view) {
-        //mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-        new AsyncTaskParseJson().execute();
-        while (jerryPos == null);
-        MarkerOptions markerOptions = new MarkerOptions().position(jerryPos).title("Jerry");
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.jerry_face));
-        mMap.addMarker(markerOptions);
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(jerryPos)      // Sets the center of the map to Mountain View
-                .zoom(17)                   // Sets the zoom
-                .bearing(90)                // Sets the orientation of the camera to east
-                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-                .build();                   // Creates a CameraPosition from the builder
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        jerryPos = null;
-    }
-
-    public void zoomJerry() {
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(jerryPos)           // Sets the center of the map to Mountain View
-                .zoom(17)                   // Sets the zoom
-                .bearing(90)                // Sets the orientation of the camera to east
-                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-                .build();                   // Creates a CameraPosition from the builder
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     private static AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo ){
@@ -181,16 +155,24 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         return downloadDialog.show();
     }
 
+    private static AlertDialog showCatchDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonOK){
+        AlertDialog.Builder downloadDialog = new AlertDialog.Builder(act);
+        downloadDialog.setTitle(title);
+        downloadDialog.setMessage(message);
+        downloadDialog.setNeutralButton(buttonOK, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        }) ;
+        return downloadDialog.show();
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent){
         if(requestCode==0){
             if(resultCode == RESULT_OK){
                 contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-
-                // Ngecek content
-                //Toast toast = Toast.makeText(this, "Content: "+contents+  " Format: "+ format, Toast.LENGTH_LONG);
-                //toast.show();
 
                 new AsyncTaskPostData().execute();
                 while(response==0) {
@@ -202,23 +184,27 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     }
                 }
 
-                String message;
+                String message, title;
                 if (response == 200) {
-                    message = "YES! You caught Jerry Mouse!";
+                    title = "YES! You caught Jerry Mouse!";
+                    message = "status: 200 OK";
                 } else {
                     if (response == 400) {
-                        message = "Oops! Missing parameter";
+                        title = "Oops! Missing parameter";
+                        message = "status: 400 MISSING PARAMETER";
                     } else {
                         if (response == 403) {
-                            message = "Uh-oh, forbidden...";
+                            title = "Uh-oh, forbidden...";
+                            message = "status: 403 FORBIDDEN";
                         } else {
-                            message = "Unknown response";
+                            title = "Unknown response";
+                            message = "status: UNKNOWN";
                         }
                     }
                 }
 
-                Toast toast = Toast.makeText(this, message, Toast.LENGTH_LONG);
-                toast.show();
+                showCatchDialog(MapsActivity.this, title, message, "OK").show();
+
             }
         }
     }
@@ -226,7 +212,13 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     public class AsyncTaskPostData extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
-            response  = JsonParser.postData(contents);
+            try {
+                postResponse  = JsonParser.postData(contents);
+                Log.d("Result", postResponse.toString());
+                response = postResponse.getInt("code");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             return null;
         }
     }
@@ -243,6 +235,63 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         else{
             mMap.setMyLocationEnabled(true);
         }
+    }
+
+    /**
+     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
+     * just add a marker near Africa.
+     * <p/>
+     * This should only be called once and when we are sure that {@link #mMap} is not null.
+     */
+    public void setUpMap(View view) {
+        //mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        new AsyncTaskParseJson().execute();
+        while (jerryPos == null);
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(jerryPos)      // Sets the center of the map to Mountain View
+                .zoom(17)                   // Sets the zoom
+                .bearing(90)                // Sets the orientation of the camera to east
+                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                .build();                   // Creates a CameraPosition from the builder
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        jerryPos = null;
+    }
+
+    public void setJerryPos() {
+        new AsyncTaskParseJson().execute();
+        while (jerryPos == null || validTime == null){
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        };
+        dateNow = System.currentTimeMillis();
+
+        new CountDownTimer(validTime*1000 - dateNow, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                //((TextView)findViewById(R.id.countdown)).setText((int) (millisUntilFinished/1000));
+                Long seconds = millisUntilFinished/1000;
+                Long elapsedTimeHour = seconds/3600;
+                Long elapsedTimeMinute = (seconds-(elapsedTimeHour*3600))/60;
+                Long elapsedTimeSecond = seconds-(elapsedTimeHour*3600)-(elapsedTimeMinute*60);
+                String elapsedTime = Long.toString(elapsedTimeHour) + "h " + Long.toString(elapsedTimeMinute) + "m " +
+                                     Long.toString(elapsedTimeSecond) + "s";
+
+                ((TextView)findViewById(R.id.countdown)).setText(elapsedTime);
+            }
+
+            @Override
+            public void onFinish() {
+                setJerryPos();
+            }
+        }.start();
+
+        MarkerOptions markerOptions = new MarkerOptions().position(jerryPos).title("Jerry");
+        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.jerry_face));
+        mMap.addMarker(markerOptions);
+        jerryPos = null;
     }
 
     @Override
@@ -305,17 +354,20 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 // get json string from url
                 JSONObject json = jParser.getJSONFromUrl(yourJsonStringUrl);
 
-                    // Storing each json item in variable
-                    String latitude = json.getString("lat");
-                    String longitude = json.getString("long");
-                    String validUntil = json.getString("valid_until");
+                // Storing each json item in variable
+                String latitude = json.getString("lat");
+                String longitude = json.getString("long");
+                String validUntil = json.getString("valid_until");
 
-                    jerryPos = new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude));
+                jerryPos = new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude));
 
-                    // show the values in our logcat
-                    Log.e(TAG, "latitude: " + latitude
-                            + ", longitude: " + longitude
-                            + ", valid until: " + validUntil);
+                // show the values in our logcat
+                Log.e(TAG, "latitude: " + latitude
+                        + ", longitude: " + longitude
+                        + ", valid until: " + validUntil);
+
+                // nyimpen validuntil di variabel time
+                validTime = Long.parseLong(validUntil);
 
             } catch (JSONException e) {
                 e.printStackTrace();
