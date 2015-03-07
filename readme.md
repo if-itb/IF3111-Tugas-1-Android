@@ -21,7 +21,7 @@ Di kawasan ITB, terdapat banyak kucing yang berkeliaran. Salah satu kucing yang 
 <li>Source code diusahakan agar terstruktur dengan baik (Silahkan membaca guidelines standar yang dirilis di https://source.android.com/source/code-style.html) </li>
 <li>Minimal Android API 9 (GingerBread).</li> </ul>
 
-## Spesifikasi Tampilan <\br>
+## Spesifikasi Tampilan
 Anda dibebaskan dalam berkreasi mendesain tampilan selama fitur-fitur pada spesifikasi aplikasi tercapai dan aplikasi dapat digunakan sesuai dengan alur pengujian yang diberikan.
 
 <b> Response Status </b> <br\>
