@@ -258,6 +258,11 @@ public class MainActivity extends ActionBarActivity implements LocationListener,
 
         long timeLeft = validDate.getTime() - System.currentTimeMillis();
 
+        if (timer != null)
+        {
+            timer.cancel();
+        }
+
         timer = new CountDownTimer(timeLeft, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -269,6 +274,8 @@ public class MainActivity extends ActionBarActivity implements LocationListener,
                 spike.askLocation(MainActivity.this.nim);
             }
         };
+
+        timer.start();
     }
 
     private float getDegrees(double lat1, double lon1, double lat2, double lon2, float headX) {
