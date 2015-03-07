@@ -1,0 +1,11 @@
+INDEX VERSION 1.126+D:\IF\IF12\Semester 6\PBD\IF3111-Tugas-1-Android\.metadata\.plugins\org.eclipse.jdt.core
+496557438.index
+2277468353.index
+1777145155.index
+1284074322.index
+3965676018.index
+2540943099.index
+3760780961.index
+848856923.index
+1944540657.index
+2409816205.index
