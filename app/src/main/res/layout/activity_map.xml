@@ -12,14 +12,23 @@
         android:layout_height="match_parent"
         tools:layout="@layout/activity_map" />
 
+    <!--<TextView-->
+        <!--android:id="@+id/tvHeading"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_marginBottom="40dp"-->
+        <!--android:layout_marginTop="20dp"-->
+        <!--android:text="Heading: 0.0" />-->
+
     <TextView
-        android:id="@+id/tvHeading"
+        android:id="@+id/timeRemaining"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="40dp"
-        android:layout_marginTop="20dp"
-        android:text="Heading: 0.0" />
+        android:text="Time Remaining: 0"
+        android:layout_alignTop="@+id/tvHeading"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <Button
         android:id="@+id/scanner"

@@ -40,4 +40,12 @@ public class Position {
     public long getValidUntilInDouble() {
         return this.valUntil;
     }
+
+    public boolean isStillValid() {
+        return (this.getValidUntilInDouble() - System.currentTimeMillis() > 0);
+    }
+
+    public long getValUntilRemainingInMilliseconds() {
+        return (this.getValidUntilInDouble() - System.currentTimeMillis());
+    }
 }

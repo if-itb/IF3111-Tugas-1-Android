@@ -48,34 +48,36 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class MapActivity extends FragmentActivity implements SensorEventListener {
     private Position position;
     private GoogleMap googleMap;
     private ImageView image;
-    // record the compass picture angle turned
     private float currentDegree = 0f;
-    // device sensor manager
     private SensorManager mSensorManager;
-    TextView tvHeading;
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
+    private TextView timeRemainingTextView = null;
+    CountDownTimer countDownTimer;
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy(); //untuk hemat batere coy
+    }
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         image = (ImageView) findViewById(R.id.imageViewCompass);
-        tvHeading = (TextView) findViewById(R.id.tvHeading);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        timeRemainingTextView = (TextView) findViewById(R.id.timeRemaining);
         setUpMapIfNeeded();
-        checkConnection();
     }
 
     private void checkConnection() {
         if (Helper.isOnline(getApplicationContext())) {
             new HttpActivity().execute(getApplicationContext());
-            mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
-                    SensorManager.SENSOR_DELAY_GAME);
         } else {
             mSensorManager.unregisterListener(this); //hemat batere
             DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
@@ -175,7 +177,7 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
                                 res[0] += line;
                             }
                             JSONObject object = new JSONObject(res[0]);
-                            res[0] = object.getString("message");
+                            res[0] = object.getString("code");
                         } catch (Exception e) {
                             e.printStackTrace();
                             res[0] = "Failed to post";
@@ -186,9 +188,11 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
                 };
                 postThread.start();
                 while(lock[0]) {}
-
-                Toast toast = Toast.makeText(this, res[0], Toast.LENGTH_LONG);
-                toast.show();
+                if (res[0].equalsIgnoreCase("200")) {
+                    Toast.makeText(this, "Jerry berhasil ditangkap!! Selamat!!", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, "Jerry gagal ditangkap. :(", Toast.LENGTH_LONG).show();
+                }
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(this, "Cancelled ", Toast.LENGTH_SHORT).show();
             }
@@ -213,7 +217,7 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
     @Override
     protected void onResume() {
         super.onResume();
-
+        checkConnection();
         // for the system's orientation sensor registered listeners
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_GAME);
@@ -223,8 +227,6 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
     public void onSensorChanged(SensorEvent event) {
         // get the angle around the z-axis rotated
         float degree = Math.round(event.values[0]);
-
-        tvHeading.setText("Heading: " + Float.toString(degree) + " degrees");
 
         // create a rotation animation (reverse turn degree degrees)
         RotateAnimation ra = new RotateAnimation(
@@ -274,15 +276,15 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            dialog = ProgressDialog.show(MapActivity.this, "Loading.. Wait..", "Retrieving data", true);
+            dialog = ProgressDialog.show(MapActivity.this, "Loading..", "Tanya Spike posisi Jerry", true);
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            dialog.setTitle("Success..");
+            dialog.setMessage("Posisi Jerry berhasil didapatkan!");
             dialog.dismiss();
-            //Enable MyLocation Layer of Google Map
-            googleMap.setMyLocationEnabled(true);
 
             //Get locationManager object from System Service LOCATION_SERVICE
             LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -290,20 +292,8 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
             //Create a criteria object to retrieve provider
             Criteria criteria = new Criteria();
 
-            //Get the name of the best provider
-            String provider = locationManager.getBestProvider(criteria, true);
-
-            //Get current location
-            Location myLocation = locationManager.getLastKnownLocation(provider);
-
             //set map type
             googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-//        //Get latitude of the current location
-//        latitude = myLocation.getLatitude();
-//
-//        //Get longitude of the current location
-//        longitude = myLocation.getLongitude();
 
             double latitude = position.getLatitude();
             double longitude = position.getLongitude();
@@ -317,28 +307,28 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
             //Zoom in the Google Map
-            googleMap.animateCamera(CameraUpdateFactory.zoomTo(20));
+            googleMap.animateCamera(CameraUpdateFactory.zoomTo(10));
             googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!"));
-
-            new CountDownTimer(/*position.getValidUntilInDouble() - System.currentTimeMillis()*/5000, 1000) {
+            if (countDownTimer != null) countDownTimer.cancel();
+            countDownTimer = new CountDownTimer(/*position.getValidUntilInDouble() - System.currentTimeMillis()*/50000, 1000) {
                 @Override
                 public void onTick(long millisUntilFinished) {
-                    System.out.println("testingtesting111");
+//                    Date d = new Date(millisUntilFinished);
+                    timeRemainingTextView.setText("Time Remaining =  " + millisUntilFinished/1000 + " s");
                 }
 
                 @Override
                 public void onFinish() {
-                    System.out.println("testingtesting");
                     setUpMapIfNeeded();
                     new HttpActivity().execute(getApplicationContext());
                 }
-            }.start();
+            };
+            countDownTimer.start();
         }
 
         @Override
         protected Void doInBackground(Context... params) {
             HttpGet httpGet = new HttpGet("http://167.205.32.46/pbd/api/track?nim=13512065");
-            System.out.println("pos1 : ");
             HttpClient client = new DefaultHttpClient();
             HttpResponse httpResponse;
             try {
@@ -359,9 +349,8 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
                     position = new Position(lat, longitude, valUntil);
                     System.out.println("pos : " + position);
                 }
-                System.out.println("wkwk");
             } catch (Exception ex) {
-                System.out.println("kimak : " + position);
+                System.out.println("wwww : " + position);
                 ex.printStackTrace();
                 res = ex.getMessage();
             }
