@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">TomJerry</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_activity_http">ActivityHTTP</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_qr_code">qrCode</string>
+    <string name="title_activity_compass">compass</string>
+</resources>
