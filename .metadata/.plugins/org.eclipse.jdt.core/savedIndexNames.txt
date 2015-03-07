@@ -1,0 +1,5 @@
+INDEX VERSION 1.127+C:\Users\Imburden\Documents\GitHub\Android\IF3111-Tugas-1-Android\.metadata\.plugins\org.eclipse.jdt.core
+848856923.index
+3992570627.index
+2001530725.index
+1157988034.index
