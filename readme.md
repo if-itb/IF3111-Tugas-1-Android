@@ -45,4 +45,4 @@ Mario Filino - 13512055
 
 2. Untuk melihat posisi Jerry pada peta, tekan tombol "Show Map". Di halaman peta, juga terdapat kompas untuk mempermudah pengguna menentukan arah.
 
-3. Untuk menangkap Jerry, tekan tombol "Catch Jerry" dari halaman utama aplikasi kemudian scan QR-code untuk mendapatkan token penangkapan. Setelah mendapatkan token, aplikasi akan secara otomatis mengirimkan token tersebut kepada spike.
+3. Untuk menangkap Jerry, tekan tombol "Catch Jerry" dari halaman utama aplikasi kemudian scan QR-code untuk mendapatkan token penangkapan. Setelah mendapatkan token, aplikasi akan secara otomatis mengirimkan token tersebut kepada spike. Jika penangkapan berhasil, akan muncul pesan "Jerry successfully catched".
