@@ -16,7 +16,7 @@ import android.widget.TextView;
 public class MainActivity extends ActionBarActivity {
 
     TextView isConnectedTextView;
-    Button scannerButton, radarButton;
+    Button scannerButton, radarButton, compassButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +25,7 @@ public class MainActivity extends ActionBarActivity {
         isConnectedTextView = (TextView) findViewById(R.id.isConnectedTextView);
         scannerButton = (Button) findViewById(R.id.scannerButton);
         radarButton = (Button) findViewById(R.id.radarButton);
+        compassButton = (Button) findViewById(R.id.compassButton);
 
         if(isConnected())
         {
@@ -83,6 +84,12 @@ public class MainActivity extends ActionBarActivity {
     public void showMap(View v)
     {
         Intent secondIntent = new Intent(MainActivity.this, MapsActivity.class);
+        MainActivity.this.startActivity(secondIntent);
+    }
+
+    public void showCompass(View v)
+    {
+        Intent secondIntent = new Intent(MainActivity.this, CompassActivity.class);
         MainActivity.this.startActivity(secondIntent);
     }
 

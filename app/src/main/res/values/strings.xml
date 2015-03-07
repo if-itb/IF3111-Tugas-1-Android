@@ -10,5 +10,6 @@
     <string name="connected">You are connected</string>
     <string name="disconnected">You are disconnected</string>
     <string name="radar">Show Radar</string>
+    <string name="compass">Show Compass</string>
     <string name="title_activity_compass">Compass</string>
 </resources>

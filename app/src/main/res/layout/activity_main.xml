@@ -40,4 +40,16 @@
         android:textSize="18dp" >
     </Button>
 
+    <Button
+        android:id="@+id/compassButton"
+        android:layout_width="150dp"
+        android:layout_height="75dp"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:onClick="showCompass"
+        android:text="@string/compass"
+        android:textSize="18dp" >
+    </Button>
+
 </LinearLayout>
