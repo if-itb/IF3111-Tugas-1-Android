@@ -1,13 +1,3 @@
-# Tugas 1 Android
-
-Dalam tugas ini, peserta diharapkan dapat membuat aplikasi android yang membantu Tom untuk mencari dan menangkap Jerry. Aplikasi android ini dibuat untuk berkomunikasi dengan Spike untuk mengetahui lokasi dan lama persembunyian Jerry di lokasi tersebut. Aplikasi itu juga dapat melaporkan penangkapan Jerry kepada Spike.
-
-## Latar Belakang
-
-## Spesifikasi Aplikasi
-
-## Spesifikasi Endpoint
-
-## License
-
-MIT License
+Cara penggunaan aplikasi berikut adalah dengan membuka aplikasinya terlebih dahulu. Bila telepon genggam pengguna memiliki fitur GPS untuk melacak posisi pengguna, maka di peta pada aplikasi tersebut akan menampilkan posisi pengguna dengan tanda titik biru. Jerry akan ditandai dengan tanda merah yang berupa posisi dia sekarang.
+Tombol kamera pada halaman utama akan digunakan untuk menangkap QR Code yang secara otomatis akan mengirimkan kode tersebut ke server.
+Bila posisi Jerry telah berubah (waktu valid telah habis), sistem akan dengan sendirinya mencari posisi Jerry dan memperbaharuinya di peta.
