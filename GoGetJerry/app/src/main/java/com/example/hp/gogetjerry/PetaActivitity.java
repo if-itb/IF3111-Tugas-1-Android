@@ -4,6 +4,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -15,8 +16,10 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.SimpleAdapter;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -41,6 +44,17 @@ import java.util.HashMap;
 public class PetaActivitity extends ActionBarActivity implements SensorEventListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private double Latitude;
+    private double Longitude;
+    private String valid_until;
+
+    public void setLat (double d){
+        this.Latitude = d;
+    }
+
+    public void setLong (double d){
+        this.Longitude = d;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +64,8 @@ public class PetaActivitity extends ActionBarActivity implements SensorEventList
         //
         image = (ImageView) findViewById(R.id.imageCompass);
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+//        new GetAPITrack().execute("http://167.205.32.46/pbd/api/track?nim=13512080");
+        Log.d("LATITUDE", String.valueOf(Latitude));
         setUpMapIfNeeded();
     }
 
@@ -59,7 +75,8 @@ public class PetaActivitity extends ActionBarActivity implements SensorEventList
         setUpMapIfNeeded();
 
         //for the system's orientation sensor registered listeners
-        mSensorManager.registerListener(this,mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this,mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+                SensorManager.SENSOR_DELAY_GAME);
     }
 
     /**
@@ -85,7 +102,8 @@ public class PetaActivitity extends ActionBarActivity implements SensorEventList
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                setUpMap();
+//                setUpMap();
+                new GetAPITrack().execute("http://167.205.32.46/pbd/api/track?nim=13512080");
             }
         }
     }
@@ -97,7 +115,10 @@ public class PetaActivitity extends ActionBarActivity implements SensorEventList
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-            mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+            Log.d("Cek latitude setUpMap", String.valueOf(Latitude));
+            Log.d("Cek longitude setUpMap", String.valueOf(Longitude));
+
+            mMap.addMarker(new MarkerOptions().position(new LatLng(Latitude, Longitude)).title("Marker"));
 
     }
 
@@ -158,7 +179,8 @@ public class PetaActivitity extends ActionBarActivity implements SensorEventList
         float degree = Math.round(event.values[0]);
 
         //create a rotation animation
-        RotateAnimation ra = new RotateAnimation(currentDegree, -degree, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        RotateAnimation ra = new RotateAnimation(currentDegree, -degree,
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 
         //duration of animation
         ra.setDuration(210);
@@ -178,5 +200,62 @@ public class PetaActivitity extends ActionBarActivity implements SensorEventList
     private ImageView image; //display of compass
     private float currentDegree = 0f; //record the turning
     private SensorManager mSensorManager; //device sensor manager
+
+
+    /*To get data from endpoint in an asynchronus way*/
+    class GetAPITrack extends AsyncTask<String, String, String>{
+
+
+        @Override
+        protected String doInBackground(String... params) {
+            String response = "";
+            for(String url: params){
+                DefaultHttpClient client = new DefaultHttpClient();
+                HttpGet httpGet = new HttpGet(url);
+                try{
+                    HttpResponse execute = client.execute(httpGet);
+                    InputStream content = execute.getEntity().getContent();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(content));
+                    String s = "";
+                    while((s = br.readLine()) != null){
+                        response += s;
+                    }
+                } catch (ClientProtocolException e){
+                    e.printStackTrace();
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+            Log.d("Response ", response);
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String s){
+            JSONObject jsonObject;
+//            double Lat;
+//            double Long;
+//            String valid;
+            try{
+                jsonObject = new JSONObject(s);
+                Latitude = jsonObject.getDouble("lat");
+                Longitude = jsonObject.getDouble("long");
+                valid_until = jsonObject.getString("valid_until");
+//                Latitude = Lat;
+//                Longitude = Long;
+//                valid_until = valid;
+                LatLng jerryPosition = new LatLng(Latitude, Longitude);
+                mMap.setMyLocationEnabled(true);
+                mMap.addCircle(new CircleOptions().center(jerryPosition).radius(10000));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(jerryPosition,17));
+                mMap.addMarker(new MarkerOptions().position(jerryPosition).title("Jerry's here!"));
+                Log.d("LAT ", String.valueOf(Latitude));
+            } catch (JSONException e){
+                e.printStackTrace();
+            }
+//
+//            PetaActivitity.getJSONfromURL()
+        }
+    }
 
 }

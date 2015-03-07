@@ -6,38 +6,59 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ScannerActivity extends ActionBarActivity {
 
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
-
+    static final String url = "http://167.205.32.46/pbd/api/catch";
+    String secret_token;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scanner);
+        scanQR();
     }
 
     //product barcode mode
-    public void scanBar(View v){
-        try{
-            //start scanning activity
-            Intent intent = new Intent(ACTION_SCAN);
-            intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
-            startActivityForResult(intent, 0);
-        } catch (ActivityNotFoundException anfe){
-            showDialog(ScannerActivity.this, "No Scanner Found", "Download!", "Yes", "No").show();
-        }
-    }
+//    public void scanBar(View v){
+//        try{
+//            //start scanning activity
+//            Intent intent = new Intent(ACTION_SCAN);
+//            intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
+//            startActivityForResult(intent, 0);
+//        } catch (ActivityNotFoundException anfe){
+//            showDialog(ScannerActivity.this, "No Scanner Found", "Download!", "Yes", "No").show();
+//        }
+//    }
 
     //product qr code mode
-    public void scanQR(View v){
+    public void scanQR(){
         try{
             //start scanning activity
             Intent intent = new Intent(ACTION_SCAN);
@@ -79,10 +100,12 @@ public class ScannerActivity extends ActionBarActivity {
         if (requestCode == 0){
             if (resultCode == RESULT_OK){
                 //get extras returned from intent
-                String contents = intent.getStringExtra("SCAN_RESULT");
+                secret_token = intent.getStringExtra("SCAN_RESULT");
+
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(this, "Content:" + secret_token + " Format:" + format, Toast.LENGTH_LONG);
                 toast.show();
+                new PostAPICatch().execute();
             }
         }
     }
@@ -107,5 +130,51 @@ public class ScannerActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    class PostAPICatch extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            String response = "";
+            DefaultHttpClient client = new DefaultHttpClient();
+            HttpResponse httpResponse = null;
+            HttpPost httpPost = new HttpPost(url);
+            try{
+                List<BasicNameValuePair> Params = new ArrayList();
+                Params.add(new BasicNameValuePair("nim", "13512080"));
+                Params.add(new BasicNameValuePair("token", secret_token));
+                httpPost.setEntity(new UrlEncodedFormEntity(Params));
+                Log.d("Cek post parameter", httpPost.getParams().toString());
+                httpResponse = client.execute(httpPost);
+                InputStream content = httpResponse.getEntity().getContent();
+                BufferedReader br = new BufferedReader(new InputStreamReader(content));
+                String s = "";
+                while((s = br.readLine()) != null){
+                    response += s;
+                }
+            } catch (ClientProtocolException e){
+                e.printStackTrace();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+
+            Log.d("Response ", response);
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String s){
+            super.onPostExecute(s);
+            JSONObject jsonResponse;
+            String responseStatus;
+            try {
+                jsonResponse = new JSONObject(s);
+                responseStatus = jsonResponse.getString("code");
+                Log.d("Status response", responseStatus);
+            } catch (JSONException e){
+                e.printStackTrace();
+            }
+        }
     }
 }
