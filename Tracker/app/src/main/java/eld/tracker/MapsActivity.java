@@ -114,7 +114,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             text = (TextView) findViewById(R.id.textView);
             text.setText("Time Left : " + String.valueOf(time) + " second");
 
-            // Getting Request from Server
+            // Getting Request from Server about Jerry Position
             getRequest();
 
             // Setting ImageView for Jerry
@@ -173,17 +173,17 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        // TODO Auto-generated method stub
+        // not in-use (Auto-generated method stub)
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        // TODO Auto-generated method stub
+        // not in-use (Auto-generated method stub)
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        // TODO Auto-generated method stub
+        // not in-use (Auto-generated method stub)
     }
 
     private void setUpMapIfNeeded() {
@@ -200,10 +200,12 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     }
 
     private void setUpMap() {
+        // Getting New Request from Server if Jerry Position Changed
         if(time == 0){
             getRequest();
         }
         mMap.clear();
+        // Placing Marker at Jerry Position
         mMap.addMarker(new MarkerOptions().position(JerryPosition).title("Catch Me if You Can").icon(BitmapDescriptorFactory.fromResource(R.drawable.jerry1)));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(JerryPosition, 17));
     }
@@ -211,6 +213,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     @Override
     public void onSensorChanged(SensorEvent event) {
         float degree = Math.round(event.values[0]);
+        // Rotating Compass when The Sensor Detects Gadget Movement
         RotateAnimation ra = new RotateAnimation(
             currentDegree,
             -degree,
@@ -225,7 +228,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // TODO Auto-generated method stub
+        // not in-use (Auto-generated method stub)
     }
 
     // QRCode
@@ -269,17 +272,18 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
-                //get the extras that are returned from the intent
+                // Get the extras that are returned from the intent
                 contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
                 Toast toast = Toast.makeText(this, "Content: " + contents + " Format: " + format, Toast.LENGTH_LONG);
                 toast.show();
+                // Sending The Information about Jerry Catching
                 postRequest();
             }
         }
     }
 
-    // Asking Spike about Jerry Position
+    // Asking Server about Jerry Position
     public void getRequest(){
         Toast toast = Toast.makeText(MapsActivity.this,"Getting new Request from server",Toast.LENGTH_LONG);
         toast.show();
@@ -294,6 +298,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             HttpGet request = new HttpGet(URI.create(uri[0]));
             HttpResponse response = null;
             JSONObject json = null;
+            // Asking Response from http://167.205.32.46/pbd/api/track?nim=13512002
             try {
                 response = client.execute(request);
             } catch (IOException e) {
@@ -301,6 +306,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             }
             HttpEntity entity = response.getEntity();
             try{
+                // Making JSON Object from Entity Response
                 BufferedHttpEntity buffEntity = new BufferedHttpEntity(entity);
                 BufferedReader rd = new BufferedReader(new InputStreamReader(buffEntity.getContent()));
                 StringBuilder sb = new StringBuilder();
@@ -314,7 +320,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 catch (JSONException e) {
                     e.printStackTrace();
                 }
-
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -325,11 +330,13 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         @Override
         protected void onPostExecute(JSONObject result) {
             super.onPostExecute(result);
+            // Setting Jerry Position Based Corresponding to Information from Server
             try{
                 double lat = Double.parseDouble(result.getString("lat"));
                 double lng = Double.parseDouble(result.getString("long"));
                 time = Long.parseLong(result.getString("valid_until")) * 1000;
                 JerryPosition = new LatLng(lat,lng);
+                // TimeTicker with 1 Second-base
                 new CountDownTimer((time - System.currentTimeMillis()), 1000) {
                     public void onTick(long millisUntilFinished) {
                         long x = (time-System.currentTimeMillis())/1000;
@@ -353,7 +360,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
     }
 
-    // Telling Spike about Jerry Catching
+    // Telling Server about Jerry Catching
     public void postRequest(){
         PostTask PT = new PostTask();
         PT.execute();
@@ -394,12 +401,13 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             return content;
         }
+
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
+            // Making Output for The Response from Server
             Toast toast = Toast.makeText(MapsActivity.this,result,Toast.LENGTH_LONG);
             toast.show();
         }
