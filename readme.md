@@ -1,4 +1,4 @@
-# Tugas 1 Android - 13512087 Mochamad Lutfi Fadlan - Catch Jerry
+# Tugas 1 Android - 13512087 Mochamad Lutfi Fadlan - Tom And Jerry
 
 Dalam tugas ini, peserta diharapkan dapat membuat aplikasi android yang membantu Tom untuk mencari dan menangkap Jerry. Aplikasi android ini dibuat untuk berkomunikasi dengan Spike untuk mengetahui lokasi dan lama persembunyian Jerry di lokasi tersebut. Aplikasi itu juga dapat melaporkan penangkapan Jerry kepada Spike.
 
