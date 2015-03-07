@@ -45,7 +45,7 @@ Content-type: application/json <br\>
 <ul type ="list-style-type:disc">
 <li> status : <b>200 -> OK</b> (pengumpulan sukses, secret_token sesuai) </li>
 <li> status : <b>400 -> MISSING PARAMETER</b> (paramter yang dikirim tidak lengkap yaitu 2 parameter) </li>
-<li> status : <b>403 -> FORBIDDEN </b>(terdapat parameter yang salah (nim atau secret token) </li>
+<li> status : <b>403 -> FORBIDDEN </b>(terdapat parameter yang salah (nim atau secret token) </li> </ul>
 
 ## License
 
