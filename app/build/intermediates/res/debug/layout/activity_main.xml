@@ -1,0 +1,45 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical"
+    tools:context="joshua.tomjerry.MainActivity">
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:layout_margin="20dp"
+        android:text="Tom And Jerry"
+        android:textColor="#000000"
+        android:textSize="30dp" />
+
+    <Button
+        android:id="@+id/scanner"
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:onClick="GoToMap"
+        android:text="Go To Map"
+        android:textSize="18dp" >
+    </Button>
+
+    <Button
+        android:id="@+id/scanner2"
+        android:layout_width="250dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:onClick="GoToScan"
+        android:text="Go To Scan"
+        android:textSize="18dp" >
+    </Button>
+
+</LinearLayout>
+<!-- From: file:/C:/Users/pc%20asus/AndroidStudioProjects/TomJerry/app/src/main/res/layout/activity_main.xml -->

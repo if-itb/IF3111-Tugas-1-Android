@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="C:\Users\pc asus\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\21.0.3\support-annotations-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="4b74cefe1f0c1b819e7260c8627a14674e37fd35">
+        <dex dex="C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.3-77463bfa8acf2a579d84c52482aa6552cd49f1c7.jar" />
+    </item>
+    <item
+        jar="C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
+        <dex dex="C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\pre-dexed\debug\classes-8c2fce3a06e4018bfdb440212900181c938b578b.jar" />
+    </item>
+    <item
+        jar="C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\libs\internal_impl-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
+        <dex dex="C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-9dacb719c154829ea4ac944f155c032094627ac3.jar" />
+    </item>
+    <item
+        jar="C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="81d42bf983a8741f4888a6e333e454e4a5e0eeb7">
+        <dex dex="C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\pre-dexed\debug\classes-bb35f1625720e1066d3a01ac533bb6d1c6ab1d6c.jar" />
+    </item>
+    <item
+        jar="C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\exploded-aar\com.google.android.gms\play-services\6.5.87\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="dd9247ea0fabe8ee479638c4b4a23e93752be256">
+        <dex dex="C:\Users\pc asus\AndroidStudioProjects\TomJerry\app\build\intermediates\pre-dexed\debug\classes-32222117aba7174637c1d5a20bb2f9cf2927bc0b.jar" />
+    </item>
+
+</items>
