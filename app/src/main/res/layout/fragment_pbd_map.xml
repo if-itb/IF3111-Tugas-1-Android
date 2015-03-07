@@ -22,4 +22,11 @@
             android:textColor="#FFFFFF" />
     </FrameLayout>
 
+    <ImageButton
+        android:id="@+id/refresh_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_action_replay"
+        android:layout_gravity="bottom|left"/>
+
 </FrameLayout>

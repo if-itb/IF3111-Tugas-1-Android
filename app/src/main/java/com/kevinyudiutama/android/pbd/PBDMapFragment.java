@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -59,6 +60,7 @@ public class PBDMapFragment extends Fragment implements OnMapReadyCallback {
 
     MapView mapView;
     TextView mNotificationTextView;
+    ImageButton mRefreshButton;
 
     GoogleMap mMap;
 
@@ -72,9 +74,17 @@ public class PBDMapFragment extends Fragment implements OnMapReadyCallback {
 
         mapView = (MapView) v.findViewById(R.id.mapview);
         mNotificationTextView = (TextView) v.findViewById(R.id.seconds_left_textView);
+        mRefreshButton = (ImageButton) v.findViewById(R.id.refresh_button);
 
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+
+        mRefreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getDestinationLocation();
+            }
+        });
 
         View locationButton = ((View) mapView.findViewById(1).getParent()).findViewById(2);
 

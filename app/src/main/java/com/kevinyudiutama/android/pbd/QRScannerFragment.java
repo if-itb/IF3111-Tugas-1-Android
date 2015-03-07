@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONObject;
 
 
@@ -112,20 +114,24 @@ public class QRScannerFragment extends Fragment {
                 httpBodyObj.put("nim","13512010");
                 httpBodyObj.put("token",params[0]);
 
-                httpPost.setEntity(new StringEntity(httpBodyObj.toString()));
+                httpPost.setEntity(new StringEntity(httpBodyObj.toString(), HTTP.UTF_8));
                 httpPost.setHeader("Content-type","application/json");
 
+                Log.d("DEBUG", httpBodyObj.toString());
                 HttpResponse response = httpClient.execute(httpPost);
 
                 if (response.getStatusLine().getStatusCode()==200) {
-                    return "Status Code : 200, Message succesfully send";
+                    return getResources().getString(R.string.status_200);
+                }
+                else if (response.getStatusLine().getStatusCode()==403) {
+                    return getResources().getString(R.string.status_403);
                 }
                 else {
-                    return "Status Code : "+response.getStatusLine().getStatusCode()+ ", Your token is invalid";
+                    return getResources().getString(R.string.status_400);
                 }
             }
             catch (Exception e) {
-                return "There is an error when sending the token";
+                return getResources().getString(R.string.error_token);
             }
         }
 
