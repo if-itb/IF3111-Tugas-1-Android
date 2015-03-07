@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" tools:context=".Map">
-    <item android:id="@+id/home" android:title="Gajebot"
-       android:icon="@drawable/ic_launcher"
-        app:showAsAction="withText" />
-</menu>
