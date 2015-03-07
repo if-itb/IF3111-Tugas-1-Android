@@ -38,13 +38,19 @@ Response status dari server terkait pengiriman token:
 Aplikasi dapat dijalankan dengan cara mengimport project ke android studio dan melakukan run aplikasi nya pada device/emulator.
 
 Terdapat label:
+
 1. Latitude		: latitude posisi jerry saat ini
+
 2. Longitude	: longitude posisi jerry saat ini
+
 3. Expire		: waktu expirenya posisi jerry saat ini
 
 Terdapat 2 tombol:
+
 1. Show map -> Untuk menunjukkan lokasi jerry saat ini pada peta
+
 2. Scan QR -> untuk melakukan scan terhadap QR Code dan mengirimkan hasilnya ke server
 
 ## License
+
 MIT License
