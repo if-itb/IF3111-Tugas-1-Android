@@ -71,6 +71,7 @@ public class MainActivity extends Activity implements SensorEventListener{
     String token;
     GPSTracker GPS;
     Button btnSubmit;
+    Button scanner;
     double JerryLat = 0;
     double JerryLong = 0;
     int it = 0;
@@ -83,17 +84,19 @@ public class MainActivity extends Activity implements SensorEventListener{
 
         // our compass image
         image = (ImageView) findViewById(R.id.imageViewCompass);
-
         // TextView that will tell the user what degree is he heading
         tvHeading = (TextView) findViewById(R.id.tvHeading);
 
         // initialize your android device sensor capabilities
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        scanner = (Button) findViewById(R.id.scanner);
         txtToken = (TextView) findViewById(R.id.txtToken);
         txtLongitude = (TextView) findViewById(R.id.txtLongitude);
         txtLatitude = (TextView) findViewById(R.id.txtLatitude);
         txtValidUntil = (TextView) findViewById(R.id.txtValidUntil);
         txtResponse = (TextView) findViewById(R.id.txtResponse);
+        GPS = new GPSTracker(MainActivity.this);
+
         btnSubmit = (Button) findViewById(R.id.btnSubmit);
         btnSubmit.setOnClickListener(new View.OnClickListener(){
             @Override

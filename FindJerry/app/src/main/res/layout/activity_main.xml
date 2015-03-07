@@ -19,7 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/txtToken"
-        android:text="Token"
+        android:text="@string/Token"
         android:layout_below="@+id/txtLongitude"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="40dp"
         android:layout_marginTop="20dp"
-        android:text="Heading: 0.0"
+        android:text="@string/Heading"
         android:layout_gravity="center_horizontal" />
 
     <ImageView
@@ -41,11 +41,12 @@
         android:focusable="false"
         android:layout_alignTop="@+id/txtToken"
         android:layout_alignLeft="@+id/scanner"
-        android:layout_alignStart="@+id/scanner" />
+        android:layout_alignStart="@+id/scanner"
+        android:contentDescription="@string/Kompas" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Latitude"
+        android:text="@string/Lat"
         android:id="@+id/txtLatitude"
         android:layout_alignTop="@+id/map"
         android:layout_alignParentLeft="true"
@@ -54,7 +55,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Longitude"
+        android:text="@string/Long"
         android:id="@+id/txtLongitude"
         android:layout_below="@+id/txtLatitude"
         android:layout_alignParentLeft="true"
@@ -67,19 +68,19 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:onClick="scanQR"
-        android:text="QR Code"
-        android:textSize="8dp"
+        android:text="@string/QRCode"
+        android:textSize="12sp"
         android:layout_alignTop="@+id/btnSubmit"
         android:layout_alignRight="@+id/map"
         android:layout_alignEnd="@+id/map">
     </Button>
 
     <Button
-        android:layout_width="80dp"
+        android:layout_width="120dp"
         android:layout_height="40dp"
-        android:text="Submit"
+        android:text="@string/PostData"
         android:id="@+id/btnSubmit"
-        android:textSize="8dp"
+        android:textSize="12sp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" >
@@ -88,7 +89,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Valid Until"
+        android:text="@string/Valid"
         android:id="@+id/txtValidUntil"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
@@ -96,13 +97,12 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Response"
+        android:text="@string/Response"
         android:id="@+id/txtResponse"
         android:layout_below="@+id/txtValidUntil"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
-
 
 </RelativeLayout>
