@@ -6,17 +6,34 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.app.Activity;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 
 public class MainActivity extends Activity {
 
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
+
+    String message;
+    String responseStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,10 +114,70 @@ public class MainActivity extends Activity {
                 //get the extras that are returned from the intent
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_SHORT);
                 toast.show();
+
+                message = contents;
+                new TaskPost().execute();
+
+
             }
         }
+    }
+
+    public class TaskPost extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+           JSONObject json = new JSONObject();
+            String url = "http://167.205.32.46/pbd/api/catch";
+            String sendMessage;
+            String result = "";
+
+            HttpClient client = new DefaultHttpClient();
+            HttpPost post = new HttpPost(url);
+
+            // add header
+            post.setHeader("Content-type","application/json");
+
+            try {
+                // make json
+                json.put("nim","13512027");
+                json.put("token",message);
+                sendMessage = json.toString();
+
+                // add content
+                StringEntity content = new StringEntity(sendMessage);
+                post.setEntity(content);
+
+                HttpResponse response = client.execute(post);
+
+                // get Response from server
+                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+                String line = "";
+
+                while ((line = rd.readLine()) != null) {
+                    result+=line;
+                }
+
+                json = new JSONObject(result);
+                responseStatus = json.getInt("code") + " " + json.getString("message");
+
+                Log.i("Response",responseStatus);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(String params) {
+            // show response from server in Toast
+            Toast toast = Toast.makeText(getApplicationContext(), responseStatus, Toast.LENGTH_SHORT);
+            toast.show();
+        }
+
     }
 
 }

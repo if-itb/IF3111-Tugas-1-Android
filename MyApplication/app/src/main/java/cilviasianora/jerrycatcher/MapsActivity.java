@@ -1,32 +1,70 @@
 package cilviasianora.jerrycatcher;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
+    TextView textTime;
+
+    Double lat,lng;
+    Long valid_until;
+    Long timeNow = System.currentTimeMillis();
+    Long intervalTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        lat = 0.0; lng = 0.0;
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        setUpMapIfNeeded();
+        new TaskGet().execute(getApplicationContext());
+
+        textTime = (TextView) findViewById(R.id.textTime);
+    }
+
+    private void timer(){
+        new CountDownTimer(intervalTime, 1000) {
+
+            public void onTick(long millisUntilFinished) {
+                intervalTime = millisUntilFinished;
+                textTime.setText("seconds remaining: " + (intervalTime/1000));
+            }
+
+            public void onFinish() {
+                new TaskGet().execute(getApplicationContext());
+                intervalTime = (valid_until*1000) - timeNow ;
+                setUpMapIfNeeded();
+                timer();
+            }
+        }.start();
     }
 
     @Override
@@ -34,6 +72,7 @@ public class MapsActivity extends FragmentActivity {
         super.onResume();
         setUpMapIfNeeded();
     }
+
 
     /**
      * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
@@ -70,39 +109,61 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        /*Marker m = null;
+        m =*/ mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lng)).title("Jerry"));
+        // Move the camera instantly to location with a zoom of 15.
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), 10));
+        // Zoom in, animating the camera.
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
     }
 
-    public class Task extends AsyncTask<Void, Void, Void> {
+    public class TaskGet extends AsyncTask<Context, String, String> {
 
         @Override
-        protected Void doInBackground(Void... params) {
-            String url = "(167.205.32.46/pbd/api/track?nim=13512027";
+        protected String doInBackground(Context... params) {
+            String url = "http://167.205.32.46/pbd/api/track?nim=13512027";
 
             HttpClient client = new DefaultHttpClient();
             HttpGet request = new HttpGet(url);
             HttpResponse response = null;
+            String result = "";
 
             try {
                 response = client.execute(request);
 
+                // get response from server
                 BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-                StringBuffer result = new StringBuffer();
                 String line = "";
 
                 while ((line = rd.readLine()) != null) {
-                    result.append(line);
+                    result+=line;
                 }
 
+                Log.d("Result",result);
+
+                // parse the json got from server
+                JSONObject json = new JSONObject(result);
+                lat = json.getDouble("lat");
+                lng = json.getDouble("long");
+                valid_until = json.getLong("valid_until");
+
+                // count time remaining of jerry position validity
+                intervalTime = (valid_until*1000) - timeNow;
 
             } catch(Exception e){
 
             }
 
-         //   System.out.println(result.toString());
-
-            return null;
+            return result;
         }
+
+        @Override
+        protected void onPostExecute(String params){
+            // show map
+            setUpMap();
+            // start the timer to count validity
+            timer();
+        }
+
     }
 }

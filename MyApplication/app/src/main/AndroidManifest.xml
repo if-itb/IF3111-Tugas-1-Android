@@ -31,14 +31,9 @@
             android:label="@string/title_activity_maps" >
         </activity>
         <activity
-            android:name=".GPSTracking"
-            android:exported="true"
-            android:label="@string/title_activity_gpstracking" >
-        </activity>
-        <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/title_activity_main" >
+            android:label="JerryCatcher" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -49,10 +44,6 @@
             android:name=".Compass"
             android:exported="true"
             android:label="@string/title_activity_compass" >
-        </activity>
-        <activity
-            android:name=".QRCode"
-            android:label="@string/title_activity_qrcode" >
         </activity>
     </application>
 

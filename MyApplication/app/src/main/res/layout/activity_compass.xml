@@ -19,9 +19,19 @@
     android:id="@+id/imageView"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/tvHeading"
-    android:layout_centerHorizontal="true"
-    android:src="@drawable/img_compass" />
+        android:src="@drawable/img_compass"
+        android:layout_below="@+id/tvHeading"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="107dp"
+        android:layout_marginEnd="107dp"
+        android:layout_marginTop="84dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="121dp"
+        android:layout_marginStart="121dp"
+        android:layout_marginBottom="110dp" />
 
 
 
