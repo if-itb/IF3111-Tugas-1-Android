@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
@@ -33,29 +34,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ScannerActivity extends ActionBarActivity {
+public class ScannerActivity extends Activity {
 
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     static final String url = "http://167.205.32.46/pbd/api/catch";
     String secret_token;
+    TextView isCaught;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scanner);
+        isCaught = (TextView) findViewById(R.id.isCaught);
         scanQR();
     }
-
-    //product barcode mode
-//    public void scanBar(View v){
-//        try{
-//            //start scanning activity
-//            Intent intent = new Intent(ACTION_SCAN);
-//            intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
-//            startActivityForResult(intent, 0);
-//        } catch (ActivityNotFoundException anfe){
-//            showDialog(ScannerActivity.this, "No Scanner Found", "Download!", "Yes", "No").show();
-//        }
-//    }
 
     //product qr code mode
     public void scanQR(){
@@ -168,10 +160,19 @@ public class ScannerActivity extends ActionBarActivity {
             super.onPostExecute(s);
             JSONObject jsonResponse;
             String responseStatus;
+
+            String toBeChecked = "Success: 13512080 -> ";
+            toBeChecked += secret_token;
             try {
                 jsonResponse = new JSONObject(s);
-                responseStatus = jsonResponse.getString("code");
+                responseStatus = jsonResponse.getString("message");
+                if (responseStatus.equals(toBeChecked)){
+                    isCaught.setText("Jerry is caught! Well done!");
+                } else {
+                    isCaught.setText("Whoops, Jerry is not here. Go find Jerry!");
+                }
                 Log.d("Status response", responseStatus);
+                Log.d("Check", toBeChecked);
             } catch (JSONException e){
                 e.printStackTrace();
             }

@@ -1,5 +1,6 @@
 package com.example.hp.gogetjerry;
 
+import android.app.Activity;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;

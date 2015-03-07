@@ -27,7 +27,7 @@
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/title_activity_main" >
+            android:label="Go Get Jerry" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,11 +36,11 @@
         </activity>
         <activity
             android:name=".PetaActivitity"
-            android:label="@string/title_activity_peta_activitity" >
+            android:label="Where's Jerry?" >
         </activity>
         <activity
             android:name=".ScannerActivity"
-            android:label="@string/title_activity_scanner"
+            android:label="Catch!"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
