@@ -42,6 +42,7 @@ import java.util.Map;
  * Created by jelink on 3/4/2015.
  * QR Scanner reference : http://examples.javacodegeeks.com/android/android-barcode-and-qr-scanner-example/
  * Compass reference : http://www.javacodegeeks.com/2013/09/android-compass-code-example.html
+ * HTTPRequest reference : http://developer.android.com/training/volley/request.html
  */
 public class MainActivity extends ActionBarActivity implements SensorEventListener{
     /**
