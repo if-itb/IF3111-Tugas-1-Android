@@ -12,7 +12,7 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.CountDownTimer;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
@@ -24,45 +24,47 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-import java.util.concurrent.ExecutionException;
+import java.net.URI;
 
 /**
  * Created by Fahmi on 07/03/2015.
  */
-public class MainActivity extends Activity implements SensorEventListener{
+public class MainActivity extends Activity implements SensorEventListener {
     //buat Map
     private GoogleMap Peta;
     //buat Compass
     // define the display assembly compass picture
     private ImageView image;
+    private ImageView imageTom;
     // record the compass picture angle turned
     private float currentDegree = 0f;
     // device sensor manager
     private SensorManager mSensorManager;
     //buat QRCodeScanner
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
-
-    TextView tvHeading;
+    private long time = 0;
+    LatLng PosisiJerry;
     TextView txtLatitude;
     TextView txtLongitude;
     TextView txtValidUntil;
@@ -70,11 +72,7 @@ public class MainActivity extends Activity implements SensorEventListener{
     TextView txtResponse;
     String token;
     GPSTracker GPS;
-    Button btnSubmit;
     Button scanner;
-    double JerryLat = 0;
-    double JerryLong = 0;
-    int it = 0;
 
 
     @Override
@@ -84,9 +82,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 
         // our compass image
         image = (ImageView) findViewById(R.id.imageViewCompass);
-        // TextView that will tell the user what degree is he heading
-        tvHeading = (TextView) findViewById(R.id.tvHeading);
-
+        imageTom = (ImageView) findViewById(R.id.imageViewTom);
         // initialize your android device sensor capabilities
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         scanner = (Button) findViewById(R.id.scanner);
@@ -97,37 +93,25 @@ public class MainActivity extends Activity implements SensorEventListener{
         txtResponse = (TextView) findViewById(R.id.txtResponse);
         GPS = new GPSTracker(MainActivity.this);
 
-        btnSubmit = (Button) findViewById(R.id.btnSubmit);
-        btnSubmit.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View arg0){
-                try {
-                    txtResponse.setText(new MyAsyncTask().execute().get());
-                }catch(InterruptedException e){
-                    e.printStackTrace();
-                }catch(ExecutionException e){
-                    e.printStackTrace();
-                }
-            }
-        });
         setUpMap();
+        GetLocationJerry();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         // for the system's orientation sensor registered listeners
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_GAME);
+        Peta.setMyLocationEnabled(true);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
         // to stop the listener and save battery
         mSensorManager.unregisterListener(this);
+        Peta.setMyLocationEnabled(false);
     }
 
     @Override
@@ -136,7 +120,6 @@ public class MainActivity extends Activity implements SensorEventListener{
         // get the angle around the z-axis rotated
         float degree = Math.round(event.values[0]);
 
-        tvHeading.setText("Heading: " + Float.toString(degree) + " degrees");
 
         // create a rotation animation (reverse turn degree degrees)
         RotateAnimation ra = new RotateAnimation(
@@ -155,16 +138,6 @@ public class MainActivity extends Activity implements SensorEventListener{
         // Start the animation
         image.startAnimation(ra);
         currentDegree = -degree;
-
-
-        it++;
-        if(it>20) {
-            new HttpAsyncTask().execute();
-            UpdateLocationJerry();
-            it = 0;
-        }
-
-
     }
 
     @Override
@@ -179,8 +152,7 @@ public class MainActivity extends Activity implements SensorEventListener{
             Intent intent = new Intent(ACTION_SCAN);
             intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
             startActivityForResult(intent, 0);
-        }
-        catch (ActivityNotFoundException anfe) {
+        } catch (ActivityNotFoundException anfe) {
             //on catch, show the download dialog
             showDialog(MainActivity.this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
         }
@@ -215,127 +187,152 @@ public class MainActivity extends Activity implements SensorEventListener{
             if (resultCode == RESULT_OK) {
                 //get the extras that are returned from the intent
                 String contents = intent.getStringExtra("SCAN_RESULT");
-                String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
-                toast.show();
-                txtToken.setText(contents);
+                txtToken.setText("Token : " + contents);
                 token = contents;
+                TangkapJerry();
             }
         }
     }
-    public void setUpMap(){
+
+    public void setUpMap() {
         try {
             if (Peta == null) {
                 Peta = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
             }
             Peta.setMyLocationEnabled(true);
-            Marker TP = Peta.addMarker(new MarkerOptions().position(new LatLng(GPS.getLatitude(), GPS.getLongitude())));
-            Peta.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(GPS.getLatitude(), GPS.getLongitude()), 15));
+            Marker TP = Peta.addMarker(new MarkerOptions().position(PosisiJerry).icon(BitmapDescriptorFactory.fromResource(R.drawable.jerry_icon)).title("Persembunyian Jerry"));
+            Peta.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(PosisiJerry.latitude,PosisiJerry.longitude), 15));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static String GetLocationJerry(){
-        String url = "http://167.205.32.46/pbd/api/track?nim=13512047";
-        InputStream inputStream = null;
-        String hasil = "";
-        try {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpResponse httpResponse = httpclient.execute(new HttpGet(url));
-            inputStream = httpResponse.getEntity().getContent();
-            if(inputStream != null)
-                hasil = convertInputStreamToString(inputStream);
-            else
-                hasil = "Gagal cuy!";
-        } catch (Exception e) {
-            Log.d("InputStream", e.getLocalizedMessage());
-        }
-        return hasil;
-    }
-    public void UpdateLocationJerry(){
-        try {
-            if (Peta == null) {
-                Peta = ((MapFragment) getFragmentManager().
-                        findFragmentById(R.id.map)).getMap();
-            }
-            Peta.clear();
-            Peta.setMyLocationEnabled(true);
-            Marker TP = Peta.addMarker(new MarkerOptions().
-                    position(new LatLng(JerryLat,JerryLong)));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public String PostingData(){
-        String URL = "http://167.205.32.46/pbd/api/catch";
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(URL);
-        InputStream inputStream = null;
-        String result = "";
-        JSONObject dataToJSON = new JSONObject();
-        StringEntity SE;
-        try{
-            dataToJSON.put("nim","13512047");
-            dataToJSON.put("token",token);
-            try {
-                SE = new StringEntity(dataToJSON.toString());
-                httpPost.setEntity(SE);
-                HttpResponse response = httpClient.execute(httpPost);
-                inputStream = response.getEntity().getContent();
-                if(inputStream != null)
-                    result = convertInputStreamToString(inputStream);
-                else {
-                    result = "Gagal gan!";
-                }
-            }catch(UnsupportedEncodingException e){
-                e.printStackTrace();
-            }catch(IOException e){
-                e.printStackTrace();
-            }
-        }catch(JSONException e){
-            e.printStackTrace();
-        }
-        return result;
+    public void GetLocationJerry() {
+        GetTask GT = new GetTask();
+        GT.execute("http://167.205.32.46/pbd/api/track?nim=13512047");
     }
 
-    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-        String line = "";
-        String result = "";
-        while((line = bufferedReader.readLine()) != null)
-            result += line;
-        inputStream.close();
-        return result;
-    }
-
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
+    private class GetTask extends AsyncTask<String, String, JSONObject> {
         @Override
-        protected String doInBackground(String... urls) {
-            return GetLocationJerry();
+        protected JSONObject doInBackground(String... uri) {
+            HttpClient client = new DefaultHttpClient();
+            HttpGet request = new HttpGet(URI.create(uri[0]));
+            HttpEntity entity = null;
+            JSONObject json = null;
+            StringBuffer sb = new StringBuffer();
+            String line = "";
+            try {
+                HttpResponse response = (HttpResponse) client.execute(request);
+                entity = response.getEntity();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                BufferedHttpEntity buffEntity = new BufferedHttpEntity(entity);
+                BufferedReader rd = new BufferedReader(new InputStreamReader(buffEntity.getContent()));
+                while ((line = rd.readLine()) != null) {
+                    sb.append(line);
+                }
+                try {
+                    json = new JSONObject(sb.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            String contents = json.toString();
+            return json;
         }
+
+        @Override
+        protected void onPostExecute(JSONObject result) {
+            super.onPostExecute(result);
+            double lat;
+            double lng;
+            try {
+                lat = Double.parseDouble(result.getString("lat"));
+                lng = Double.parseDouble(result.getString("long"));
+                txtLatitude.setText("Latitude: "+lat);
+                txtLongitude.setText("Longitude: "+lng);
+                PosisiJerry = new LatLng(lat,lng);
+                time = Long.parseLong(result.getString("valid_until")) * 1000;
+                new CountDownTimer((time - System.currentTimeMillis()), 1000) {
+                    public void onTick(long millisUntilFinished) {
+                        long cur = (time - System.currentTimeMillis()) / 1000;
+                        txtValidUntil.setText("Waktu Jerry Sembunyi\n" + cur / 3600 + ":" + cur % 3600 / 60 + ":" + cur % 3600 % 60);
+                    }
+
+                    public void onFinish() {
+                        time = 0;
+                        GetLocationJerry();
+                    }
+                }.start();
+                Toast toast = Toast.makeText(MainActivity.this, "Posisi Jerry sekarang (" + lat + "," + lng + ")", Toast.LENGTH_LONG);
+                toast.show();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            setUpMap();
+        }
+    }
+
+    public void TangkapJerry() {
+        PostTask pt = new PostTask();
+        pt.execute();
+    }
+
+    private class PostTask extends AsyncTask<Void, String, String> {
+        @Override
+        protected String doInBackground(Void... params) {
+            HttpClient client = new DefaultHttpClient();
+            String result = null;
+            try {
+                HttpPost post = new HttpPost("http://167.205.32.46/pbd/api/catch");
+                JSONObject json = new JSONObject();
+                json.put("nim", "13512047");
+                json.put("token", token);
+                StringEntity se = new StringEntity(json.toString());
+                se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+                post.setEntity(se);
+                HttpResponse response = client.execute(post);
+                if (response != null) {
+                    HttpEntity entity = response.getEntity();
+                    BufferedHttpEntity buffEntity = new BufferedHttpEntity(entity);
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(buffEntity.getContent()));
+                    String line;
+                    StringBuilder sb = new StringBuilder();
+                    while ((line = rd.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    result = sb.toString();
+                }
+            } catch (JSONException | IOException e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+
         @Override
         protected void onPostExecute(String result) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            TimeZone utcZone = TimeZone.getTimeZone("UTC");
-            simpleDateFormat.setTimeZone(utcZone);
-            simpleDateFormat.setTimeZone(TimeZone.getDefault());
-            try{
-                JSONObject jsonObj = new JSONObject(result);
-                txtLatitude.setText(jsonObj.getString("lat"));
-                JerryLat = jsonObj.getDouble("lat");
-                txtLongitude.setText(jsonObj.getString("long"));
-                JerryLong = jsonObj.getDouble("long");
-                txtValidUntil.setText(simpleDateFormat.format(jsonObj.getDouble("valid_until")));
-            }catch (JSONException e){
+            super.onPostExecute(result);
+            String message = "";
+            int code = 0;
+            String title = "Result";
+            try {
+                JSONObject json = new JSONObject(result);
+                message = json.getString("message");
+                code = Integer.parseInt(json.getString("code"));
+                if(code == 200){
+                    title = "YEAH! Jerry berhasil tertangkap";
+                }
+                Toast toast = Toast.makeText(MainActivity.this, title , Toast.LENGTH_LONG);
+                toast.show();
+                txtResponse.setText(message);
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
-        }
-    }
-    private class MyAsyncTask extends AsyncTask<String, Integer, String>{
-        @Override
-        protected String doInBackground(String... params){
-            return PostingData();
         }
     }
 }
+

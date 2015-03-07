@@ -3,14 +3,13 @@
 
     <string name="app_name">FindJerry</string>
     <string name="title_activity_maps">Find Jerry</string>
-    <string name="Token">Token</string>
-    <string name="Heading">Heading: 0.0</string>
-    <string name="Lat">Latitude</string>
-    <string name="Long">Longitude</string>
-    <string name="QRCode">QR Code</string>
+    <string name="Token">Token : Null</string>
+    <string name="Lat">Latitude : Null</string>
+    <string name="Long">Longitude : Null</string>
+    <string name="QRCode">Tangkap Jerry</string>
     <string name="PostData">Post Data</string>
-    <string name="Valid">Valid Until</string>
-    <string name="Response">Response</string>
+    <string name="Valid">Waktu Jerry Sembunyi</string>
+    <string name="Response">Response : Null</string>
     <string name="Kompas">Kompas</string>
 
 </resources>
