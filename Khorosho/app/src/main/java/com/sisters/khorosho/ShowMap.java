@@ -1,6 +1,5 @@
 package com.sisters.khorosho;
 
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -12,6 +11,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+
 public class ShowMap extends ActionBarActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -21,6 +21,8 @@ public class ShowMap extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_map);
         setUpMapIfNeeded();
+
+        Toast.makeText(this,Double.toString(Globals.sJerryLat),Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -87,6 +89,8 @@ public class ShowMap extends ActionBarActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(-6.890323, 107.610381)).title("JERRY!!!"));
+        if(Globals.sJerryLat != 0 && Globals.sJerryLong != 0) {
+            mMap.addMarker(new MarkerOptions().position(new LatLng(Globals.sJerryLat, Globals.sJerryLong)).title("JERRY!!!"));
+        }
     }
 }

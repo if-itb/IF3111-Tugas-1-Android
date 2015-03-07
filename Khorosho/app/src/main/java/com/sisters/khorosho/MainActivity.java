@@ -1,6 +1,7 @@
 package com.sisters.khorosho;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.ActionBarActivity;
@@ -9,9 +10,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
-import android.content.Intent;
-
-import com.sisters.khorosho.Constants;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -47,7 +45,8 @@ public class MainActivity extends ActionBarActivity {
 
     public void askSpike(View view) {
         //TODO shit here, ask for the location and start next activity
-        String stringUrl = Constants.TRACK_ENDPOINT;
+        /*
+        String stringUrl = Globals.TRACK_ENDPOINT;
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -59,5 +58,7 @@ public class MainActivity extends ActionBarActivity {
         } else {
             Toast.makeText(this,"Fail, Please check network connection!",Toast.LENGTH_LONG).show();
         }
+        */
+        ServiceHandler.trackJerry();
     }
 }
