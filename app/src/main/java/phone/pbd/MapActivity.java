@@ -146,16 +146,16 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
                             res[0] = object.getString("code");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            res[0] = "Failed to post";
+                            res[0] = "JSONException";
                         } catch (ClientProtocolException e) {
                             e.printStackTrace();
-                            res[0] = "Failed to post";
+                            res[0] = "ClientProtocolException";
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
-                            res[0] = "Failed to post";
+                            res[0] = "UnsupportedEncodingException";
                         } catch (IOException e) {
                             e.printStackTrace();
-                            res[0] = "Failed to post";
+                            res[0] = "Ga punya internet ya? Kasihan deh..";
                         } finally {
                             lock[0] = false;
                         }
