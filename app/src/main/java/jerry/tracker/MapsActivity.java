@@ -2,6 +2,7 @@ package jerry.tracker;
 
 // Map
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -341,7 +343,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                             jsonResponse += "long: " + longitude + "\n\n";
                             jsonResponse += "valid_until: " + valid_until + "\n\n";
 
-                            mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Jerry is here"));
+                            mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Jerry is here")).setIcon(BitmapDescriptorFactory.fromResource(R.drawable.jerry));
                             LatLng ll = new LatLng(latitude, longitude);
                             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(ll, 18));
                             txtResponse.setText(jsonResponse);
