@@ -1,0 +1,27 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.kevinhuang.tomandjerry2.MapsActivity">
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:id="@+id/MapFragment" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/txtHeading"
+        android:layout_gravity="center_horizontal|top" />
+
+    <ImageView
+        android:layout_width="146dp"
+        android:layout_height="146dp"
+        android:id="@+id/imgcompass"
+        android:layout_gravity="left|bottom"
+        android:src = "@drawable/compass"/>
+</FrameLayout>
+

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">tomandjerry2</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_ask_spike">AskSpike</string>
+    <string name="coordinate">Lat is: \n Lon is :</string>
+    <string name="latitude">Latitude is :</string>
+    <string name="longitude">Longitude is :</string>
+    <string name="validuntil">Valid until :</string>
+    <string name="title_activity_map">Map</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="notifjerrynotfound">Where is Jerry?</string>
+    <string name="title_activity_catchjerry">catchjerry</string>
+    <string name="title_activity_report">report</string>
+
+</resources>
