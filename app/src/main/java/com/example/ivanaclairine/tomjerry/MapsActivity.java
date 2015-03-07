@@ -85,8 +85,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 deadline = ((long) objek.getLong("valid_until")*1000) - currtime;
                 //deadline = 10000;
                 createCountDownTimer();
-
-
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -127,7 +125,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
                     int menit = (int) millisUntilFinished/1000 / 60;
                     int detik = (int)  millisUntilFinished/1000 % 60;
-                    text1.setText("Catch Jerry in " + "\n" + detik + " secs ");
+                    text1.setText("Catch Jerry in " + "\n" + menit + "minutes" + detik + " secs ");
                 }
                 else
                 {
@@ -274,9 +272,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 response = client.execute(request);
 
                 // Get the response
-                BufferedReader rd = new BufferedReader
-                        (new InputStreamReader(response.getEntity().getContent()));
-
+                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
                 String line = "";
                 String message = "";
                 while ((line = rd.readLine()) != null) {
