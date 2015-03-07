@@ -28,16 +28,20 @@
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" >
+
+        </activity>
+        <activity
+            android:name=".QRScanActivity"
+            android:label="@string/title_activity_qrscan" >
+        </activity>
+        <activity
+            android:name=".MenuActivity"
+            android:label="@string/title_activity_menu" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".QRScanActivity"
-            android:label="@string/title_activity_qrscan" >
-
         </activity>
     </application>
 

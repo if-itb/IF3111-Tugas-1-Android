@@ -1,28 +1,43 @@
 package rakhmatullahyoga.tomandjerry;
 
 import android.app.ProgressDialog;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
 import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MapsActivity extends FragmentActivity {
+public class MapsActivity extends FragmentActivity implements SensorEventListener {
     /* Map attributes */
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LatLng jerryPosition;
     private LatLng tomPosition;
     private String provider;
+    private Marker jerrySpot;
 
-    /* JSON attribute */
+    /* Compass attributes */
+    private ImageView image;
+    private float currentDegree = 0f;
+    private SensorManager mSensorManager;
+
+    /* JSON attributes */
     private static final String url = "http://167.205.32.46/pbd/api/track?nim=13512053";
     private JSONObject positions = null;
     private static final String TAG_LATITUDE = "lat";
@@ -32,6 +47,41 @@ public class MapsActivity extends FragmentActivity {
     private double longitude;
     private int utcTime;
     private boolean ready = false;
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        // get the angle around the z-axis rotated
+        float degree = Math.round(event.values[0]);
+
+
+        // create a rotation animation (reverse turn degree degrees)
+        RotateAnimation ra = new RotateAnimation(
+                currentDegree,
+                -degree,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF,
+                0.5f);
+
+        // how long the animation will take place
+        ra.setDuration(210);
+
+        // set the animation after the end of the reservation status
+        ra.setFillAfter(true);
+
+        // Start the animation
+        image.startAnimation(ra);
+        currentDegree = -degree;
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    public void askSpike(View v) {
+        new GetPosition().execute();
+        setUpMap();
+    }
 
     /* Nested class to get Jerry position */
     private class GetPosition extends AsyncTask<Void, Void, Void> {
@@ -89,12 +139,17 @@ public class MapsActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+        image = (ImageView) findViewById(R.id.compassImage);
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+                SensorManager.SENSOR_DELAY_GAME);
+
     }
 
     /**
@@ -135,8 +190,8 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        new GetPosition().execute();
-        while(!ready);
+        //new GetPosition().execute();
+        //while(!ready);
         Log.d("markerposition :", "latitude="+latitude+", longitude="+longitude);
         jerryPosition = new LatLng(latitude, longitude);
         mMap.setMyLocationEnabled(true);
