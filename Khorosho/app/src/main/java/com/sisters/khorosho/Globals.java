@@ -6,6 +6,7 @@ package com.sisters.khorosho;
 public class Globals {
     public static final String TRACK_ENDPOINT = "http://167.205.32.46/pbd/api/track?nim=13512046";
     public static final String CATCH_ENDPOINT = "http://167.205.32.46/pbd/api/catch";
+    public static final String NIM = "13512046";
 
     public static double sJerryLat;
     public static double sJerryLong;

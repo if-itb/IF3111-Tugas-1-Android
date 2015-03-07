@@ -109,6 +109,7 @@ public class ShowMap extends ActionBarActivity {
         Date endDate = new Date(Globals.sValidUntil*1000);
         Date startDate = new Date();
         long expireIn = endDate.getTime() - startDate.getTime();
+        if (expireIn < 0) expireIn = 0;
         Timer timer = new Timer();
         TimerTask timerTask = new TimerTask() {
             @Override

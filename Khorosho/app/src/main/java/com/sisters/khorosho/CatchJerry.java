@@ -6,12 +6,34 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 
 
 public class CatchJerry extends ActionBarActivity {
@@ -83,10 +105,67 @@ public class CatchJerry extends ActionBarActivity {
             if (resultCode == RESULT_OK) {
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-
-                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
-                toast.show();
+                new CatchJerryTask().execute(contents);
+               // Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                //toast.show();
             }
         }
     }
+
+class CatchJerryTask extends AsyncTask<String, String, String> {
+
+    @Override
+    protected String doInBackground(String... params) {
+        HttpClient client = new DefaultHttpClient();
+        HttpPost post = new HttpPost(Globals.CATCH_ENDPOINT);
+        JSONObject jsonobj = new JSONObject();
+        StringBuilder builder = new StringBuilder();
+        try {
+            jsonobj.put("nim", Globals.NIM);
+            jsonobj.put("token", params[0]);
+            StringEntity se = new StringEntity(jsonobj.toString());
+            post.setEntity(se);
+            HttpResponse response = client.execute(post);
+            HttpEntity entity = response.getEntity();
+            InputStream content = entity.getContent();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return builder.toString();
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+        JSONObject json;
+
+        try {
+            json = new JSONObject(result);
+            int code = json.getInt("code");
+            if (code == 200) {
+                TextView textView = (TextView) findViewById(R.id.textView);
+                textView.setText("CATCH SUCCESS!!");
+
+            } else {
+                TextView textView = (TextView) findViewById(R.id.textView);
+                textView.setText("CATCH FAIL!!");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }
+}
+
+
