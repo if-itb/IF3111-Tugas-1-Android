@@ -24,22 +24,6 @@ Di kawasan ITB, terdapat banyak kucing yang berkeliaran. Salah satu kucing yang 
 ## Spesifikasi Tampilan
 Anda dibebaskan dalam berkreasi mendesain tampilan selama fitur-fitur pada spesifikasi aplikasi tercapai dan aplikasi dapat digunakan sesuai dengan alur pengujian yang diberikan.
 
-## Spesifikasi Endpoint
-<b>Alamat Server: 167.205.32.46/pbd </b>
-
-## Track
-<b>Request: <EndPoint>/api/track?nim=13512018 </b> <br\>
-<b>Response: {"lat":"-6.890323","long":"107.610381","valid_until":1425833999} </b> <br\>
-
-## Catch
-<b>Header request</b> <br\>
-Content-type: application/json <br\>
-<b>Parameter request </b> <br\>
-<ul type = "list-style-type:disc"> 
-<li> nim: 13512018</li>
-<li> token: <secret_token> (hasil QR Code Scanning)</li>
-<br\> </ul>
-
 <b> Response Status </b> <br\>
 <ul type ="list-style-type:disc">
 <li> status : <b>200 -> OK</b> (pengumpulan sukses, secret_token sesuai) </li>
