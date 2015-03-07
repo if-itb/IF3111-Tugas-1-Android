@@ -1,0 +1,147 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="wrap_content" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context=".RequestLocationActivity"
+    android:id="@+id/requestLocation">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Lacak Jerry"
+        android:id="@+id/lacakJerry"
+        android:background="#ffff7b47"
+        android:onClick="onClickButton"
+        android:layout_alignBaseline="@+id/catchJerry"
+        android:layout_alignBottom="@+id/catchJerry"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scan Code"
+        android:id="@+id/scanCode"
+        android:background="#ffff7b47"
+        android:onClick="onClickButton2"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Catch Jerry"
+        android:id="@+id/catchJerry"
+        android:background="#ffff7b47"
+        android:onClick="onClickButton3"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="C"
+        android:id="@+id/tokenQRCode"
+        android:textIsSelectable="true"
+        android:focusable="false"
+        android:enabled="false"
+        android:textColor="#ffff35e0"
+        android:layout_alignBaseline="@+id/textView2"
+        android:layout_alignBottom="@+id/textView2"
+        android:layout_alignLeft="@+id/catchJerry"
+        android:layout_alignStart="@+id/catchJerry" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Status : "
+        android:id="@+id/textView"
+        android:textIsSelectable="true"
+        android:focusable="false"
+        android:enabled="false"
+        android:textColor="#ffff35e0"
+        android:layout_alignLeft="@+id/textView2"
+        android:layout_alignStart="@+id/textView2"
+        android:layout_below="@+id/textView2" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="D"
+        android:id="@+id/statusPenangkapanJerry"
+        android:textColor="#ffff2675"
+        android:layout_alignTop="@+id/textView"
+        android:layout_alignLeft="@+id/tokenQRCode"
+        android:layout_alignStart="@+id/tokenQRCode" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Token : "
+        android:id="@+id/textView2"
+        android:textIsSelectable="true"
+        android:focusable="false"
+        android:enabled="false"
+        android:textColor="#ffff35e0"
+        android:layout_below="@+id/textView4"
+        android:layout_alignRight="@+id/lacakJerry"
+        android:layout_alignEnd="@+id/lacakJerry" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Longitude : "
+        android:id="@+id/textView3"
+        android:textIsSelectable="true"
+        android:focusable="false"
+        android:enabled="false"
+        android:textColor="#ffff35e0"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/textView4"
+        android:layout_alignStart="@+id/textView4"
+        android:layout_marginTop="47dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Latitude : "
+        android:id="@+id/textView4"
+        android:textIsSelectable="true"
+        android:focusable="false"
+        android:enabled="false"
+        android:textColor="#ffff35e0"
+        android:layout_alignLeft="@+id/textView2"
+        android:layout_alignStart="@+id/textView2"
+        android:layout_below="@+id/textView3" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="B"
+        android:id="@+id/textLatitude"
+        android:textIsSelectable="true"
+        android:focusable="false"
+        android:enabled="false"
+        android:textColor="#ffff35e0"
+        android:layout_below="@+id/textView3"
+        android:layout_alignLeft="@+id/tokenQRCode"
+        android:layout_alignStart="@+id/tokenQRCode" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="A"
+        android:id="@+id/textLongitude"
+        android:textIsSelectable="true"
+        android:focusable="false"
+        android:enabled="false"
+        android:textColor="#ffff35e0"
+        android:layout_alignBaseline="@+id/textView3"
+        android:layout_alignBottom="@+id/textView3"
+        android:layout_alignRight="@+id/textLatitude"
+        android:layout_alignEnd="@+id/textLatitude" />
+
+</RelativeLayout>
