@@ -1,0 +1,10 @@
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    tools:layout="@layout/abc_screen_simple"
+    android:id="@+id/map">
+
+</fragment><!-- From: file:/D:/Proyek/Android/LetsCatchJerry/app/src/main/res/layout/activity_maps.xml -->

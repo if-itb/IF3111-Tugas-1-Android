@@ -1,0 +1,8 @@
+D:\Proyek\Android\LetsCatchJerry\app\build\intermediates\classes\debug
+D:\Proyek\Android\LetsCatchJerry\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.3-ff2d7f5022b5a92fc988e7ecf40140c2621ade2e.jar
+D:\Proyek\Android\LetsCatchJerry\app\build\intermediates\pre-dexed\debug\library-1.0.7-e1e2f8c3f1d5f19b7ab506a7cff2206fbe09b1f2.jar
+D:\Proyek\Android\LetsCatchJerry\app\build\intermediates\pre-dexed\debug\gson-2.2.4-0dd3035dded10a2634d880aaee41d0bc413d0b73.jar
+D:\Proyek\Android\LetsCatchJerry\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-91499d8c2aea909d4082825f7ca32d1b720adc9e.jar
+D:\Proyek\Android\LetsCatchJerry\app\build\intermediates\pre-dexed\debug\classes-a1926e1836f272610aaced5ebb2b0695db838ebb.jar
+D:\Proyek\Android\LetsCatchJerry\app\build\intermediates\pre-dexed\debug\classes-033b7dd613385caf8d8c0896d32448b460be8206.jar
+D:\Proyek\Android\LetsCatchJerry\app\build\intermediates\pre-dexed\debug\classes-5cc217730c4486328880fed047ea29b66b489e6b.jar
