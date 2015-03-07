@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#fff" >
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Valid"
+        android:id="@+id/txtValidUntil"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="#FF0000"
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtToken"
+        android:text="@string/Token"
+        android:layout_below="@+id/txtLongitude"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/imageViewCompass"
+        android:src="@drawable/compass"
+        android:focusable="false"
+        android:contentDescription="@string/Kompas"
+        android:layout_alignTop="@+id/txtLongitude"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Lat"
+        android:id="@+id/txtLatitude"
+        android:layout_below="@+id/txtValidUntil"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Long"
+        android:id="@+id/txtLongitude"
+        android:layout_below="@+id/txtLatitude"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/Response"
+        android:id="@+id/txtResponse"
+        android:layout_below="@+id/txtToken"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+    <ImageView
+        android:layout_width="180dp"
+        android:layout_height="140dp"
+        android:id="@+id/imageViewTom"
+        android:src="@drawable/tom"
+        android:onClick="scanQR"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@+id/txtValidUntil"
+        android:layout_toEndOf="@+id/txtValidUntil" />
+
+    <Button
+        android:id="@+id/scanner"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:onClick="scanQR"
+        android:text="@string/QRCode"
+        android:textSize="16sp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@+id/txtValidUntil"
+        android:layout_toEndOf="@+id/txtValidUntil"
+        android:textColor="#FF0000"
+        android:background="#000000">
+    </Button>
+
+
+</RelativeLayout>
