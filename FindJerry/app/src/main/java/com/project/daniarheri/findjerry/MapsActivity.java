@@ -10,12 +10,14 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
+import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -24,9 +26,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener {
@@ -48,6 +53,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     MarkerOptions mapMarkerJerry = new MarkerOptions();
     TrackJerry tracker = new TrackJerry();
     CatchJerry catcher = new CatchJerry();
+    Marker JerryMarker;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +62,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
         prepareCompass();
+
     }
 
     @Override
@@ -122,6 +130,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     }
 
 
+
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // TODO Auto-generated method stub
 
@@ -145,12 +154,47 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         mMap.animateCamera(zoom);
     }
 
+    private void LoopingUpdate(){
+            final TextView tV = (TextView) findViewById(R.id.tVinfo);
+            new CountDownTimer(tracker.getTimeForUpdate(), 1000) {//CountDownTimer(edittext1.getText()+edittext2.getText()) also parse it to long
+
+                public void onTick(long millisUntilFinished) {
+                    tV.setText("Time remaining: " + millisUntilFinished / 1000);
+                    //here you can have your logic to set text to edittext
+                }
+
+                public void onFinish() {
+                    mMap.clear();
+                    try {
+                        TrackJerry NewTracker = new TrackJerry();
+                        NewTracker.findJerry("http://167.205.32.46/pbd/api/track?nim=13512064");
+                        tracker.setlatLon(NewTracker.getLat(),NewTracker.getLon());
+                        NewTracker = null;
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    tV.setText("Jerry's position updated! ");
+                    LoopingUpdate();
+                    JerryMarker = mMap.addMarker(mapMarkerJerry
+                            .position(tracker.getLatLing())
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerjerry)));
+                }
+            }.start();
+    }
+
     private void setUpMap() {
+        mMap.clear();
         try {
             tracker.findJerry("http://167.205.32.46/pbd/api/track?nim=13512064");
-            mMap.addMarker(mapMarkerJerry.position(tracker.getLatLing()).title("Jerry's Position")
+            JerryMarker = mMap.addMarker(mapMarkerJerry
+                    .position(tracker.getLatLing())
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerjerry)));
+
             updateCamera();
+            LoopingUpdate();
+           // updateJerrysPosition(tracker.getTimeForUpdate());
 
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -1,7 +1,9 @@
 package com.project.daniarheri.findjerry;
 
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.view.ViewStub;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -17,6 +19,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,7 +31,8 @@ import java.util.concurrent.ExecutionException;
 public class TrackJerry extends AsyncTask<String, String, String> {
     private Float lat;
     private Float lon;
-
+    private String validDate;
+    private Long epoch;
 
     @Override
     protected String doInBackground(String... uri) {
@@ -67,6 +71,7 @@ public class TrackJerry extends AsyncTask<String, String, String> {
         this.execute(str);
         String responseString = null;
         responseString = this.get();
+
         extractResponseString(responseString);
     }
 
@@ -79,11 +84,9 @@ public class TrackJerry extends AsyncTask<String, String, String> {
                 String validTime = jsonObj.getString("valid_until");
 
                 // convert date
-                Long epoch = Long.parseLong(validTime);
-                String date = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new java.util.Date (epoch*1000));
-//
-//                Toast toast = Toast.makeText(this, "Valid sampai :  " + date , Toast.LENGTH_LONG);
-//                toast.show();
+                epoch = Long.parseLong(validTime);
+                validDate = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new java.util.Date (epoch*1000));
+
                 lat = Float.parseFloat(lantitude);
                 lon = Float.parseFloat(longitude);
             } catch (JSONException e) {
@@ -95,4 +98,29 @@ public class TrackJerry extends AsyncTask<String, String, String> {
     public LatLng getLatLing(){
         return new LatLng(lat,lon);
     }
+
+    public String getValidDate(){
+        return validDate;
+    }
+
+    public long getTimeForUpdate(){
+        Long currentTime =  System.currentTimeMillis()/1000;
+        Long time = (Long)epoch - (Long)currentTime;
+        validDate = String.valueOf(time)+ "  "+ String.valueOf(epoch)+ "  "+ String.valueOf(currentTime);
+        return 7000;// epoch - System.currentTimeMillis();
+    }
+
+    public void setlatLon(Float lat,Float lon){
+        this.lat = lat;
+        this.lon = lon;
+    }
+
+    public Float getLat(){
+        return lat;
+    }
+
+    public Float getLon(){
+        return lon;
+    }
+
 }
