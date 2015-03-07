@@ -65,7 +65,7 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
     }
 
     private class LaporanAsyncTask extends AsyncTask<String, Void, String> {
-
+        String result = "";
         @Override
         protected String doInBackground(String... urls) {
             JSONObject laporan = new JSONObject();
@@ -73,7 +73,12 @@ public class QRCodeScannerActivity extends Activity implements ZXingScannerView.
                 laporan.accumulate("nim", jerry.getNIM());
                 laporan.accumulate("token", jerry.getToken());
                 JSONParser jsonparser = new JSONParser();
-                jsonparser.sendJsonToUrl(url, laporan);
+                result = jsonparser.sendJsonToUrl(url, laporan);
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+                    }
+                });
             } catch (JSONException e) {
                 e.printStackTrace();
             }

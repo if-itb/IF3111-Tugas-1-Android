@@ -87,7 +87,7 @@ public class JSONParser {
 
     }
 
-    public void sendJsonToUrl(String url, JSONObject jsonObject)
+    public String sendJsonToUrl(String url, JSONObject jsonObject)
     {
         InputStream inputStream = null;
         String result = "";
@@ -128,11 +128,12 @@ public class JSONParser {
                 Log.d("Hasil Code: ", "" + result);
             }
             else
-                result = "Did not work!";
+                result = "Parsing gagal";
 
         } catch (Exception e) {
             Log.d("InputStream", e.getLocalizedMessage());
         }
+        return result;
     }
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException{
