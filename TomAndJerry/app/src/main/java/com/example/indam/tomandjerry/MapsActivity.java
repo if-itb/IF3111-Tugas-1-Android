@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
@@ -23,6 +24,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,9 +59,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private float currentDegree = 0f;
     // device sensor manager
     private SensorManager mSensorManager;
-    TextView tvHeading;
 
     private String contents;
+
+    private long levalid;
+    TextView tvHeading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +71,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         setContentView(R.layout.activity_maps);
 
         image = (ImageView) findViewById(R.id.imageViewCompass);
-
-        // TextView that will tell the user what degree is he heading
         tvHeading = (TextView) findViewById(R.id.tvHeading);
 
         // initialize your android device sensor capabilities
@@ -137,8 +139,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
         // ge   t the angle around the z-axis rotated
         float degree = Math.round(event.values[0]);
-
-        tvHeading.setText("Heading: " + Float.toString(degree) + " degrees");
 
         // create a rotation animation (reverse turn degree degrees)
         RotateAnimation ra = new RotateAnimation(
@@ -214,10 +214,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         if(requestCode == 0){
             if(resultCode == RESULT_OK){
                 //get the extras that are returned from the intent
-                String contents = intent.getStringExtra("SCAN_RESULT");
+                contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
                 Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
                 toast.show();
+                postRequest();
             }
         }
     }
@@ -252,11 +253,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             JSONObject json = null;
             try {
                 json = new JSONObject(sb.toString());
-            } catch(JSONException e) {e.printStackTrace();}
-
-            if(json != null) {
                 contents = json.toString();
-            }
+            } catch(JSONException e) {e.printStackTrace();}
 
             return json;
         }
@@ -268,16 +266,32 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             try{
                 double lat = Double.parseDouble(result.getString("lat"));
                 double lon = Double.parseDouble(result.getString("long"));
+                levalid = Long.parseLong(result.getString("valid_until")) * 1000;
                 jerry_whereabouts = new LatLng(lat, lon);
-                Toast toast = Toast.makeText(MapsActivity.this, "Jerry Position ("+ lat + "," + lon + ")", Toast.LENGTH_LONG);
-                toast.show();
+
+                new CountDownTimer((levalid - System.currentTimeMillis()), 1000){
+                    public void onTick(long r){
+                        long ETA = (levalid - System.currentTimeMillis()) / 1000;
+                        tvHeading.setText(String.valueOf(
+                                (ETA/3600) + " jam " + (ETA%3600 / 60) + " menit " + (ETA%3600 % 60) + " detik lagi Jerry akan pindah."
+                        ));
+                    }
+                    @Override
+                    public void onFinish(){
+                        setUpMapIfNeeded();
+                    }
+                }.start();
+
+                //Toast toast = Toast.makeText(MapsActivity.this, "Jerry Position ("+ lat + "," + lon + ")", Toast.LENGTH_LONG);
+                //toast.show();
             } catch(JSONException e){e.printStackTrace();}
-            //setUpMap();
 
             mMap.clear();
             mMap.addMarker(new MarkerOptions().position(jerry_whereabouts).title("Marker"));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(jerry_whereabouts, 17));
         }
+
+
     }
 
     // PostRequest
@@ -308,7 +322,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     while((line = buffRead.readLine()) != null){
                         SB.append(line);
                     }
-                    content = SB.toString();
+                    json = new JSONObject(SB.toString());
+                    if(json.getInt("code") == 200)
+                        content = "Jerry berhasil dibunuh!";
+                    else
+                        content = "Jerry telah kabur.";
                 }
             } catch(JSONException | IOException e){
                 e.printStackTrace();
@@ -318,8 +336,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            Toast trep = Toast.makeText(MapsActivity.this, result, Toast.LENGTH_LONG);
-            trep.show();
+            Toast toast = Toast.makeText(MapsActivity.this, result, Toast.LENGTH_LONG);
+            toast.show();
         }
     }
 
