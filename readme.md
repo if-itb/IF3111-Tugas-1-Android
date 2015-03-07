@@ -6,6 +6,8 @@ Dalam tugas ini, peserta diharapkan dapat membuat aplikasi android yang membantu
 
 ## Spesifikasi Aplikasi
 
+Min API 19
+
 ## Spesifikasi Endpoint
 
 ## License
