@@ -264,9 +264,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             super.onPostExecute(result);
             LatLng jerry_whereabouts = new LatLng(0,0);
             try{
-                double lat = Double.parseDouble(result.getString("lat"));
-                double lon = Double.parseDouble(result.getString("long"));
-                levalid = Long.parseLong(result.getString("valid_until")) * 1000;
+                double lat = result.getDouble("lat");
+                double lon = result.getDouble("long");
+                levalid = result.getLong("valid_until") * 1000;
                 jerry_whereabouts = new LatLng(lat, lon);
 
                 new CountDownTimer((levalid - System.currentTimeMillis()), 1000){
@@ -282,8 +282,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     }
                 }.start();
 
-                //Toast toast = Toast.makeText(MapsActivity.this, "Jerry Position ("+ lat + "," + lon + ")", Toast.LENGTH_LONG);
-                //toast.show();
+                Toast toast = Toast.makeText(MapsActivity.this, "Jerry Position ("+ lat + "," + lon + ")", Toast.LENGTH_LONG);
+                toast.show();
             } catch(JSONException e){e.printStackTrace();}
 
             mMap.clear();
