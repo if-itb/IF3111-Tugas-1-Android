@@ -37,4 +37,13 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:src="@drawable/compass"
+        android:layout_below="@+id/textView4"
+        android:layout_alignRight="@+id/map"
+        android:layout_alignEnd="@+id/map" />
+
 </RelativeLayout>
