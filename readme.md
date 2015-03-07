@@ -35,7 +35,7 @@ Anda dibebaskan dalam berkreasi mendesain tampilan selama fitur-fitur pada spesi
 
 ## Catch
 <b>Header request</b> <br\>
-Content-type: application/json <br\><br\>
+Content-type: application/json <br\>
 <b>Parameter request </b>
 <ul type = "list-style-type:disc"> 
 <li> nim: 13512018</li>
