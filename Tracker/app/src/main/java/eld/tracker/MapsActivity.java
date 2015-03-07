@@ -167,8 +167,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         // Zoom in the Google Map
         mMap.animateCamera(CameraUpdateFactory.zoomTo(17));
-        // Setting latitude and longitude in the TextView tv_location
-        tvLocation.setText("Latitude:" +  latitude  + ", Longitude:"+ longitude );
     }
 
     @Override
