@@ -38,9 +38,9 @@ public class Map2 extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map2);
-        koor = new LatLng(0,0);
+        koor = new LatLng(-6.889233, 107.610424);
         requestQueue = Volley.newRequestQueue(this);
-        JerryPosition();
+        //JerryPosition();
 
     }
 
@@ -71,6 +71,7 @@ public class Map2 extends FragmentActivity {
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
+            mMap.setMapType(1);
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
@@ -101,7 +102,7 @@ public class Map2 extends FragmentActivity {
                         String a;
                         RetrJson = "" + response.substring(3,response.length()).replace("long", "lon");
                         a=response.substring(3,response.length()).replace("long", "lon");
-                        Log.d("jsonn5", a);
+                        Log.d("jsonn5",a);
                         try {
                             Log.d("jasonn6",a);
                             JSONObject parsing= new JSONObject(a);
