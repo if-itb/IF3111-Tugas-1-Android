@@ -1,12 +1,12 @@
 package com.android.mario.getthejerry;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,10 +14,15 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
+import java.util.Timer;
+
 /**
- * Created by Mario on 06/03/2015.
+ * Created by Mario on 07/03/2015.
  */
-public class GPSTrackingActivity extends Activity implements SensorEventListener {
+public class GPSTrackingActivity extends ActionBarActivity implements SensorEventListener {
+
+    Timer timer;
+    final int update_rate = 8000; // in milliseconds
 
     private ImageView compass;
     private float currentDegree = 0f;
@@ -60,13 +65,13 @@ public class GPSTrackingActivity extends Activity implements SensorEventListener
     protected void onResume() {
         super.onResume();
         // for the system's orientation sensor registered listeners
-        sensorManager.registerListener((android.hardware.SensorEventListener) this, sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),SensorManager.SENSOR_DELAY_GAME);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),SensorManager.SENSOR_DELAY_GAME);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        sensorManager.unregisterListener((android.hardware.SensorEventListener) this);
+        sensorManager.unregisterListener(this);
     }
 
     @Override

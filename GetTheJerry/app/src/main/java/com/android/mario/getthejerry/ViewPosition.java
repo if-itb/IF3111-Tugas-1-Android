@@ -1,10 +1,11 @@
 package com.android.mario.getthejerry;
 
 /**
- * Created by Mario on 06/03/2015.
+ * Created by Mario on 07/03/2015.
  */
 public class ViewPosition {
-    private static int latitude, longitude;
+    private static double latitude;
+    private static double longitude;
     private static String validUntil, token;
     private static int status;
 
@@ -16,19 +17,19 @@ public class ViewPosition {
         ViewPosition.status = status;
     }
 
-    public static int getLatitude() {
+    public static double getLatitude() {
         return latitude;
     }
 
-    public static void setLatitude(int latitude) {
+    public static void setLatitude(double latitude) {
         ViewPosition.latitude = latitude;
     }
 
-    public static int getLongitude() {
+    public static double getLongitude() {
         return longitude;
     }
 
-    public static void setLongitude(int longitude) {
+    public static void setLongitude(double longitude) {
         ViewPosition.longitude = longitude;
     }
 

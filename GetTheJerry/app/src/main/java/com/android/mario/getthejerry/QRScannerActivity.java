@@ -7,14 +7,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Toast;
 
 /**
- * Created by Mario on 06/03/2015.
+ * Created by Mario on 07/03/2015.
  */
-public class QRScannerActivity extends Activity {
-
+public class QRScannerActivity extends ActionBarActivity {
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     private String contents, format;
 
@@ -85,5 +85,4 @@ public class QRScannerActivity extends Activity {
             }
         }
     }
-
 }
