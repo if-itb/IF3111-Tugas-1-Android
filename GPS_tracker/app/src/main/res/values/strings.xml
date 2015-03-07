@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">GPS_tracker</string>
+    <string name="title_activity_gps_tracking">Map</string>
+    <string name="title_activity_compass">Compass</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+</resources>
