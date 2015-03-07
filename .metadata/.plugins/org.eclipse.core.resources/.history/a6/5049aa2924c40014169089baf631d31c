@@ -1,0 +1,30 @@
+package com.luqman.tom;
+
+import java.io.InputStream;
+
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.os.AsyncTask;
+
+public class GetPositionAsync extends AsyncTask<String, String, Void>  {
+	 private ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
+	 
+	    InputStream inputStream = null;
+	    String result = ""; 
+
+	    protected void onPreExecute() {
+	        progressDialog.setMessage("Downloading your data...");
+	        progressDialog.show();
+	        progressDialog.setOnCancelListener(new OnCancelListener() {
+	            public void onCancel(DialogInterface arg0) {
+	                MyAsyncTask.this.cancel(true);
+	            }
+
+				@Override
+				public void onCancel(DialogInterface dialog) {
+					GetPositionAsync.this.cancel(true);
+				}
+	        });
+	    }
+}

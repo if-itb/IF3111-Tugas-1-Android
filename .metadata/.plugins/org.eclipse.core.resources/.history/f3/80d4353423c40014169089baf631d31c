@@ -1,0 +1,7 @@
+package com.luqman.tom;
+
+import android.os.AsyncTask;
+
+public class GetPositionAsync extends AsyncTask<String, String, Void>  {
+
+}
