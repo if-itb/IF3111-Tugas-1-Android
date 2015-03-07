@@ -28,8 +28,6 @@ Non Functional Requirement
 	-  Source  code  diusahakan  agar  terstruktur  dengan  baik  (Silahkan  membaca  guidelines standar yang dirilis di https://source.android.com/source/code-style.html) 
 	-  Minimal Android API 9 (GingerBread).
 
-	Spesifikasi Tampilan
-	Anda  dibebaskan  dalam  berkreasi  mendesain  tampilan  selama  fitur-fitur  pada  spesifikasi aplikasi tercapai dan aplikasi dapat digunakan sesuai dengan alur pengujian yang diberikan
 
 ## Spesifikasi Endpoint
 Alamat Server: 167.205.32.46/pbd
