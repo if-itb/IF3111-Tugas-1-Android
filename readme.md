@@ -10,7 +10,7 @@ Dalam tugas ini, peserta diharapkan dapat membuat aplikasi android yang membantu
 
 ## Spesifikasi Aplikasi
 
-Functional Requirement
+	Functional Requirement
 	1. GPS Tracking
 		Posisi yang diberikan Spike berbentuk latitude dan longitude. Lama persembunyian Jerry juga diberikan dalam waktu UTC+7. Setelah waktu persembunyian habis, posisi Jerry akan berubah. Aplikasi dapat menampilkan posisi Jerry. Untuk jenis tampilan dibebaskan kepada peserta (misalnya map, atau penunjuk arah, atau indikator sederhana lainnya), silahkan dibuat se-kreatif mungkin.
 	2. Geomagnetic Sensor
@@ -18,7 +18,7 @@ Functional Requirement
 	3. QR-Code Scanner
 		Setelah mendapatkan posisi Jerry, peserta harus menangkap Jerry dengan melakukan scanning token dari QR-code yang disediakan dan dikirimkan ke server. Peserta diharapkan mencoba menggunakan library yang sudah tersedia di internet.
 
-Non Functional Requirement
+	Non Functional Requirement
 	- Perangkat smartphone saat ini memiliki fitur yang sangat lengkap. Namun salah satu tantangan dalam menggunakan fitur-fitur tersebut adalah penggunaan daya baterai sesedikit mungkin karena daya baterai yang terbatas. Oleh karena itu pada tugas kali ini, peserta diharapkan memikirkan strategi yang baik agar aplikasi membutuhkan daya sesedikit mungkin.
 	- Aplikasi harus user friendly, artinya user tidak perlu selalu menekan tombol refresh untuk mendapatkan informasi terbaru dari Spike
 	- Source code diusahakan agar terstruktur dengan baik (Silahkan membaca guidelines standar yang dirilis di https://source.android.com/source/code-style.html)
@@ -26,29 +26,29 @@ Non Functional Requirement
 
 ## Spesifikasi Endpoint
 
-Alamat Server: 167.205.32.46/pbd
+	Alamat Server: 167.205.32.46/pbd
 
-TRACK : [GET] /api/track?nim=<NIM_ANDA>
-contoh pemanggilan:
-/api/track?nim=13512000 (167.205.32.46/pbd/api/track?nim=13512000)
-contoh kembalian:
-{
-	“lat”: “-6.890323” // Koordinat latitude tujuan
-	“long”: “107.610381” // Koordinat longitude tujuan “valid_until”:1425833999 // Date dalam format UTC+7 kapan token hangus
-}
+	TRACK : [GET] /api/track?nim=<NIM_ANDA>
+	contoh pemanggilan:
+	/api/track?nim=13512000 (167.205.32.46/pbd/api/track?nim=13512000)
+	contoh kembalian:
+	{
+		“lat”: “-6.890323” // Koordinat latitude tujuan
+		“long”: “107.610381” // Koordinat longitude tujuan “valid_until”:1425833999 // Date dalam format UTC+7 kapan token hangus
+	}
 
-CATCH : [POST] /api/catch
-Header request:
-Content-type: application/json
-Parameter request:
-token := “CONTOHTOKEN”
-nim := “NIM_ANDA”
-Contoh body request:
-{"nim": "13512000", "token": "secret_token"}
-Response status:
-- status: 200 OK (Apabila pengumpulan sukses dengan token sesuai)
-- status: 400 MISSING PARAMETER (Apabila parameter yang dikirim tidak lengkap)
-- status: 403 FORBIDDEN (Apabila terdapat parameter yang salah)
+	CATCH : [POST] /api/catch
+	Header request:
+	Content-type: application/json
+	Parameter request:
+	token := “CONTOHTOKEN”
+	nim := “NIM_ANDA”
+	Contoh body request:
+	{"nim": "13512000", "token": "secret_token"}
+	Response status:
+	- status: 200 OK (Apabila pengumpulan sukses dengan token sesuai)
+	- status: 400 MISSING PARAMETER (Apabila parameter yang dikirim tidak lengkap)
+	- status: 403 FORBIDDEN (Apabila terdapat parameter yang salah)
 
 ## License
 
