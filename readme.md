@@ -28,7 +28,7 @@ Prosedur penangkapan dilakukan dengan pemanggilan api catch pada endpoint dengan
 4. Token yang dilaporkan ke Spike merupakan token yang benar dan dalam format yang benar. Spike akan memberikan respon apakah penangkapan dilakukan dengan cara yang tepat atau tidak.
 
 ## License
-
-MIT License
 "Tom and Jerry" are TM and copyright Turner Entertainment (where the rights stand today via Warner Bros).
 Google Map
+
+MIT License
