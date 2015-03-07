@@ -9,6 +9,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.CountDownTimer;
@@ -170,6 +171,13 @@ public class JerryMap extends FragmentActivity implements SensorEventListener {
      */
     private void setUpMap() {
         getRequest();
+        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location arg0) {
+                // TODO Auto-generated method stub
+                mMap.addMarker(new MarkerOptions().position(new LatLng(arg0.getLatitude(), arg0.getLongitude())).title("Your Position is Here"));
+            }
+        });
 //        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
 //        mMap.getUiSettings().setZoomGesturesEnabled(true);
     }
@@ -283,7 +291,7 @@ public class JerryMap extends FragmentActivity implements SensorEventListener {
                     public void onTick (long r){
                         long ETA = (valid_until - System.currentTimeMillis()) / 1000;
                         tvHeading.setText(String.valueOf(
-                                (ETA/3600) + "jam " + (ETA%3600 / 60) + " menit " + (ETA%3600 %60) + " detik ketika Jerry akan berpindah lokasi"
+                                (ETA/3600) + "jam " + (ETA%3600 / 60) + " menit " + (ETA%3600 %60) + " detik ketika Jerry berpindah lokasi"
                         ));
                     }
 
