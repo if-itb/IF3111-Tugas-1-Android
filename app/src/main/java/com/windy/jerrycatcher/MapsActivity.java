@@ -34,6 +34,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -69,7 +70,7 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
     private Long time_countdown;
     private Marker mMarker;
 
-    private TextView mTextView;
+    private TextView mTextViewDays, mTextViewHours, mTextViewMinutes, mTextViewSeconds, mDays, mHours, mMinutes, mSeconds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +86,16 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
 
         ImageView compass = (ImageView) findViewById(R.id.compass);
         pointer = (ImageView) findViewById(R.id.pointer);
-        mTextView = (TextView) findViewById(R.id.textView);
+
+        mDays = (TextView) findViewById(R.id.days);
+        mHours = (TextView) findViewById(R.id.hours);
+        mMinutes = (TextView) findViewById(R.id.minutes);
+        mSeconds = (TextView) findViewById(R.id.seconds);
+
+        mTextViewDays = (TextView) findViewById(R.id.textViewDays);
+        mTextViewHours = (TextView) findViewById(R.id.textViewHours);
+        mTextViewMinutes = (TextView) findViewById(R.id.textViewMinutes);
+        mTextViewSeconds = (TextView) findViewById(R.id.textViewSeconds);
     }
 
     public void setLatitude(double lat) {
@@ -118,8 +128,9 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
                             time_countdown = valid_until - second_now;
 
                             //lokasi jerry
-                            mMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)));
-
+                            mMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Jerry"));
+                            mMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.jerry3
+                            ));
                             //countdown
                             new CountDownTimer(time_countdown, 1000) {
 
@@ -133,6 +144,7 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
                                     String detik = null;
                                     String menit = null;
                                     String jam = null;
+                                    String hari = null;
                                     if (second/10 < 1) {
                                         detik = "0" + second;
                                     } else {
@@ -151,7 +163,16 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
                                         jam = "" + hour;
                                     }
 
-                                    mTextView.setText("Time: " + day + " days " + jam + " : " + menit + " : " + detik);
+                                    if (day/10 < 1) {
+                                        hari = "0" + day;
+                                    } else {
+                                        hari = "" + day;
+                                    }
+
+                                    mTextViewDays.setText(hari);
+                                    mTextViewHours.setText(jam);
+                                    mTextViewMinutes.setText(menit);
+                                    mTextViewSeconds.setText(detik);
                                 }
 
                                 public void onFinish() {
@@ -355,8 +376,9 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        //mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
         mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(false);
 
         LatLng ITB = new LatLng(-6.890323, 107.61038);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ITB, 15));
