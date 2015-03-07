@@ -21,41 +21,9 @@ tools:context=".MapActivity" >
         android:layout_height="fill_parent"
         android:layout_gravity="right|top"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="0dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="0dp">
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true">
 
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="130dp"
-            android:layout_height="50dp"
-            android:text="@string/Exit"
-            android:gravity="center"
-            android:background="@color/red"
-            android:onClick="exit"
-            android:id="@+id/buttonExit"
-            android:clickable="true"
-            android:layout_gravity="left|center_vertical"
-            android:layout_below="@+id/catchJerry"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="68dp" />
-
-
-        <Button
-            android:id="@+id/catchJerry"
-            android:layout_width="130dp"
-            android:layout_height="50dp"
-            android:text="@string/Catch"
-            android:gravity="center"
-            android:background="@color/green"
-            android:onClick="scanQR"
-            android:clickable="true"
-            android:layout_gravity="center_horizontal|top"
-            android:layout_marginTop="72dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true" />
 
         <ImageView
             android:id="@+id/pointer"
@@ -74,13 +42,24 @@ tools:context=".MapActivity" >
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/tVinfo"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_toRightOf="@+id/pointer"
-            android:layout_toEndOf="@+id/pointer"
-            android:layout_alignTop="@+id/buttonExit" />
+            android:text="Hello, I am a TextView"
+            android:layout_above="@+id/catchJerry"
+            android:layout_centerHorizontal="true" />
 
+        <Button
+            android:id="@+id/catchJerry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/Catch"
+            android:gravity="center"
+            android:onClick="scanQR"
+            android:clickable="true"
+            android:layout_row="14"
+            android:layout_column="70"
+            android:background="@drawable/btncatch"
+            android:layout_marginBottom="39dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
     </RelativeLayout>
 
 </RelativeLayout>

@@ -156,10 +156,13 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     private void LoopingUpdate(){
             final TextView tV = (TextView) findViewById(R.id.tVinfo);
-            new CountDownTimer(tracker.getTimeForUpdate(), 1000) {//CountDownTimer(edittext1.getText()+edittext2.getText()) also parse it to long
+            tV.setBackgroundColor(getResources().getColor(R.color.white));
+            new CountDownTimer(tracker.getTimeForUpdate()*1000, 1000) {
 
                 public void onTick(long millisUntilFinished) {
-                    tV.setText("Time remaining: " + millisUntilFinished / 1000);
+                    Long now = tracker.getTimeForUpdate();
+                    tV.setText("Time remaining: "+ now / 86400 +" day, " +  (now % 86400)/3600 + " hours, "+
+                            +(now % 3600)/ 60 +" minutes, " + (now%60) + " seconds.");
                     //here you can have your logic to set text to edittext
                 }
 

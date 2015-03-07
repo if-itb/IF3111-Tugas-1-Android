@@ -106,8 +106,7 @@ public class TrackJerry extends AsyncTask<String, String, String> {
     public long getTimeForUpdate(){
         Long currentTime =  System.currentTimeMillis()/1000;
         Long time = (Long)epoch - (Long)currentTime;
-        validDate = String.valueOf(time)+ "  "+ String.valueOf(epoch)+ "  "+ String.valueOf(currentTime);
-        return 7000;// epoch - System.currentTimeMillis();
+        return time;// epoch - System.currentTimeMillis();
     }
 
     public void setlatLon(Float lat,Float lon){
