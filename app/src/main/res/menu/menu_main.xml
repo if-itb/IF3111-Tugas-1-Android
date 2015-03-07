@@ -1,0 +1,20 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.tomvsjerry.MainActivity">
+
+    <item android:id="@+id/action_capture"
+        android:icon="@drawable/ic_action_capture"
+        android:title="Capture"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/action_view_map"
+        android:icon="@drawable/ic_action_map"
+        android:title="View Map"
+        app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/action_dev_mode"
+        android:icon="@drawable/ic_action_dev"
+        android:title="Developer Mode"
+        app:showAsAction="ifRoom"/>
+</menu>
