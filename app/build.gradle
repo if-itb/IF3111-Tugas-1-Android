@@ -2,18 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     signingConfigs {
-        jerry {
-            keyAlias 'JerryTrackerKey'
-            keyPassword 'Akhfatiyas240610'
-            storeFile file('/home/akhfa/Seafile/My Library/Dropbox/ITB/Semester 6/IF3111 - Platform Based Development/Tugas 1 Android/IF3111-Tugas-1-Android/JerryTracker/key/JerryTracker.jks')
-            storePassword 'Akhfatiyas240610'
-        }
     }
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
     defaultConfig {
         applicationId "akhfa.in.jerrytracker"
-        minSdkVersion 9
+        minSdkVersion 19
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
@@ -22,7 +16,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.jerry
         }
     }
 }

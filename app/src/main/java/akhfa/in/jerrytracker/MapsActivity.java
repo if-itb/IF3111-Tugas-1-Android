@@ -48,6 +48,7 @@ public class MapsActivity extends FragmentActivity {
                     .getMap();
             if (mMap != null) {
                 //execute parsing json from server
+                mMap.setMyLocationEnabled(true);
                 new JSONParse().execute();
 
             }
