@@ -303,21 +303,11 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
                             public void onResponse(String response) {
                                 String temp = response.substring(response.indexOf("{"), response.lastIndexOf("}") + 1);
                                 String message;
-                                int code;
                                 try {
                                     JSONObject json = new JSONObject(temp);
                                     message = json.getString("message");
-                                    code = json.getInt("code");
-                                    if (code == 200) {
-                                        Toast toast = Toast.makeText(getBaseContext(), "Success!", Toast.LENGTH_LONG);
-                                        toast.show();
-                                    } else if (code == 400) {
-                                        Toast toast = Toast.makeText(getBaseContext(), "MISSING PARAMETER", Toast.LENGTH_LONG);
-                                        toast.show();
-                                    } else if (code == 403) {
-                                        Toast toast = Toast.makeText(getBaseContext(), "FORBIDDEN", Toast.LENGTH_LONG);
-                                        toast.show();
-                                    }
+                                    Toast toast = Toast.makeText(getBaseContext(), "Success!", Toast.LENGTH_LONG);
+                                    toast.show();
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -325,7 +315,8 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
                         }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        Toast toast = Toast.makeText(getBaseContext(), "It's Wrong!", Toast.LENGTH_LONG);
+                        toast.show();
                     }
                     }){
                     @Override
