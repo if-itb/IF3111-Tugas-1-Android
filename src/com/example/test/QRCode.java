@@ -1,36 +1,147 @@
 package com.example.test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ParseException;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class QRCode extends Activity {
+public class QRCode extends Activity implements AsyncResponse {
 	static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
+	private String token = "";
+	private TextView result;
+	private String statword = "";
+	tokenSender ts = new tokenSender(null);
+	
+	class tokenSender extends AsyncTask<String, Void, String> {
+		public AsyncResponse delegate=null;
+		
+		@Override
+		protected String doInBackground(String... params) {
+			Log.d("Token code: ", token);
+			JSONObject jsonobj = new JSONObject();
+			try {
+				jsonobj.put("nim", "13512052");
+				jsonobj.put("token", token);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			String tes = jsonobj.toString();
+			Log.d("JSON obj: ", tes);
+			
+			DefaultHttpClient httpclient = new DefaultHttpClient();
+			HttpPost httppostreq = new HttpPost("http://167.205.32.46/pbd/api/catch");
+			
+			try {
+				StringEntity se = new StringEntity(jsonobj.toString());
+				httppostreq.setEntity(se);
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			HttpResponse httpresponse = null;
+			try {
+				httpresponse = httpclient.execute(httppostreq);
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			String responseString = "";
+			
+			ByteArrayOutputStream out;
+			try {
+				out = new ByteArrayOutputStream();
+				httpresponse.getEntity().writeTo(out);
+				responseString = out.toString();
+				out.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			return responseString;
+		}
+		
+		 @Override
+	        protected void onPostExecute(String result) {
+	        	super.onPostExecute(result);
+	        	delegate.processFinish(result);
+		 }
+		 
 
+		public tokenSender(AsyncResponse delegate) {
+			this.delegate = delegate;
+		}
+	}
+	
+	public void processFinish(String output) {
+		Log.d("Response from Async: ", (String) output);
+		result = (TextView) findViewById(R.id.httpResult);
+		result.setText("JSON returned: " + (String) output);
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		//set the main content layout of the Activity
 		setContentView(R.layout.activity_qrcode);
+		ts.delegate = this;
 	}
-
-	//product barcode mode
-	public void scanBar(View v) {
-		try {
-			//start the scanning activity from the com.google.zxing.client.android.SCAN intent
-			Intent intent = new Intent(ACTION_SCAN);
-			intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
-			startActivityForResult(intent, 0);
-		} catch (ActivityNotFoundException anfe) {
-			//on catch, show the download dialog
-			showDialog(QRCode.this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
-		}
+	
+	@Override
+	public void onResume() {
+	super.onResume();
+	}
+	
+	@Override
+	public void onPause() {
+	super.onPause();
+	}
+	
+	@Override
+	public void onDestroy() {
+	super.onDestroy();
 	}
 	
 	//product qr code mode
@@ -78,6 +189,10 @@ public class QRCode extends Activity {
 				String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
 				Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
 				toast.show();
+				token = contents;
+				
+				ts.execute();
+				
 			}
 		}
 	}

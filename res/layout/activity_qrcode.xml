@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#ffffff"
     android:orientation="vertical"
-    tools:context="com.javacodegeeks.androidstartactivityforresultexample.ActivityOne" >
+    tools:context="com.example.test" >
 
     <TextView
         android:id="@+id/textView1"
@@ -30,15 +30,12 @@
         android:textSize="18sp" >
     </Button>
 
-    <Button
-        android:id="@+id/scanner2"
-        android:layout_width="250dp"
-        android:layout_height="80dp"
-        android:layout_gravity="center"
-        android:layout_margin="10dp"
-        android:gravity="center"
-        android:onClick="scanBar"
-        android:text="@string/bar_code"
-        android:textSize="18sp" >
-    </Button>
+    <TextView
+        android:id="@+id/httpResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.37"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
 </LinearLayout>

@@ -113,6 +113,7 @@ int id dummy2 0x7f0b001c
 int id grayscale 0x7f0b0015
 int id holo_dark 0x7f0b0007
 int id holo_light 0x7f0b0008
+int id httpResult 0x7f0b001f
 int id hybrid 0x7f0b0003
 int id map 0x7f0b001a
 int id match_parent 0x7f0b000e
@@ -125,7 +126,6 @@ int id qrscan 0x7f0b001b
 int id sandbox 0x7f0b000a
 int id satellite 0x7f0b0005
 int id scanner 0x7f0b001e
-int id scanner2 0x7f0b001f
 int id selectionDetails 0x7f0b000d
 int id strict_sandbox 0x7f0b000b
 int id terrain 0x7f0b0006

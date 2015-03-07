@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -16,10 +17,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+
 
 /* Import for JSON*/
 import org.json.*;
@@ -33,15 +37,18 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 
 import com.google.android.gms.maps.model.LatLng;
-
 import com.google.android.gms.maps.model.MarkerOptions;
 /* Import for Maps */
 import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.model.CameraPosition;
 
 public class MainActivity extends FragmentActivity implements SensorEventListener {
+		
 	/* HTTP Request */
 	private TextView data;
+	private ImageView img;
+	private HTTPRequestGet hrg = new HTTPRequestGet();
+	private String statword = ""; 
 	
 	/* Map */
 	private GoogleMap map;
@@ -60,9 +67,8 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
     private float mCurrentDegree = 0f;
 	
     /* Process for Jerry Location */
-
+    
     class HTTPRequestGet extends AsyncTask<String, Void, String> {
-    	private String jsonString = "";
     	private double latitude;
     	private double longitude;
     	private LatLng jerry_position;
@@ -91,8 +97,8 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
     		} catch (IOException e) {
     			//TODO Handle problems..
     		}
-    		jsonString = responseString;
-    		Log.d("wew",responseString);
+    		
+    		
     		return responseString;
         }
 
@@ -102,8 +108,8 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
         	
 	    	try {
 	    		JSONObject jObject = new JSONObject(result);
-	    		double latitude = jObject.getDouble("lat");
-	    		double longitude = jObject.getDouble("long");
+	    		latitude = jObject.getDouble("lat");
+	    		longitude = jObject.getDouble("long");
 	    		jerry_position = new LatLng(latitude,longitude);
 	    	} catch (JSONException e) {
 	    		// TODO Auto-generated catch block
@@ -115,27 +121,37 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
         			);
         	if (map != null) {
         		map.addMarker(new MarkerOptions().position(jerry_position).title("Jerry"));
-        		map.setMyLocationEnabled(true);
+        		moveCameraTo(jerry_position.latitude, jerry_position.longitude);
         	}
         }
     }
     
 	/* Activities */
+    public void moveCameraTo(double latitude, double longitude) {
+    	map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+        new LatLng(latitude, longitude), 0));
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+        .target(new LatLng(latitude, longitude))      // Sets the center of the map to location user
+        .zoom(15)                   // Sets the zoom
+        .bearing(0)                // Sets the orientation of the camera to east
+        .tilt(0)                   // Sets the tilt of the camera to 30 degrees
+        .build();                   // Creates a CameraPosition from the builder
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        new HTTPRequestGet().execute("http://167.205.32.46/pbd/api/track?nim=13512052");
+        hrg.execute("http://167.205.32.46/pbd/api/track?nim=13512052");
         
         /* Compass Initialization */
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
 	    mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 	    mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 	    mPointer = (ImageView) findViewById(R.id.pointer);
-        
-	    /* JSON parsing*/
-	   
 	    
         /* Map Initialization */
         map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
@@ -152,17 +168,9 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
         	
             if (location != null)
             {
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(location.getLatitude(), location.getLongitude()), 0));
-
-                CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
-                .zoom(15)                   // Sets the zoom
-                .bearing(0)                // Sets the orientation of the camera to east
-                .tilt(0)                   // Sets the tilt of the camera to 30 degrees
-                .build();                   // Creates a CameraPosition from the builder
-                map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
+            	/* Write marker to current position */
+            	LatLng curPos = new LatLng(location.getLatitude(),location.getLongitude());
+            	map.addMarker(new MarkerOptions().position(curPos).title("Tom"));
             }
         }
     }
@@ -218,5 +226,10 @@ public class MainActivity extends FragmentActivity implements SensorEventListene
 		
 	}
 
-
+	public void onClickTest(View v) {
+		Intent intent = new Intent(this, QRCode.class);
+		if (intent != null) {
+			startActivity(intent);
+		}
+	}
 }
