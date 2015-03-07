@@ -23,6 +23,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -82,9 +84,10 @@ public class MapsActivity extends FragmentActivity {
             if (mMap != null) {
                 Log.e("Sukses", "sukses");
                 //Menampilkan tombol my location pada peta
-                mMap.setMyLocationEnabled(true);
+                //mMap.setMyLocationEnabled(true);
                 //Menampilkan marker
                 new JSONParse().execute();
+
             }
         }
     }
@@ -149,6 +152,11 @@ public class MapsActivity extends FragmentActivity {
 
                     //add marker ke peta
                     mMap.addMarker(new MarkerOptions().position(new LatLng(lat, longi)).title("location").snippet(""));
+
+                    //Update camera to point the marker
+                    CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(lat, longi));
+                    mMap.moveCamera(center);
+
                 }catch(JSONException e)
                 {
                     e.printStackTrace();
