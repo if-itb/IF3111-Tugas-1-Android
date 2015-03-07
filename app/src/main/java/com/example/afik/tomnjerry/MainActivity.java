@@ -3,7 +3,6 @@ package com.example.afik.tomnjerry;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -14,14 +13,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,8 +24,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class MainActivity extends Activity {
@@ -49,13 +42,6 @@ public class MainActivity extends Activity {
         Intent i = new Intent(this, MapsActivity.class);
         startActivity(i);
     }
-
-
-    public void onClickQR(View view) {
-        Intent i = new Intent(this, QRCode.class);
-        startActivityForResult(i,REQUEST_QR);
-    }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -84,9 +70,6 @@ public class MainActivity extends Activity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-
-            //new HttpAsyncTask().execute();
         }
     }
 
@@ -124,26 +107,6 @@ public class MainActivity extends Activity {
             }
         });
         return downloadDialog.show();
-    }
-
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-
-            return POST(urls[0]);
-        }
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-            if (result.equals("200"))
-                Toast.makeText(getBaseContext(), "Token valid!", Toast.LENGTH_LONG).show();
-            else if (result.equals("400")){
-                Toast.makeText(getBaseContext(), "Incomplete parameters", Toast.LENGTH_LONG).show();
-            }
-            else if (result.equals("403")){
-                Toast.makeText(getBaseContext(), "Wrong parameters", Toast.LENGTH_LONG).show();
-            }
-        }
     }
 
     public String POST(String url){

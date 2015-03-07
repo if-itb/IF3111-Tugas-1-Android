@@ -5,7 +5,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -23,7 +22,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -34,18 +32,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -57,10 +48,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private ImageView image;
     private float currentDegree = 0f;
     private SensorManager mSensorManager;
-    JSONObject json;
     private final String url_string = "http://167.205.32.46/pbd/api/track?nim=13512077";
 
-    //TextView tvHeading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,15 +155,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap(){
-        //callAsynchronousTask();
-        //JSONParse JSONParse = new JSONParse();
-
-
-//        long epoch = Long.parseLong(valid_until);
-//        Date valid = new Date(epoch*1000);
-//        Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        dvalid = formatter.format(valid);
-
 
     }
 
@@ -256,38 +236,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         response = response.substring(1,response.length());
         Log.d("Response ", response);
         return response;
-//        String response = "";
-//        InputStream is = null;
-//        String js="";
-//        //Making HTTP request
-//        try {
-//            URL url = new URL(url_string);
-//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//            conn.setReadTimeout(10000 /* milliseconds */);
-//            conn.setConnectTimeout(15000 /* milliseconds */);
-//            conn.setRequestMethod("GET");
-//            conn.setDoInput(true);
-//            conn.connect();
-//            is = conn.getInputStream();
-//
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        } catch (ClientProtocolException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        try {
-//            js = convertInputStreamToString(is);
-//        } catch (Exception e) {
-//            Log.e("Buffer Error", "Error converting result " + e.toString());
-//        }
-//        return response;
-    }
-
-    static String convertInputStreamToString(java.io.InputStream is) {
-        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
     }
 
     public boolean isConnected(){
