@@ -6,4 +6,7 @@
     <string name="catchJerry">Catch!</string>
     <string name="button_askSpike">Ask Spike!!</string>
     <string name="title_activity_show_map">Map</string>
+    <string name="title_activity_compass">Compass</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_catch_jerry">CatchJerry</string>
 </resources>

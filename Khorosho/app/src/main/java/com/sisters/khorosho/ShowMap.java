@@ -1,5 +1,6 @@
 package com.sisters.khorosho;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -52,11 +53,13 @@ public class ShowMap extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.compass) {
-            Toast.makeText(this, "Compass", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(this, Compass.class);
+            startActivity(intent);
             return true;
         }
         else if (id == R.id.catchJerry) {
-            Toast.makeText(this, "Jerry", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(this, CatchJerry.class);
+            startActivity(intent);
             return true;
         }
 
