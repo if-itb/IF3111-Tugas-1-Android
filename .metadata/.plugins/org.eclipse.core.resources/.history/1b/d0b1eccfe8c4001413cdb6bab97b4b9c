@@ -91,7 +91,7 @@ public class QRScanActivity extends Activity {
 					String contents = intent.getStringExtra("SCAN_RESULT");
 					String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
 					Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
-					sendJson("13512054",contents);
+					sendJson("13512008",contents);
 					toast.show();
 				}
 			}
