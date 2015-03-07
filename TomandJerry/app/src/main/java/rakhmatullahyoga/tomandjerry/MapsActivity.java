@@ -29,7 +29,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LatLng jerryPosition;
     private LatLng tomPosition;
-    private String provider;
     private Marker jerrySpot;
 
     /* Compass attributes */
@@ -80,6 +79,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     public void askSpike(View v) {
         new GetPosition().execute();
+        while(!ready);
+        jerrySpot = mMap.addMarker(new MarkerOptions().position(jerryPosition).title("Jerry"));
         setUpMap();
     }
 
@@ -120,6 +121,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             Log.d("stringposition :", "latitude="+lat_position+", longitude="+long_position);
             latitude = Double.parseDouble(lat_position);
             longitude = Double.parseDouble(long_position);
+            jerryPosition = new LatLng(latitude,longitude);
             ready = true;
             return null;
         }
@@ -190,13 +192,12 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        //new GetPosition().execute();
-        //while(!ready);
         Log.d("markerposition :", "latitude="+latitude+", longitude="+longitude);
-        jerryPosition = new LatLng(latitude, longitude);
         mMap.setMyLocationEnabled(true);
-        mMap.addMarker(new MarkerOptions().position(jerryPosition).title("Jerry"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(jerryPosition, 15));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(18), 3000, null);
+        if(jerrySpot != null) {
+            jerryPosition = new LatLng(latitude, longitude);
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(jerryPosition, 15));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(18), 3000, null);
+        }
     }
 }
