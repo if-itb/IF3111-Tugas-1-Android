@@ -9,6 +9,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
@@ -16,6 +19,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,7 +57,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     MarkerOptions mapMarkerJerry = new MarkerOptions();
     TrackJerry tracker = new TrackJerry();
     CatchJerry catcher = new CatchJerry();
-    Marker JerryMarker;
+    Marker JerryMarker, TomMarker;
 
 
     @Override
@@ -169,6 +173,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     LoopingUpdate();
                     JerryMarker = mMap.addMarker(mapMarkerJerry
                             .position(tracker.getLatLing())
+                            .title("Jerry's Location")
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerjerry)));
                 }
             }.start();
@@ -180,6 +185,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             tracker.findJerry("http://167.205.32.46/pbd/api/track?nim=13512064");
             JerryMarker = mMap.addMarker(mapMarkerJerry
                     .position(tracker.getLatLing())
+                    .title("Jerry's Location")
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerjerry)));
 
             updateCamera();
@@ -264,4 +270,40 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             }
         }
     }
+
+    boolean tomExist = false;
+    public void getLocation(View view)
+    {
+        GPSTracker gps;
+        gps = new GPSTracker(MapsActivity.this);
+
+        // check if GPS enabled
+        if(gps.canGetLocation()){
+
+            double latitude = gps.getLatitude();
+            double longitude = gps.getLongitude();
+            if(tomExist) {
+                TomMarker.remove();
+                tomExist = false;
+                gps.stopUsingGPS();
+                Button btn = (Button) findViewById(R.id.btngps);
+                btn.setText("My Location");
+            }else{
+                tomExist = true;
+                TomMarker = mMap.addMarker(mapMarkerMe
+                        .position(new LatLng(latitude,longitude))
+                        .title("Your Location")
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerme)));
+                Button btn = (Button) findViewById(R.id.btngps);
+                btn.setText("Disable GPS");
+            }
+        }else{
+            // can't get location
+            // GPS or Network is not enabled
+            // Ask user to enable GPS/network in settings
+            gps.showSettingsAlert();
+        }
+
+    }
+
 }

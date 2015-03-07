@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">FindJerry</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps">Tom Catch Jerry</string>
     <string name="Find">Find Jerry!</string>
     <string name="Catch">Catch Jerry!</string>
     <string name="Exit">Exit</string>
