@@ -12,10 +12,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Criteria;
-import android.location.Location;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,18 +34,20 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Date;
-import java.util.TimeZone;
+import java.io.UnsupportedEncodingException;
 
 public class MapActivity extends FragmentActivity implements SensorEventListener {
     private Position position;
@@ -58,12 +57,8 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
     private SensorManager mSensorManager;
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     private TextView timeRemainingTextView = null;
-    CountDownTimer countDownTimer;
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy(); //untuk hemat batere coy
-    }
+    private CountDownTimer countDownTimer;
+    private MarkerOptions markerOptions;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -73,33 +68,6 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         timeRemainingTextView = (TextView) findViewById(R.id.timeRemaining);
         setUpMapIfNeeded();
-    }
-
-    private void checkConnection() {
-        if (Helper.isOnline(getApplicationContext())) {
-            new HttpActivity().execute(getApplicationContext());
-        } else {
-            mSensorManager.unregisterListener(this); //hemat batere
-            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which){
-                        case DialogInterface.BUTTON_POSITIVE:
-                            finish();
-                            moveTaskToBack(true);
-                            break;
-
-                        case DialogInterface.BUTTON_NEGATIVE:
-                            checkConnection();
-                            break;
-                    }
-                }
-            };
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
-            builder.setMessage("Lo ga punya internet? Mau keluar ga?").setPositiveButton("Ya! Saya keluar!", dialogClickListener)
-                    .setNegativeButton("Ga! Coba lagi!", dialogClickListener).setCancelable(false).show();
-        }
     }
 
     private void setUpMapIfNeeded() {
@@ -147,12 +115,10 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
                 final String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
                 final String[] res = {""};
-                // Thread untuk mengpost hasil dari Barcode Scanning
                 Thread postThread = new Thread() {
                     @Override
                     public void run() {
                         try {
-
                             super.run();
                             HttpClient client = new DefaultHttpClient();
                             HttpPost post = new HttpPost("http://167.205.32.46/pbd/api/catch");
@@ -178,7 +144,16 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
                             }
                             JSONObject object = new JSONObject(res[0]);
                             res[0] = object.getString("code");
-                        } catch (Exception e) {
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            res[0] = "Failed to post";
+                        } catch (ClientProtocolException e) {
+                            e.printStackTrace();
+                            res[0] = "Failed to post";
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                            res[0] = "Failed to post";
+                        } catch (IOException e) {
                             e.printStackTrace();
                             res[0] = "Failed to post";
                         } finally {
@@ -191,7 +166,7 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
                 if (res[0].equalsIgnoreCase("200")) {
                     Toast.makeText(this, "Jerry berhasil ditangkap!! Selamat!!", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(this, "Jerry gagal ditangkap. :(", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Jerry gagal ditangkap. :(\nStatus: " +res[0] , Toast.LENGTH_LONG).show();
                 }
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(this, "Cancelled ", Toast.LENGTH_SHORT).show();
@@ -217,10 +192,78 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
     @Override
     protected void onResume() {
         super.onResume();
-        checkConnection();
         // for the system's orientation sensor registered listeners
         mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_GAME);
+        if (position == null || !position.isStillValid()) validateConnection();
+    }
+
+    private void validateConnection() {
+        if (Helper.isOnline(getApplicationContext())) {
+            new HttpActivity().execute(getApplicationContext());
+            mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
+                    SensorManager.SENSOR_DELAY_GAME);
+        } else {
+            mSensorManager.unregisterListener(this); //hemat batere
+            DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    switch (which){
+                        case DialogInterface.BUTTON_POSITIVE:
+                            finish();
+                            moveTaskToBack(true);
+                            break;
+
+                        case DialogInterface.BUTTON_NEGATIVE:
+                            validateConnection();
+                            break;
+                    }
+                }
+            };
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
+            builder.setMessage("Lo ga punya internet? Mau keluar ga?").setPositiveButton("Ya! Saya keluar!", dialogClickListener)
+                    .setNegativeButton("Ga! Coba lagi!", dialogClickListener).setCancelable(false).show();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this); //hemat batere
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (countDownTimer != null) countDownTimer.cancel(); //hemat batere
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (countDownTimer != null) countDownTimer.cancel();
+        if (position.isStillValid()) {
+            countDownTimer = new CountDownTimer(position.getValUntilRemainingInMilliseconds(), 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    timeRemainingTextView.setText("Time Remaining =  " + millisUntilFinished/1000 + " s");
+                }
+
+                @Override
+                public void onFinish() {
+                    setUpMapIfNeeded();
+                    new HttpActivity().execute(getApplicationContext());
+                }
+            };
+        }
+        countDownTimer.start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (countDownTimer != null) countDownTimer.cancel(); //hemat batere
     }
 
     @Override
@@ -252,11 +295,6 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
 
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mSensorManager.unregisterListener(this); //hemat batere
-    }
     //product qr code mode
     public void scanQR(View v) {
         try {
@@ -295,6 +333,9 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
             //set map type
             googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
+            //enable the location
+            googleMap.setMyLocationEnabled(true);
+
             double latitude = position.getLatitude();
             double longitude = position.getLongitude();
 
@@ -308,21 +349,29 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
 
             //Zoom in the Google Map
             googleMap.animateCamera(CameraUpdateFactory.zoomTo(10));
-            googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!"));
+            if (markerOptions == null) {
+                markerOptions = new MarkerOptions();
+                markerOptions.position(new LatLng(latitude, longitude)).title("Jerry is here!");
+                googleMap.addMarker(markerOptions);
+            } else {
+                markerOptions.position(new LatLng(latitude, longitude)).title("Jerry is here!");
+            }
+//            googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!"));
             if (countDownTimer != null) countDownTimer.cancel();
-            countDownTimer = new CountDownTimer(position.getValUntilRemainingInMilliseconds(), 1000) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-//                    Date d = new Date(millisUntilFinished);
-                    timeRemainingTextView.setText("Time Remaining =  " + millisUntilFinished/1000 + " s");
-                }
+            if (position.isStillValid()) {
+                countDownTimer = new CountDownTimer(position.getValUntilRemainingInMilliseconds(), 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        timeRemainingTextView.setText("Time Remaining =  " + millisUntilFinished/1000 + " s");
+                    }
 
-                @Override
-                public void onFinish() {
-                    setUpMapIfNeeded();
-                    new HttpActivity().execute(getApplicationContext());
-                }
-            };
+                    @Override
+                    public void onFinish() {
+                        setUpMapIfNeeded();
+                        new HttpActivity().execute(getApplicationContext());
+                    }
+                };
+            }
             countDownTimer.start();
         }
 
@@ -340,19 +389,19 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
                     res += line;
                 }
 
-                System.out.println("res: " + res);
                 if (!res.equalsIgnoreCase("")) {
                     JSONObject object = new JSONObject(res);
                     double lat = object.getDouble("lat");
                     double longitude = object.getDouble("long");
                     long valUntil = object.getLong("valid_until");
                     position = new Position(lat, longitude, valUntil);
-                    System.out.println("pos : " + position);
                 }
-            } catch (Exception ex) {
-                System.out.println("wwww : " + position);
+            } catch (JSONException ex) {
                 ex.printStackTrace();
-                res = ex.getMessage();
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             return null;
         }

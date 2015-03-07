@@ -7,7 +7,7 @@ import java.util.Date;
  */
 public class Position {
     private double latitude, longitude;
-    private long valUntil;
+    private long valUntil; //ini dalam detik
 
     public Position(double latitude, double longitude, long valUntil) {
         this.latitude = latitude;
@@ -37,15 +37,15 @@ public class Position {
         return new Date(this.valUntil * 1000);
     }
 
-    public long getValidUntilInDouble() {
+    public long getValidUntilInLong() {
         return this.valUntil;
     }
 
     public boolean isStillValid() {
-        return (this.getValidUntilInDouble() - System.currentTimeMillis() > 0);
+        return (this.getValidUntilInLong()*1000 - System.currentTimeMillis() > 0);
     }
 
     public long getValUntilRemainingInMilliseconds() {
-        return (this.getValidUntilInDouble() - System.currentTimeMillis());
+        return (this.getValidUntilInLong()*1000 - System.currentTimeMillis());
     }
 }
