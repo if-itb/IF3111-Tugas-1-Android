@@ -204,7 +204,19 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     // error
-                    displayMessage("Token salah, jangan curang yaa");
+                    if(error.networkResponse==null) {
+                        displayMessage("Tidak terhubung ke internet, aplikasi akan mencoba lagi dalam 5 detik");
+                        new CountDownTimer(5000, 1000) {
+                            public void onFinish() {
+                                sendTokenToSpike(nim, token);
+                            }
+                            public void onTick(long ms) {
+                                //do notinng
+                            }
+                        }.start();
+                    }
+                    else
+                        displayMessage("Token salah, jangan curang yaa");
                 }
             }
         ) {
