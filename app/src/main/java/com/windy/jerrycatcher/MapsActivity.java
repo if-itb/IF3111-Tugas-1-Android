@@ -70,7 +70,7 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
     private Long time_countdown;
     private Marker mMarker;
 
-    private TextView mTextViewDays, mTextViewHours, mTextViewMinutes, mTextViewSeconds, mDays, mHours, mMinutes, mSeconds;
+    private TextView mTextViewDays, mTextViewHours, mTextViewMinutes, mTextViewSeconds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,10 +87,10 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
         ImageView compass = (ImageView) findViewById(R.id.compass);
         pointer = (ImageView) findViewById(R.id.pointer);
 
-        mDays = (TextView) findViewById(R.id.days);
-        mHours = (TextView) findViewById(R.id.hours);
-        mMinutes = (TextView) findViewById(R.id.minutes);
-        mSeconds = (TextView) findViewById(R.id.seconds);
+        TextView mDays = (TextView) findViewById(R.id.days);
+        TextView mHours = (TextView) findViewById(R.id.hours);
+        TextView mMinutes = (TextView) findViewById(R.id.minutes);
+        TextView mSeconds = (TextView) findViewById(R.id.seconds);
 
         mTextViewDays = (TextView) findViewById(R.id.textViewDays);
         mTextViewHours = (TextView) findViewById(R.id.textViewHours);
@@ -128,7 +128,9 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
                             time_countdown = valid_until - second_now;
 
                             //lokasi jerry
-                            mMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Jerry"));
+                            LatLng lokasiJerry = new LatLng(latitude, longitude);
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lokasiJerry, 15));
+                            mMarker = mMap.addMarker(new MarkerOptions().position(lokasiJerry).title("Jerry"));
                             mMarker.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.jerry3
                             ));
                             //countdown
@@ -379,8 +381,5 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
         //mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setCompassEnabled(false);
-
-        LatLng ITB = new LatLng(-6.890323, 107.61038);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ITB, 15));
     }
 }
