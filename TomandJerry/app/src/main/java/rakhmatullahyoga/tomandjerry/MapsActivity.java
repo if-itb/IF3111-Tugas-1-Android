@@ -1,16 +1,88 @@
 package rakhmatullahyoga.tomandjerry;
 
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-
+import android.util.Log;
+import android.widget.Toast;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity {
+import org.json.JSONException;
+import org.json.JSONObject;
 
+public class MapsActivity extends FragmentActivity {
+    /* Map attributes */
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private LatLng jerryPosition;
+    private LatLng tomPosition;
+    private String provider;
+
+    /* JSON attribute */
+    private static final String url = "http://167.205.32.46/pbd/api/track?nim=13512053";
+    private JSONObject positions = null;
+    private static final String TAG_LATITUDE = "lat";
+    private static final String TAG_LONGITUDE = "long";
+    private static final String TAG_VALIDITY = "valid_until";
+    private double latitude;
+    private double longitude;
+    private int utcTime;
+    private boolean ready = false;
+
+    /* Nested class to get Jerry position */
+    private class GetPosition extends AsyncTask<Void, Void, Void> {
+        private ProgressDialog pDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // Showing progress dialog
+            pDialog = new ProgressDialog(MapsActivity.this);
+            pDialog.setMessage("Please wait...");
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            ServiceHandler sh = new ServiceHandler();
+            String jsonStr = sh.makeServiceCall(url, ServiceHandler.GET);
+            String lat_position = "";
+            String long_position = "";
+            Log.d("Response: ", "> " + jsonStr);
+            if (jsonStr != null) {
+                try {
+                    JSONObject jsonObj = new JSONObject(jsonStr.substring(3));
+                    lat_position = jsonObj.getString(TAG_LATITUDE);
+                    long_position = jsonObj.getString(TAG_LONGITUDE);
+                    utcTime = Integer.parseInt(jsonObj.getString(TAG_VALIDITY));
+                } catch(JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                Log.e("Service handler", "Couldn't get any data from url");
+            }
+            Log.d("stringposition :", "latitude="+lat_position+", longitude="+long_position);
+            latitude = Double.parseDouble(lat_position);
+            longitude = Double.parseDouble(long_position);
+            ready = true;
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            // Dismiss the progress dialog
+            if (pDialog.isShowing())
+                pDialog.dismiss();
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +122,9 @@ public class MapsActivity extends FragmentActivity {
             if (mMap != null) {
                 setUpMap();
             }
+            else {
+                Toast.makeText(getApplicationContext(), "Sorry! unable to create maps", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -60,6 +135,13 @@ public class MapsActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        new GetPosition().execute();
+        while(!ready);
+        Log.d("markerposition :", "latitude="+latitude+", longitude="+longitude);
+        jerryPosition = new LatLng(latitude, longitude);
+        mMap.setMyLocationEnabled(true);
+        mMap.addMarker(new MarkerOptions().position(jerryPosition).title("Jerry"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(jerryPosition, 15));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(18), 3000, null);
     }
 }

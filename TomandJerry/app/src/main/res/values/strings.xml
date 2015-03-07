@@ -3,5 +3,8 @@
 
     <string name="app_name">Tom and Jerry</string>
     <string name="title_activity_maps">Jerry-Radar</string>
+    <string name="title_activity_qrscan">QRScanActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 </resources>
