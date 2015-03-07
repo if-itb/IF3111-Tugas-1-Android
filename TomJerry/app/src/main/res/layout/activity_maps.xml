@@ -21,8 +21,8 @@
         android:layout_height="100dp"
         android:src="@drawable/compass"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:id="@+id/scanner"
@@ -34,7 +34,9 @@
         android:text="Catch Jerry"
         android:textSize="18dp"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:background="#83000000"
+        android:textColor="#ffffffff" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -43,6 +45,27 @@
         android:text="0"
         android:id="@+id/textCounter"
         android:layout_centerHorizontal="true"
-        android:background="#ffffffff" />
+        android:background="#ff292929"
+        android:textColor="#ffffffff" />
 
-    </RelativeLayout>
+    <ImageButton
+        android:layout_width="@android:dimen/notification_large_icon_width"
+        android:layout_height="@android:dimen/notification_large_icon_height"
+        android:id="@+id/toMe"
+        android:src="@drawable/tom_icon"
+        android:onClick="viewOnMe"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <ImageButton
+        android:layout_width="@android:dimen/notification_large_icon_height"
+        android:layout_height="@android:dimen/notification_large_icon_width"
+        android:id="@+id/toJerry"
+        android:src="@drawable/jerry_icon"
+        android:onClick="viewOnJerry"
+        android:layout_below="@+id/toMe"
+        android:layout_alignRight="@+id/toMe"
+        android:layout_alignEnd="@+id/toMe" />
+
+</RelativeLayout>
