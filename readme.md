@@ -27,18 +27,18 @@ Anda dibebaskan dalam berkreasi mendesain tampilan selama fitur-fitur pada spesi
 ## Spesifikasi Endpoint
 <b>Alamat Server: 167.205.32.46/pbd </b>
 
-## Track : [GET]/api/track?nim=13512018
+## Track
 <b>Request: <EndPoint>/api/track?nim=13512018 </b> <br\>
 <b>Response: {"lat":"-6.890323","long":"107.610381","valid_until":1425833999} </b> <br\>
 
-## Catch : [POST]/api/catch
+## Catch
 <b>Header request</b> <br\>
 Content-type: application/json <br\>
 <b>Parameter request </b> <br\>
 <ul type = "list-style-type:disc"> 
 <li> nim: 13512018</li>
 <li> token: <secret_token> (hasil QR Code Scanning)</li>
-<br\>
+<br\> </ul>
 
 <b> Response Status </b> <br\>
 <ul type ="list-style-type:disc">
