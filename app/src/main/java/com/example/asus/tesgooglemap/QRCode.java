@@ -32,7 +32,7 @@ public class QRCode extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //set the main content layout of the Activity
-        setContentView(R.layout.bar_code);
+        setContentView(R.layout.qr_code);
     }
 
     //product qr code mode
@@ -85,7 +85,7 @@ public class QRCode extends Activity {
                 HttpClient httpclient = new DefaultHttpClient();
 
                 // 2. make POST request to the given URL
-                HttpPost httpPost = new HttpPost("http://167.205.32.46/pbd/api/track?nim=13512051");
+                HttpPost httpPost = new HttpPost("http://167.205.32.46/pbd/api/catch");
 
                 String json = "";
 
@@ -129,22 +129,26 @@ public class QRCode extends Activity {
                 }
                 receiveHttpResponse(httpResponse);
             }
+
         }
     }
 
     public void receiveHttpResponse(HttpResponse hr) {
         if(hr.getStatusLine().getStatusCode() == 200) {
             Log.d("1", "OK");
-            Toast toast = Toast.makeText(this, "OK", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(this, "Great! Jerry was caught", Toast.LENGTH_LONG);
             toast.show();
+            finish();
         } else if(hr.getStatusLine().getStatusCode() == 400) {
             Log.d("2", "MISSING PARAMETER");
-            Toast toast = Toast.makeText(this, "OK", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(this, "Oops! Your tools not complete", Toast.LENGTH_LONG);
             toast.show();
+            finish();
         } else {
             Log.d("3", "FORBIDDEN");
-            Toast toast = Toast.makeText(this, "OK", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(this, "Wait, your tools are wrong", Toast.LENGTH_LONG);
             toast.show();
+            finish();
         }
     }
 }

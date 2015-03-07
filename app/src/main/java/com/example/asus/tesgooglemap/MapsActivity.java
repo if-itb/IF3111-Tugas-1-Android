@@ -1,6 +1,7 @@
 package com.example.asus.tesgooglemap;
 
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -23,8 +25,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener, OnInfoWindowClickListener {
 
@@ -48,6 +58,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     // device sensor manager
     private SensorManager mSensorManager;
+
+    static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,8 +122,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Intent i = new Intent(this, QRCode.class);
-        startActivity(i);
+            //start the scanning activity from the com.google.zxing.client.android.SCAN intent
+            Intent i = new Intent(this, QRCode.class);
+            startActivity(i);
     }
 
     /**
