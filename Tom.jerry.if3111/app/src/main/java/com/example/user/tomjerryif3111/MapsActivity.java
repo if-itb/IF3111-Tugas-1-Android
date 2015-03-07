@@ -12,6 +12,8 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.animation.Animation;
@@ -54,13 +56,12 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private float currentDegree = 0f; // record the compass picture angle turned
     private SensorManager mSensorManager; // device sensor manager
     private int status;
-
+    private String res;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
-        setUpMap();
         token = null;
         dataJSON = null;
         image = (ImageView) findViewById(R.id.imageViewCompass); // our compass image
@@ -98,6 +99,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     .getMap();
             // Check if we were successful in obtaining the map.
         }
+        new Location().execute("http://167.205.32.46/pbd/api/track?nim=13512023");
     }
 
     /**
@@ -108,11 +110,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
      */
     private void setUpMap() {
         if(mMap != null) {
-            new Location().execute("http://167.205.32.46/pbd/api/track?nim=13512023");
             mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lon)).title("Lokasi"));
             //Move the camera to the user's location and zoom in!
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 17.0f));
-            new Timer().execute();
         }
         else{
             setUpMapIfNeeded();
@@ -154,8 +154,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 writeJSON(contents);
                 new Token().execute();
-                setUpMapIfNeeded();
-                setUpMap();
             }
         }
     }
@@ -167,6 +165,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
     }
     private void showStatusSend(){
+        setUpMapIfNeeded();
+        setUpMap();
         Toast toast = null;
         //Log.d(TAG, "status: " + status);
         if (status != 0 && (status == 400 || status == 403)) {
@@ -175,7 +175,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
         else {
             if (status == 200) {
-                toast = Toast.makeText(this, "Token terkirim :)", Toast.LENGTH_LONG);
+                toast = Toast.makeText(this, "Token telah terkirim :)", Toast.LENGTH_LONG);
                 toast.show();
             }
         }
@@ -211,7 +211,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 HttpResponse response = client.execute(httpGet);
                 StatusLine statusLine = response.getStatusLine();
                 int statusCode = statusLine.getStatusCode();
-                //while (statusCode != 200) {}
+//                while (statusCode != 200) {}
                 if (statusCode == 200) {
                     HttpEntity entity = response.getEntity();
                     InputStream content = entity.getContent();
@@ -242,8 +242,18 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             return null;
         }
         protected void onPostExecute(Void v){
-            setUpMapIfNeeded();
             setUpMap();
+            CountDownTimer c = new CountDownTimer((long) ((long)valid_until*1000 - System.currentTimeMillis() + 7 * 3600000), 1000) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+
+                }
+                @Override
+                public void onFinish() {
+                    new Location().execute("http://167.205.32.46/pbd/api/track?nim=13512023");
+                }
+            };
+            c.start();
         }
     }
     private class Token extends AsyncTask<Void,Void,Void>{
@@ -260,6 +270,19 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 mHttpPost.setHeader("Content-type","application/json");
                 HttpResponse mResponse = mHttpClient.execute(mHttpPost);
                 status = mResponse.getStatusLine().getStatusCode();
+                if(status == 200) {
+                    HttpEntity entity = mResponse.getEntity();
+                    InputStream content = entity.getContent();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(content));
+                    String line = null; StringBuilder builder = new StringBuilder();
+                    while ((line = reader.readLine()) != null) {
+                        builder.append(line + "\n");
+                    }
+                    content.close();
+                    line = builder.toString();
+                    System.out.println(line);
+                    res = line;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -267,26 +290,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
         protected void onPostExecute(Void v){
             showStatusSend();
-        }
-    }
-    private class Timer extends AsyncTask<Void, Void, Void>{
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            long remaining_time = (long) valid_until - System.currentTimeMillis()/1000 + 7*3600;
-            System.out.println("remaining time : " + (System.currentTimeMillis()/1000 + 7*3600));
-            remaining_time *= 1000;
-            if(remaining_time > 0) {
-                try {
-                    Thread.sleep(remaining_time);
-                } catch (InterruptedException e) {
-
-                }
-            }
-            return null;
-        }
-        protected void onPostExecute(Void v){
-            new Location().execute("http://167.205.32.46/pbd/api/track?nim=13512023");
         }
     }
 }
