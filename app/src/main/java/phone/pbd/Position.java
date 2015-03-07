@@ -33,8 +33,8 @@ public class Position {
 
     public Date getValidUntil() {
 //        String date = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").format(new Date (this.valUntil*1000));
-        return new Date(System.currentTimeMillis() + 5000);
-//        return new Date(this.valUntil * 1000);
+//        return new Date(System.currentTimeMillis() + 5000);
+        return new Date(this.valUntil * 1000);
     }
 
     public long getValidUntilInDouble() {

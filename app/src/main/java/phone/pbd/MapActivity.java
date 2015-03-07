@@ -298,8 +298,8 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
             double latitude = position.getLatitude();
             double longitude = position.getLongitude();
 
-            latitude = Math.random() * 89;
-            longitude = Math.random() * 100;
+//            latitude = Math.random() * 89;
+//            longitude = Math.random() * 100;
             //Create a LatLng object for the current location
             LatLng latLng = new LatLng(latitude, longitude);
 
