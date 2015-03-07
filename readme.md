@@ -26,24 +26,24 @@ Aplikasi terdiri dari 3 tampilan, yaitu tampilan awal yang memiliki 2 tombol men
 ## Spesifikasi Endpoint
 ###Alamat Server: 167.205.32.46/pbd
 ###Track : [GET]/api/track?nim=13512080
-contoh kembalian:
-{
-"lat" : "-6.890323"			//latitude Jerry
-"long" : "107.610381"		//longitude Jerry
-"valid_until" : 1425833999	//date dalam format UTC+7, deadline token (hangus)
-}
+contoh kembalian:<return>
+{<return>
+"lat" : "-6.890323"			//latitude Jerry<return>
+"long" : "107.610381"		//longitude Jerry<return>
+"valid_until" : 1425833999	//date dalam format UTC+7, deadline token (hangus)<return>
+}<return>
 
 ###Catch : [POST]/api/catch
-Parameter request:
-token := "secret_token"
-nim := "13512080"
+Parameter request:<return>
+token := "secret_token"<return>
+nim := "13512080"<return>
 
-body request untuk Catch: {"nim":"13512080", "token":"secret_token"}
+body request untuk Catch: {"nim":"13512080", "token":"secret_token"}<return>
 
-Response Status:
-200 = OK (token yang dikirimkan benar)
-403 = FORBIDDEN (token yang dikirimkan salah)
-400 = MISSING PARAMETER (parameter tidak lengkap)
+Response Status:<return>
+200 = OK (token yang dikirimkan benar)<return>
+403 = FORBIDDEN (token yang dikirimkan salah)<return>
+400 = MISSING PARAMETER (parameter tidak lengkap)<return>
 
 ## License
 
