@@ -11,8 +11,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
@@ -27,16 +27,23 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BufferedHttpEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener {
@@ -44,7 +51,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     public double lat; // latitude
     public double lon; // longitude
-    public double val = 0; // valid until
+    public int val = 0; // valid until
     public LatLng location = null;
     public Marker marker = null;
 
@@ -52,14 +59,18 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private float currentDegree = 0f; // record the compass picture angle turned
     private SensorManager mSensorManager; // device sensor manager
 
+    private String token = "";
+
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN"; // QRcode
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GetReq GR = new GetReq();
-        GR.execute("http://167.205.32.46/pbd/api/track?nim=13512050");
+        if (System.currentTimeMillis() >= val){
+            GetReq GR = new GetReq();
+            GR.execute("http://167.205.32.46/pbd/api/track?nim=13512050");
+        }
         setContentView(R.layout.activity_maps);
 
         image = (ImageView) findViewById(R.id.imageViewCompass);
@@ -95,12 +106,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
     }
 
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
     private void setUpMap() {
         marker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lon)).title("TADAAA"));
         mMap.setMyLocationEnabled(true);
@@ -134,19 +139,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // TADAA - not used right now
-    }
-
-    //product barcode mode
-    public void scanBar(View v) {
-        try {
-            //start the scanning activity from the com.google.zxing.client.android.SCAN intent
-            Intent intent = new Intent(ACTION_SCAN);
-            intent.putExtra("SCAN_MODE", "PRODUCT_MODE");
-            startActivityForResult(intent, 0);
-        } catch (ActivityNotFoundException anfe) {
-            //on catch, show the download dialog
-            showDialog(MapsActivity.this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
-        }
     }
 
     //product qr code mode
@@ -192,8 +184,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 //get the extras that are returned from the intent
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(this, "Your Text : -" + contents + "- has been send", Toast.LENGTH_LONG);
                 toast.show();
+                token = contents;
+                PostReq PR = new PostReq();
+                PR.execute();
             }
         }
     }
@@ -248,10 +243,69 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             try {
                 lat = Double.parseDouble(result.getString("lat"));
                 lon = Double.parseDouble(result.getString("long"));
-                val = Long.parseLong(result.getString("valid_until"));
-                location = new LatLng(-6.890323,107.610381);
-                Toast toastmap = Toast.makeText(MapsActivity.this,""+lat+","+lon,Toast.LENGTH_LONG);
+                val = Integer.parseInt(result.getString("valid_until"));
+                Toast toastmap = Toast.makeText(MapsActivity.this,"your lat : "+lat+",your long : "+lon,Toast.LENGTH_LONG);
                 toastmap.show();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            setUpMapIfNeeded();
+        }
+    }
+
+    private class PostReq extends AsyncTask<Void, String, String> {
+
+        @Override
+        protected String doInBackground(Void... uri) {
+            HttpClient client = new DefaultHttpClient();
+            HttpConnectionParams.setConnectionTimeout(client.getParams(), 10000);
+            HttpResponse response;
+            JSONObject json = new JSONObject();
+            String content = "";
+
+            try {
+                HttpPost post = new HttpPost("http://167.205.32.46/pbd/api/catch");
+                json.put("nim", "13512050");
+                json.put("token", token);
+                StringEntity se = new StringEntity(json.toString());
+                se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+                post.setEntity(se);
+                response = client.execute(post);
+
+                if (response != null) {
+                    HttpEntity entity = response.getEntity();
+                    BufferedHttpEntity buffHttpEntity = new BufferedHttpEntity(entity);
+                    BufferedReader reader = new BufferedReader(new
+                            InputStreamReader(
+                            buffHttpEntity.getContent()));
+                    StringBuilder sb = new StringBuilder();
+                    String line = null;
+
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line + "");
+                    }
+                    content = sb.toString();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return content;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            try {
+                JSONObject json = new JSONObject(result);
+                Toast toastreply = Toast.makeText(MapsActivity.this, "Status : " + json.getString("message"), Toast.LENGTH_LONG);
+                toastreply.show();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
