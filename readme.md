@@ -21,16 +21,6 @@ Di kawasan ITB, terdapat banyak kucing yang berkeliaran. Salah satu kucing yang 
 <li>Source code diusahakan agar terstruktur dengan baik (Silahkan membaca guidelines standar yang dirilis di https://source.android.com/source/code-style.html) </li>
 <li>Minimal Android API 9 (GingerBread).</li> </ul>
 
-## Spesifikasi Tampilan
-Anda dibebaskan dalam berkreasi mendesain tampilan selama fitur-fitur pada spesifikasi aplikasi tercapai dan aplikasi dapat digunakan sesuai dengan alur pengujian yang diberikan.
-
-<b> Response Status </b> <br\>
-<ul type ="list-style-type:disc">
-<li> status : <b>200 -> OK</b> (pengumpulan sukses, secret_token sesuai) </li>
-<li> status : <b>400 -> MISSING PARAMETER</b> (paramter yang dikirim tidak lengkap yaitu 2 parameter) </li>
-<li> status : <b>403 -> FORBIDDEN </b>(terdapat parameter yang salah (nim atau secret token) </li>
-</ul>
-
 ## License
 
 MIT License
