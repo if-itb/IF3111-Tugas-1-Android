@@ -6,14 +6,36 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    TextView isConnectedTextView;
+    Button scannerButton, radarButton;
+    ConnectivityReceiver connectionChecker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        isConnectedTextView = (TextView) findViewById(R.id.isConnected);
+        scannerButton = (Button) findViewById(R.id.scannerButton);
+        radarButton = (Button) findViewById(R.id.radarButton);
+
+        if(isConnected())
+        {
+            isConnectedTextView.setText("You are connected");
+            radarButton.setEnabled(true);
+            scannerButton.setEnabled(true);
+        }
+        else
+        {
+            isConnectedTextView.setText("You are disconnected \nPlease enable internet connection");
+            radarButton.setEnabled(false);
+            scannerButton.setEnabled(false);
+        }
     }
 
 
