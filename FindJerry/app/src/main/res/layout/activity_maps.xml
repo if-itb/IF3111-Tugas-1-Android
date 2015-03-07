@@ -60,6 +60,20 @@ tools:context=".MapActivity" >
             android:layout_marginBottom="39dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/exit"
+            android:background="@drawable/btnexit"
+            android:onClick="exit"
+            android:layout_row="30"
+            android:layout_column="30"
+            android:layout_alignTop="@+id/pointer"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="79dp"
+            android:layout_marginEnd="79dp" />
     </RelativeLayout>
 
 </RelativeLayout>

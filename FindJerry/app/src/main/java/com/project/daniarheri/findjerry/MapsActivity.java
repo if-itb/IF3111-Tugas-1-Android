@@ -129,21 +129,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
     }
 
-
-
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // TODO Auto-generated method stub
-
-    }
-
-    private void updateMap(float lat, float lon) {
-
-        CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(lat, lon));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(18);
-
-        mMap.moveCamera(center);
-        mMap.animateCamera(zoom);
-
     }
 
     private void updateCamera(){
@@ -268,6 +255,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 if (catcher.IsSuccess()) {
                     toast = Toast.makeText(this, "Jerry catched! Congratulation Tom..", Toast.LENGTH_LONG);
                     mMap.clear();
+                    TextView tV = (TextView) findViewById(R.id.tVinfo);
+                    tV.setVisibility(View.GONE);
                     updateCamera();
                 }else
                     toast = Toast.makeText(this, "Jerry already gone! Better luck next time", Toast.LENGTH_LONG);
