@@ -94,7 +94,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         buttonRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setUpMapIfNeeded();
+                setUpMap();
             }
         });
         setUpMapIfNeeded();
@@ -244,12 +244,12 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
+            // Check if we were successful in obtaining the map.
+            if (mMap != null) {
+                setUpMap();
+            }
         }
 
-        // Check if we were successful in obtaining the map.
-        if (mMap != null) {
-            setUpMap();
-        }
     }
 
     /**
@@ -404,7 +404,17 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 post.setEntity(new StringEntity(jsonObject.toString()));
 
                 HttpResponse response = client.execute(post);
-                int code = response.getStatusLine().getStatusCode();
+
+                BufferedReader rd = new BufferedReader
+                        (new InputStreamReader(response.getEntity().getContent()));
+
+                String message = "";
+                String line;
+                while ((line = rd.readLine()) != null) {
+                    message += line;
+                }
+                JSONObject returnObj = new JSONObject(message);
+                int code = returnObj.getInt("code");
 
                 Log.d("api/catch", String.valueOf(code));
                 return code;
@@ -421,7 +431,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             if (code == 200) {
                 Toast.makeText(getApplicationContext(), "Congratulations! Jerry is captured!", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getApplicationContext(), "Error while catching Jerry!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Wrong QR Code! Failed to catch Jerry!", Toast.LENGTH_SHORT).show();
             }
         }
     }
