@@ -67,7 +67,8 @@ public class JSONParser {
                 sb.append(line + "\n");
             }
             is.close();
-            json = sb.toString();
+            json = sb.toString().substring(3);
+            Log.e("Dari server: ", json);
         } catch (Exception e) {
             Log.e("Buffer Error", "Error converting result " + e.toString());
         }

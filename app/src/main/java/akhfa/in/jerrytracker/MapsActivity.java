@@ -1,5 +1,7 @@
 package akhfa.in.jerrytracker;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -34,9 +36,9 @@ public class MapsActivity extends FragmentActivity {
     private static final String TAG_TOILETS = "toilets";
     private static final String TAG_NAME = "name";
     private static final String TAG_TOILET_ID = "toilet_id";
-    private static final String TAG_LATITUDE = "latitude";
-    private static final String TAG_LONGITUDE = "longitude";
-    private static final String url= "http://deaven.bl.ee/data.php";
+    private static final String TAG_LATITUDE = "lat";
+    private static final String TAG_LONGITUDE = "long";
+    private static final String url= "http://167.205.32.46/pbd/api/track?nim=13513601";
     static boolean jsonBool=false;
     JSONArray toilets = null;
     static double lat,lon;
@@ -74,11 +76,11 @@ public class MapsActivity extends FragmentActivity {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapsAkhfa))
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                Log.e("Sukses","sukses");
+                Log.e("Sukses", "sukses");
                 //Menampilkan tombol my location pada peta
                 mMap.setMyLocationEnabled(true);
                 //Menampilkan marker
@@ -101,6 +103,7 @@ public class MapsActivity extends FragmentActivity {
 
     private class JSONParse extends AsyncTask<String, String, JSONObject> {
 
+
         /**
          * Override this method to perform a computation on a background thread. The
          * specified parameters are the parameters passed to {@link #execute}
@@ -115,6 +118,8 @@ public class MapsActivity extends FragmentActivity {
          * @see #onPostExecute
          * @see #publishProgress
          */
+        private ProgressDialog progressDialog = new ProgressDialog(MapsActivity.this);
+
         @Override
         protected JSONObject doInBackground(String... params) {
             JSONParser jParser = new JSONParser();
@@ -133,26 +138,17 @@ public class MapsActivity extends FragmentActivity {
             {
                 try{
                     Log.e("status",jsonBool+"");
-                    //mengambil array toilets
-                    toilets = json.getJSONArray(TAG_TOILETS);
-                    //loop pada toilets
-                    for(int i=0; i<toilets.length();i++)
-                    {
-                        JSONObject a = toilets.getJSONObject(i);
-                        //simpan di variable
-                        String toilet_id = a.getString(TAG_TOILET_ID);
-                        String name = a.getString(TAG_NAME);
-                        //String type = a.getString(TAG_TYPE);
-                        String latitude = a.getString(TAG_LATITUDE);
-                        String longitude = a.getString(TAG_LONGITUDE);
-                        Log.e("name",name);
-                        //konversi data dari String ke double
-                        //data dari web service bertipe string
-                        Double lat=Double.parseDouble(latitude.toString());
-                        Double longi=Double.parseDouble(longitude.toString());
-                        //add marker ke peta
-                        mMap.addMarker(new MarkerOptions().position(new LatLng(lat, longi)).title(name).snippet(""));
-                    }
+                    //simpan di variable
+                    String latitude = json.getString(TAG_LATITUDE);
+                    String longitude = json.getString(TAG_LONGITUDE);
+                    Log.e("lat",latitude);
+                    Log.e("lat",longitude);
+
+                    Double lat=Double.parseDouble(latitude.toString());
+                    Double longi=Double.parseDouble(longitude.toString());
+
+                    //add marker ke peta
+                    mMap.addMarker(new MarkerOptions().position(new LatLng(lat, longi)).title("location").snippet(""));
                 }catch(JSONException e)
                 {
                     e.printStackTrace();
