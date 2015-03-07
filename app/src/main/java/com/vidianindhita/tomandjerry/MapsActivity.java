@@ -307,15 +307,7 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
                             JSONObject data = new JSONObject(response);
                             Long code = data.getLong("code");
                             String message = data.getString("message");
-
-                            //message output
-                            if (code == 200) {
-                                Toast.makeText(getApplicationContext(), "Congratulations! You save the cheese!", Toast.LENGTH_LONG).show();
-                            } else if (code == 400) {
-                                Toast.makeText(getApplicationContext(), "Oops! There's missing parameter!", Toast.LENGTH_LONG).show();
-                            } else {
-                                Toast.makeText(getApplicationContext(), "Oops! It's forbidden!", Toast.LENGTH_LONG).show();
-                            }
+                            Toast.makeText(getApplicationContext(), "Congratulations! You save the cheese!", Toast.LENGTH_LONG).show();
                         }
                         catch (JSONException e){
 
@@ -326,7 +318,7 @@ public class MapsActivity extends ActionBarActivity implements SensorEventListen
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                Toast.makeText(getApplicationContext(), "Oops! It's wrong, Jerry is still out there!", Toast.LENGTH_LONG).show();
             }
         }){
             @Override
