@@ -53,6 +53,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private ImageView image;// define the display assembly compass picture
     private float currentDegree = 0f; // record the compass picture angle turned
     private SensorManager mSensorManager; // device sensor manager
+    private int status;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +65,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         dataJSON = null;
         image = (ImageView) findViewById(R.id.imageViewCompass); // our compass image
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE); // initialize your android device sensor capabilities
+        status = 0;
     }
 
     @Override
@@ -151,7 +153,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             if (resultCode == RESULT_OK) {
                 String contents = intent.getStringExtra("SCAN_RESULT");
                 writeJSON(contents);
-                sendToken(token);
+                new Token().execute();
                 setUpMapIfNeeded();
                 setUpMap();
             }
@@ -164,38 +166,18 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             e.printStackTrace();
         }
     }
-    public void sendToken(JSONObject token) { // mengirim token QR Code ke server
-        HttpClient mHttpClient = null;
-        HttpPost mHttpPost = null;
-        int status;
-        try {
-            mHttpClient = new DefaultHttpClient();
-            mHttpPost = new HttpPost("http://167.205.32.46/pbd/api/catch");
-            StringEntity mStringEntity = new StringEntity(token.toString());
-            mStringEntity.setContentEncoding("UTF-8");
-            mStringEntity.setContentType("application/json");
-
-            mHttpPost.setEntity(mStringEntity);
-            HttpResponse mResponse = mHttpClient.execute(mHttpPost);
-            status = mResponse.getStatusLine().getStatusCode();
-
-            Toast toast = null;
-            //Log.d(TAG, "status: " + status);
-            if (mResponse != null && (status == 400 || status == 403)) {
-                toast = Toast.makeText(this, "Gagal mengirimkan token", Toast.LENGTH_LONG);
+    private void showStatusSend(){
+        Toast toast = null;
+        //Log.d(TAG, "status: " + status);
+        if (status != 0 && (status == 400 || status == 403)) {
+            toast = Toast.makeText(this, "Gagal mengirimkan token", Toast.LENGTH_LONG);
+            toast.show();
+        }
+        else {
+            if (status == 200) {
+                toast = Toast.makeText(this, "Token terkirim :)", Toast.LENGTH_LONG);
                 toast.show();
             }
-            else if(status == 200){
-                try {
-                    toast = Toast.makeText(this, token.getString("nim") + "; " + token.getString("token"), Toast.LENGTH_LONG);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                toast.show();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
     private static AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence buttonYes, CharSequence buttonNo) {
@@ -248,7 +230,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             String result;
             if (builder.length() != 0) {
                 result = builder.toString();
-                System.out.println(result + "\n");
                 try {
                     dataJSON = new JSONObject(result);
                     lat = dataJSON.getDouble("lat");
@@ -265,22 +246,42 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             setUpMap();
         }
     }
+    private class Token extends AsyncTask<Void,Void,Void>{
+        @Override
+        protected Void doInBackground(Void... params) {// mengirim token QR Code ke server
+            HttpClient mHttpClient = null;
+            HttpPost mHttpPost = null;
+            try {
+                mHttpClient = new DefaultHttpClient();
+                mHttpPost = new HttpPost("http://167.205.32.46/pbd/api/catch");
+                StringEntity mStringEntity = new StringEntity(token.toString());
+
+                mHttpPost.setEntity(mStringEntity);
+                mHttpPost.setHeader("Content-type","application/json");
+                HttpResponse mResponse = mHttpClient.execute(mHttpPost);
+                status = mResponse.getStatusLine().getStatusCode();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+        protected void onPostExecute(Void v){
+            showStatusSend();
+        }
+    }
     private class Timer extends AsyncTask<Void, Void, Void>{
 
         @Override
         protected Void doInBackground(Void... params) {
-            boolean stop = false;
-            long now = System.currentTimeMillis();
-            while(!stop){
-                if(valid_until <= now){
-                    stop = true;
-                }
+            long remaining_time = (long) valid_until - System.currentTimeMillis()/1000 + 7*3600;
+            System.out.println("remaining time : " + (System.currentTimeMillis()/1000 + 7*3600));
+            remaining_time *= 1000;
+            if(remaining_time > 0) {
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(remaining_time);
                 } catch (InterruptedException e) {
 
                 }
-                now = System.currentTimeMillis();
             }
             return null;
         }
