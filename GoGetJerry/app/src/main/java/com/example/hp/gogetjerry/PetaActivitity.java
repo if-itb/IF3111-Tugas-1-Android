@@ -5,6 +5,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -267,11 +270,9 @@ public class PetaActivitity extends ActionBarActivity implements SensorEventList
                 Latitude = jsonObject.getDouble("lat");
                 Longitude = jsonObject.getDouble("long");
                 valid_until = jsonObject.getString("valid_until");
-//                Latitude = Lat;
-//                Longitude = Long;
-//                valid_until = valid;
                 LatLng jerryPosition = new LatLng(Latitude, Longitude);
                 mMap.setMyLocationEnabled(true);
+
                 mMap.addCircle(new CircleOptions().center(jerryPosition).radius(10000));
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(jerryPosition,17));
                 MarkerOptions mopt = new MarkerOptions().position(jerryPosition).title("Jerry's here!");
@@ -282,8 +283,6 @@ public class PetaActivitity extends ActionBarActivity implements SensorEventList
             } catch (JSONException e){
                 e.printStackTrace();
             }
-//
-//            PetaActivitity.getJSONfromURL()
         }
     }
 
