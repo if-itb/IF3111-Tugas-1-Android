@@ -154,8 +154,7 @@ public class MapsActivity extends FragmentActivity {
                     mMap.addMarker(new MarkerOptions().position(new LatLng(lat, longi)).title("location").snippet(""));
 
                     //Update camera to point the marker
-                    CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(lat, longi));
-                    mMap.moveCamera(center);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, longi), 18.0f));
 
                 }catch(JSONException e)
                 {
