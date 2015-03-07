@@ -9,5 +9,5 @@ public class Globals {
 
     public static double sJerryLat;
     public static double sJerryLong;
-    public static int sValidUntil;
+    public static long sValidUntil;
 }

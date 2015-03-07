@@ -6,10 +6,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class ShowMap extends ActionBarActivity {
@@ -21,8 +26,8 @@ public class ShowMap extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_map);
         setUpMapIfNeeded();
-
-        Toast.makeText(this,Double.toString(Globals.sJerryLat),Toast.LENGTH_LONG).show();
+        startCounter();
+        Toast.makeText(this,Double.toString(Globals.sJerryLat)+","+Double.toString(Globals.sJerryLong),Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -46,8 +51,12 @@ public class ShowMap extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Toast.makeText(this, "ASDASd", Toast.LENGTH_LONG).show();
+        if (id == R.id.compass) {
+            Toast.makeText(this, "Compass", Toast.LENGTH_LONG).show();
+            return true;
+        }
+        else if (id == R.id.catchJerry) {
+            Toast.makeText(this, "Jerry", Toast.LENGTH_LONG).show();
             return true;
         }
 
@@ -89,8 +98,22 @@ public class ShowMap extends ActionBarActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        if(Globals.sJerryLat != 0 && Globals.sJerryLong != 0) {
-            mMap.addMarker(new MarkerOptions().position(new LatLng(Globals.sJerryLat, Globals.sJerryLong)).title("JERRY!!!"));
-        }
+        mMap.addMarker(new MarkerOptions().position(new LatLng(Globals.sJerryLat, Globals.sJerryLong)).title("JERRY!!!"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Globals.sJerryLat, Globals.sJerryLong), 16));
+    }
+
+    private void startCounter() {
+        Date endDate = new Date(Globals.sValidUntil*1000);
+        Date startDate = new Date();
+        long expireIn = endDate.getTime() - startDate.getTime();
+        Timer timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                finish();
+            }
+        };
+
+        timer.schedule(timerTask, expireIn);
     }
 }
