@@ -1,16 +1,26 @@
 package com.example.andariassilvanus.tomandjerry;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -18,10 +28,29 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.BufferedHttpEntity;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
+
 public class JerryMap extends FragmentActivity implements SensorEventListener {
 
     // MAP
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 
     // COMPASS
     // define the display assembly compass picture
@@ -32,17 +61,26 @@ public class JerryMap extends FragmentActivity implements SensorEventListener {
     private SensorManager mSensorManager;
     TextView tvHeading;
 
+    // HTTP_REQUEST
+    private String contents;
+    private long valid_until;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_jerry_map);
         setUpMapIfNeeded();
         setUpCompass();
-        /*
-        mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-        final LatLng TutorialsPoint = new LatLng(21 , 57);
-        Marker TP = mMap.addMarker(new MarkerOptions().position(TutorialsPoint).title("TutorialsPoint"));
-        mMap.getUiSettings().setZoomGesturesEnabled(true); */
+        long valid = valid_until - (System.currentTimeMillis()/1000);
+        if (valid<1800) {
+            while (valid > 0 && valid<1800) {
+                if (valid <= 0) {
+                    getRequest();
+                }
+                else
+                    valid = valid_until - (System.currentTimeMillis() / 1000);
+            }
+        }
     }
 
     @Override
@@ -125,8 +163,9 @@ public class JerryMap extends FragmentActivity implements SensorEventListener {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-        mMap.getUiSettings().setZoomGesturesEnabled(true);
+        getRequest();
+//        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+//        mMap.getUiSettings().setZoomGesturesEnabled(true);
     }
 
     private void setUpCompass() {
@@ -135,5 +174,156 @@ public class JerryMap extends FragmentActivity implements SensorEventListener {
         tvHeading = (TextView) findViewById(R.id.tvHeading);
         // initialize your android device sensor capabilities
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+    }
+
+    public void scanQR(View v){
+        try{
+            Intent intent = new Intent(ACTION_SCAN);
+            intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
+            startActivityForResult(intent, 0);
+        } catch(ActivityNotFoundException e){
+            showDialog(JerryMap.this, "No Scanner Found", "Download a scanner code activity?", "Yes", "No").show();
+        }
+        postRequest();
+    }
+
+    // alert dialog for downloadDialog
+    private static AlertDialog showDialog(final Activity act, CharSequence title, CharSequence message, CharSequence bYes, CharSequence bNo){
+        AlertDialog.Builder downloadDialog = new AlertDialog.Builder(act);
+        downloadDialog.setTitle(title);
+        downloadDialog.setMessage(message);
+        downloadDialog.setPositiveButton(bYes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Uri uri = Uri.parse("market://search?q=pname:" + "com.google.zxing.client.android");
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                try{
+                    act.startActivity(intent);
+                } catch(ActivityNotFoundException e){e.printStackTrace();}
+            }
+        });
+        downloadDialog.setNegativeButton(bNo, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+            }
+        });
+        return downloadDialog.show();
+    }
+
+    //on ActivityResult method
+    public void onActivityResult(int requestCode, int resultCode, Intent intent){
+        if(requestCode == 0){
+            if(resultCode == RESULT_OK){
+                //get the extras that are returned from the intent
+                String contents = intent.getStringExtra("SCAN_RESULT");
+                String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
+                Toast toast = Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG);
+                toast.show();
+            }
+        }
+    }
+
+    // Jerry Tracking
+
+    // GetRequest
+    public void getRequest() {
+        GetJerry jerry = new GetJerry();
+        jerry.execute("http://167.205.32.46/pbd/api/track?nim=13512022");
+    }
+
+    private class GetJerry extends AsyncTask<String, String, JSONObject> {
+        @Override
+        protected JSONObject doInBackground(String... uri){
+            HttpClient client = new DefaultHttpClient();
+            HttpGet request = new HttpGet(URI.create(uri[0]));
+            StringBuilder sb = null;
+            HttpResponse response;
+            try{
+                response = client.execute(request);
+                HttpEntity entity = response.getEntity();
+
+                BufferedHttpEntity buffEntity = new BufferedHttpEntity(entity);
+                BufferedReader buffRead = new BufferedReader(new InputStreamReader(buffEntity.getContent()));
+                String line;
+                sb = new StringBuilder();
+                while((line = buffRead.readLine()) != null){
+                    sb.append(line);
+                }
+            } catch(IOException e){ e.printStackTrace();}
+
+            JSONObject json = null;
+            try {
+                json = new JSONObject(sb.toString());
+            } catch(JSONException e) {e.printStackTrace();}
+
+            if(json != null) {
+                contents = json.toString();
+            }
+
+            return json;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject result){
+            super.onPostExecute(result);
+            LatLng jerry_whereabouts = new LatLng(0,0);
+            try{
+                double lat = Double.parseDouble(result.getString("lat"));
+                double lon = Double.parseDouble(result.getString("long"));
+                valid_until = Long.parseLong(result.getString("valid_until"));
+                jerry_whereabouts = new LatLng(lat, lon);
+                Toast toast = Toast.makeText(JerryMap.this, "Jerry Position ("+ lat + "," + lon + ")", Toast.LENGTH_LONG);
+                toast.show();
+            } catch(JSONException e){e.printStackTrace();}
+            //setUpMap();
+
+            mMap.clear();
+            mMap.addMarker(new MarkerOptions().position(jerry_whereabouts).title("Marker"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(jerry_whereabouts, 17));
+        }
+    }
+
+    // PostRequest
+    public void postRequest(){
+        PostToken pt = new PostToken();
+        pt.execute();
+    }
+    private class PostToken extends AsyncTask<Void, String, String> {
+        @Override
+        protected String doInBackground(Void... uri) {
+            String content = "";
+            try {
+                HttpPost post = new HttpPost("http://167.205.32.46/pbd/api/catch");
+                JSONObject json = new JSONObject();
+                json.put("nim", "13512022");
+                json.put("token", contents);
+                StringEntity SE = new StringEntity(json.toString());
+                SE.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+                post.setEntity(SE);
+                HttpClient client = new DefaultHttpClient();
+                HttpResponse response = client.execute(post);
+                if (response != null) {
+                    HttpEntity entity = response.getEntity();
+                    BufferedHttpEntity buffEnt = new BufferedHttpEntity(entity);
+                    BufferedReader buffRead = new BufferedReader(new InputStreamReader(buffEnt.getContent()));
+                    String line;
+                    StringBuilder SB = new StringBuilder();
+                    while ((line = buffRead.readLine()) != null) {
+                        SB.append(line);
+                    }
+                    content = SB.toString();
+                }
+            } catch (JSONException | IOException e) {
+                e.printStackTrace();
+            }
+            return content;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            Toast trep = Toast.makeText(JerryMap.this, result, Toast.LENGTH_LONG);
+            trep.show();
+        }
     }
 }
