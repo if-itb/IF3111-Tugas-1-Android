@@ -3,12 +3,17 @@ package com.example.paulus.jerrycatcher;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,10 +25,14 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -54,6 +63,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     public int val = 0; // valid until
     public LatLng location = null;
     public Marker marker = null;
+    private Polyline mPolyline;
 
     private ImageView image; // define the display assembly compass picture
     private float currentDegree = 0f; // record the compass picture angle turned
@@ -107,9 +117,35 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     }
 
     private void setUpMap() {
-        marker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lon)).title("TADAAA"));
+        marker = mMap.addMarker(new MarkerOptions().position(new LatLng(lat,lon)).title("Go catch Jerry here"));
         mMap.setMyLocationEnabled(true);
 
+        // Get LocationManager object from System Service LOCATION_SERVICE
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        // Create a criteria object to retrieve provider
+        Criteria criteria = new Criteria();
+
+        // Get the name of the best provider
+        String provider = locationManager.getBestProvider(criteria, true);
+
+        // Get Current Location
+        Location myLocation = locationManager.getLastKnownLocation(provider);
+
+        // set map type
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+        // Get latitude of the current location
+        double latitude = myLocation.getLatitude();
+
+        // Get longitude of the current location
+        double longitude = myLocation.getLongitude();
+
+
+        mPolyline = mMap.addPolyline(new PolylineOptions()
+                .add(new LatLng(latitude, longitude), new LatLng(lat, lon))
+                .width(5)
+                .color(Color.RED));
     }
 
     @Override
