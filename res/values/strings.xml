@@ -1,5 +1,23 @@
 <resources>
+    
+    <string name="msg_location_disabled">Location disabled.</string>
+    <string name="msg_location_enabled">Location enabled.</string>
 
     <string name="app_name">IF3111 Mouse Tracker</string>
+    <string name="description_compass">Compass image</string>
+    <string name="label_current">Current:</string>
+    <string name="label_target">Target:</string>
+    <string name="label_latitude">Latitude:</string>
+    <string name="label_longitude">Longitude:</string>
+    <string name="label_token">Token:</string>
+    <string name="init_latlong">Please wait&#8230;</string>
+    <string name="dummy_float">123.456789</string>
+    <string name="token_unavailable">Please do a scan first.</string>
+    <string name="msg_tracking_time">Tracking in: {time} seconds</string>
+    <string name="msg_tracking">Tracking&#8230;</string>
+    <string name="msg_track_failed">Track failed.</string>
+    <string name="btn_track">Track</string>
+    <string name="btn_scan">Scan</string>
+    <string name="btn_catch">Catch</string>
 
 </resources>
