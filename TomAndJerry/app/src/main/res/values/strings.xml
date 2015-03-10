@@ -4,5 +4,11 @@
     <string name="app_name">TomAndJerry</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="longitude"></string>
+    <string name="latitude"></string>
+    <string name="expiredate"></string>
+    <string name="askspike">Ask Spike</string>
+    <string name="searchjerry">Find Jerry</string>
+    <string name="catchjerry">Catch Jerry</string>
 
 </resources>

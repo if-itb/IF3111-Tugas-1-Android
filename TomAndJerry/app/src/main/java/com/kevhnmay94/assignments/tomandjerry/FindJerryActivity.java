@@ -1,12 +1,14 @@
 package com.kevhnmay94.assignments.tomandjerry;
 
-import android.hardware.GeomagneticField;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Location;
-import android.location.LocationListener;
+import android.os.Vibrator;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -19,13 +21,14 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.Timer;
 
 public class FindJerryActivity extends FragmentActivity implements SensorEventListener{
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private double latval;
-    private double lonval;
     private LatLng latlng;
     private ImageView mPointer;
     private SensorManager mSensorManager;
@@ -38,6 +41,7 @@ public class FindJerryActivity extends FragmentActivity implements SensorEventLi
     private float[] mR = new float[9];
     private float[] mOrientation = new float[3];
     private float mCurrentDegree = 0f;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,10 +50,8 @@ public class FindJerryActivity extends FragmentActivity implements SensorEventLi
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         mPointer = (ImageView) findViewById(R.id.pointer);
-        Bundle coord = getIntent().getExtras();
-        latval = coord.getDouble("latitude");
-        lonval = coord.getDouble("longitude");
-        setUpMapIfNeeded(latval,lonval);
+        latlng = new LatLng(JerryLocation.lat,JerryLocation.lon);
+        setUpMapIfNeeded();
     }
 
     @Override
@@ -57,7 +59,8 @@ public class FindJerryActivity extends FragmentActivity implements SensorEventLi
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
-        setUpMapIfNeeded(latval,lonval);
+        latlng = new LatLng(JerryLocation.lat,JerryLocation.lon);
+        setUpMapIfNeeded();
     }
 
     protected void onPause() {
@@ -102,7 +105,7 @@ public class FindJerryActivity extends FragmentActivity implements SensorEventLi
 
     }
 
-    private void setUpMapIfNeeded(double lat, double lon) {
+    private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
@@ -110,22 +113,19 @@ public class FindJerryActivity extends FragmentActivity implements SensorEventLi
                     .getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
-                setUpMap(lat,lon);
+                setUpMap();
             }
         }
     }
 
-    private void setUpMap(double lat, double lon) {
-        latlng = new LatLng(lat,lon);
+    private void setUpMap() {
         mMap.setMyLocationEnabled(true);
         mMap.addMarker(new MarkerOptions().position(latlng).title("Jerry is here"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 17));
-        mMap.animateCamera(CameraUpdateFactory.zoomIn());
     }
 
     public void onJerryButtonClick(View view){
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 17));
-        mMap.animateCamera(CameraUpdateFactory.zoomIn());
     }
 
 }
