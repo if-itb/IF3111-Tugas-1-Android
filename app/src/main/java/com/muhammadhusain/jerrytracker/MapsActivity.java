@@ -153,10 +153,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         try {
                             JSONObject js= new JSONObject(response.substring(response.toString().indexOf("{"),response.toString().lastIndexOf("}")+1));
                             int code = js.getInt("code");
-                            if(code==200){
-                                Toast.makeText(getApplicationContext(),"Jerry berhasil ditangkap",Toast.LENGTH_LONG).show();
 
+                            if(code==200){
+                                Toast.makeText(getApplicationContext(),"Jerry berhasil ditangkap" + js.toString(),Toast.LENGTH_LONG).show();
                             }
+                            
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -164,13 +165,13 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        Toast.makeText(getApplicationContext(), "jojojojojo, salah", Toast.LENGTH_LONG).show();
                     }
                 }){
                     @Override
                     protected Map<String,String> getParams(){
                         Map<String,String> params = new HashMap<String, String>();
-                        params.put("nim","13512024");
+                        params.put("nim","13512067");
                         params.put("token",contents);
 
                         return params;
