@@ -17,6 +17,11 @@ Alamat Spike (server yang digunakan) berada di 167.205.32.46/pbd
 API untuk meminta lokasi Jerry menggunakan request /api/track?
 API untuk mengirimkan laporan penangkapan Jerry menggunakan request /api/catch
 
+## How To
+Buka aplikasi JerryTracker untuk memulai
+Klik button "Catch!" untuk mengubah mode menjadi QR code scanner yang digunakan untuk menangkap Jerry
+Apabila ingin mengetahui lokasi Jerry secara manual, klik button "Ask Spike" (lokasi Jerry akan dilacak secara otomatis saat waktu yang ditentukan sudan terlampaui)
+
 ## License
 
 MIT License
