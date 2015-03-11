@@ -1,0 +1,15 @@
+package com.example.tomandjerry;
+
+import android.app.Activity;
+import android.os.Bundle;
+
+public class Splash extends Activity{
+
+	@Override
+	protected void onCreate(Bundle splashScreen) {
+		// TODO Auto-generated method stub
+		super.onCreate(splashScreen);
+		setContentView(R.layout.splash);
+	}
+
+}
