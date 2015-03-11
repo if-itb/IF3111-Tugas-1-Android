@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">IF3111 Cat and Mouse</string>
+    <string name="label_current">Current</string>
+    <string name="label_target">Target</string>
+    <string name="label_latitude">Latitude</string>
+    <string name="label_longitude">Longitude</string>
+    <string name="label_track">Track</string>
+    <string name="label_scan">Scan</string>
+    <string name="label_catch">Catch</string>
+    <string name="label_code">QR Code</string>
+    <string name="image_compass_description">Compass for tracking.</string>
+    <string name="image_compass_arrow_description">Compass arrow for tracking directions.</string>
+</resources>
