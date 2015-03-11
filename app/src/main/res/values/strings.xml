@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Jerry Finder</string>
+    <string name="title_activity_maps">maps</string>
+    <string name="title_activity_main_menu">Jerry Finder</string>
+    <string name="lon"></string>
+    <string name="lat"></string>
+
+</resources>
