@@ -1,0 +1,58 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="General"
+        android:key="pref_key_general_settings">
+
+        <EditTextPreference
+            android:key="@string/pref_key_nim"
+            android:title="@string/pref_title_nim"
+            android:defaultValue="@string/pref_default_nim"
+            android:selectAllOnFocus="false"
+            android:inputType="text"
+            android:singleLine="true"
+            android:maxLines="1" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Jerry Tracker Configuration"
+        android:key="pref_key_spike_api">
+
+        <EditTextPreference
+            android:key="@string/pref_key_api_endpoint"
+            android:title="@string/pref_title_api_endpoint"
+            android:defaultValue="@string/pref_default_api_endpoint"
+            android:selectAllOnFocus="true"
+            android:inputType="textUri"
+            android:singleLine="true"
+            android:maxLines="1" />
+
+        <EditTextPreference
+            android:key="@string/pref_key_connection_timeout"
+            android:title="@string/pref_title_connection_timeout"
+            android:defaultValue="@string/pref_default_connection_timeout"
+            android:selectAllOnFocus="true"
+            android:inputType="number"
+            android:singleLine="true"
+            android:maxLines="1" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Maps"
+        android:key="pref_key_maps_settings">
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_autozoom"
+            android:title="@string/pref_title_autozoom"
+            android:defaultValue="@bool/pref_default_autozoom"
+            android:summary="Automatically zoom maps every time the data is refreshed" />
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_use_my_location"
+            android:title="@string/pref_title_use_my_location"
+            android:defaultValue="@bool/pref_default_use_my_location"
+            android:summary="This will take effect after the app is restarted"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

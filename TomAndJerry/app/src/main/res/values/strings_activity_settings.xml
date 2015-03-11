@@ -1,0 +1,27 @@
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_key_api_endpoint">api_endpoint</string>
+    <string name="pref_title_api_endpoint">API Endpoint</string>
+    <string name="pref_default_api_endpoint">http://167.205.32.46/pbd/api</string>
+
+    <string name="pref_key_nim">nim</string>
+    <string name="pref_title_nim">Student ID</string>
+    <string name="pref_default_nim">13512076</string>
+
+    <string name="pref_key_connection_timeout">connection_timeout</string>
+    <string name="pref_title_connection_timeout">Connection Timeout</string>
+    <string name="pref_default_connection_timeout">5000</string>
+
+    <string name="pref_key_autozoom">autozoom</string>
+    <string name="pref_title_autozoom">Auto Zoom</string>
+    <bool name="pref_default_autozoom">true</bool>
+
+    <string name="pref_key_use_my_location">use_my_location</string>
+    <string name="pref_title_use_my_location">Use My Location</string>
+    <bool name="pref_default_use_my_location">true</bool>
+
+</resources>
