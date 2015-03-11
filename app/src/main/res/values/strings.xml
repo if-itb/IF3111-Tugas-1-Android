@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Tugas 1 Android</string>
+    <string name="title_activity_maps">MapAct</string>
+    <string name="title_activity_main">For Cat</string>
+    <string name="first_option">Search for Jerry</string>
+    <string name="second_option">Read QR-Code</string>
+    <string name="third_option">Compass</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_compass">compass</string>
+    <string name="title_activity_qrscanner">QRScanner</string>
+</resources>
