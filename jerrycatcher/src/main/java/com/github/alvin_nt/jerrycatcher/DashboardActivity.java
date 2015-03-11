@@ -6,6 +6,7 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -20,9 +21,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,7 +71,7 @@ public class DashboardActivity extends ActionBarActivity
 {
 
     // elements of the Activity
-    private ImageView mPointer;
+    private CompassView mPointer;
     private TextView mStatus;
     private SupportMapFragment mMap;
     private final DecimalFormat decimalFormat = new DecimalFormat();
@@ -93,11 +91,9 @@ public class DashboardActivity extends ActionBarActivity
     // parameters for rotation
     private float[] mR = new float[9]; // rotation matrix
     private float[] mOrientation = new float[3];
-    private float mCurrentDegree = 0f;
+    private float mNorthOffset = 0f;
     
-    // params to load jerry's location
-    private HttpAsyncTask bgTask;
-    
+    // jerry's params
     private boolean connected;
     private double latJerry, longJerry;
     private long tJerryExpire;
@@ -125,19 +121,14 @@ public class DashboardActivity extends ActionBarActivity
         initPointer();
         decimalFormat.setMaximumFractionDigits(2);
         
-        // init the AsyncTask for loading the data from website
-        Resources resource = getResources();
-        String nim = resource.getString(R.string.api_nim);
-        String baseUrl = resource.getString(R.string.api_baseUrl);
-        String fsUrl = baseUrl + resource.getString(R.string.api_getPosition, nim); // fs: formatted string
-        
-        bgTask = (HttpAsyncTask) new HttpAsyncTask().execute(fsUrl);
-        
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                                 .addApi(LocationServices.API)
                                 .addConnectionCallbacks(this)
                                 .addOnConnectionFailedListener(this)
                                 .build();
+
+        GoogleMap googleMap = mMap.getMap();
+        googleMap.setMyLocationEnabled(true);
     }
 
     // handles onResume event
@@ -177,9 +168,33 @@ public class DashboardActivity extends ActionBarActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_about) {
+            return showAbout();
+        } else if (id == R.id.action_refresh) {
+            refresh();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    
+    private boolean showAbout() {
+        View messageView = getLayoutInflater().inflate(R.layout.about, null, false);
+        
+        // When linking text, force to always use default color.
+        // This is a workaround for a pressed color state bug
+        TextView textView = (TextView) messageView.findViewById(R.id.about_credits);
+        int defaultColor = textView.getTextColors().getDefaultColor();
+        textView.setTextColor(defaultColor);
+        
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setIcon(R.drawable.ic_launcher);
+        builder.setTitle(R.string.app_name);
+        builder.setView(messageView);
+        builder.create();
+        builder.show();
+        
+        return true;
     }
 
     @Override
@@ -199,21 +214,25 @@ public class DashboardActivity extends ActionBarActivity
             float radAzimuth = mOrientation[0];
             float degAzimuth = (float)(Math.toDegrees(radAzimuth) + 360) % 360;
 
-            // create the animation for rotation
-            RotateAnimation ra = new RotateAnimation(
-                    mCurrentDegree,
-                    -degAzimuth,
-                    Animation.RELATIVE_TO_SELF, 0.5f,
-                    Animation.RELATIVE_TO_SELF, 0.5f);
-            ra.setDuration(250);
-            ra.setFillAfter(true);
-            
-            // animate the pointer
-            mPointer.startAnimation(ra);
-            
-            // update current degree
-            mCurrentDegree = -degAzimuth;
-            
+            Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            if(currentLocation != null) {
+                GeomagneticField geoField = new GeomagneticField(
+                        Double.valueOf(currentLocation.getLatitude()).floatValue(),
+                        Double.valueOf(currentLocation.getLongitude()).floatValue(),
+                        Double.valueOf(currentLocation.getAltitude()).floatValue(),
+                        System.currentTimeMillis()
+                );
+                degAzimuth += geoField.getDeclination();
+
+                // get the target position
+                Location target = new Location("Jerry Position");
+                target.setLatitude(latJerry);
+                target.setLongitude(longJerry);
+                float bearing = currentLocation.bearingTo(target);
+                float direction = (degAzimuth - bearing);
+
+                mPointer.rotationUpdate(-direction, true);
+            }
             // reset
             mLastMagnetometerSet = false;
             mLastAccelerometerSet = false;
@@ -249,11 +268,18 @@ public class DashboardActivity extends ActionBarActivity
                 latJerry, longJerry, results);
         
         mStatus.setText(getResources().getString(R.string.text_status_distance, decimalFormat.format(results[0])));
+        
+        // zoom out
+        GoogleMap googleMap = mMap.getMap();
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(
+                new LatLng(location.getLatitude(), location.getLongitude()
+                )));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(14.8f));
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        googleMap.setMyLocationEnabled(true);
+        refresh();
     }
 
     @Override
@@ -274,7 +300,7 @@ public class DashboardActivity extends ActionBarActivity
 
                 // Show some status dialog
                 try {
-                    String retStatus = new HttpAsyncTask().execute(token, HttpAsyncTask.TASK_POST_TOKEN).get();
+                    String retStatus = new HttpAsyncTask().execute(token).get();
                     int status = Integer.parseInt(retStatus);
 
                     if(status == HttpStatus.SC_OK) {
@@ -303,7 +329,7 @@ public class DashboardActivity extends ActionBarActivity
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        mPointer = (ImageView) findViewById(R.id.pointer);
+        mPointer = (CompassView) findViewById(R.id.pointer);
     }
 
     private void refresh() {
@@ -319,7 +345,7 @@ public class DashboardActivity extends ActionBarActivity
         JSONObject json;
 
         try {
-            json = new JSONObject(bgTask.get());
+            json = new JSONObject(new HttpAsyncTask().execute().get());
 
             Resources res = getResources();
 
@@ -333,9 +359,9 @@ public class DashboardActivity extends ActionBarActivity
             GoogleMap map = mMap.getMap();
             CameraUpdate centerJerryLocation = CameraUpdateFactory.newLatLngZoom(
                     posJerry, // lat long
-                    14.4f // zoom param
+                    15f // zoom param
             );
-            map.moveCamera(centerJerryLocation);
+            map.animateCamera(centerJerryLocation);
 
             // remove previous marker
             if(jerryMarker != null) {
@@ -350,7 +376,7 @@ public class DashboardActivity extends ActionBarActivity
             // add the marker
             jerryMarker = map.addMarker(new MarkerOptions()
                             .position(posJerry)
-                            .title("Jerry's position.\nValid until " + formatter.format(expiryTime))
+                            .title("Valid until " + formatter.format(expiryTime))
             );
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -405,40 +431,33 @@ public class DashboardActivity extends ActionBarActivity
     }
     
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-        public final static String TASK_GET_POSITION = "GET_POSITION";
-        public final static String TASK_POST_TOKEN = "POST_TOKEN";
+        public final String API_BASEURL = getResources().getString(R.string.api_baseUrl);
+        public final String API_GET_POSITION = getResources().getString(R.string.api_getPosition);
+        public final String API_NIM = getResources().getString(R.string.api_nim);
+        public final String API_POST_TOKEN = getResources().getString(R.string.api_postToken);
         
         @Override
         protected String doInBackground(String... params) {
             String ret;
             
-            if(params.length == 1) { // assume GET
-                ret = getPosition(params[0]);
-            } else if (params.length > 1){
-                try {
-                    String mode = params[1];
-                    switch (mode) {
-                    case TASK_GET_POSITION:
-                        ret = getPosition(params[0]);
-                        break;
-                    case TASK_POST_TOKEN:
-                        ret = String.valueOf(postToken(params[0]));
-                        break;
-                    default:
-                        ret = null;
-                    }
-                    
-                } catch (NumberFormatException e) {
-                    ret = null;
-                }
-            } else { // no params?
+            if(params.length == 0) {
+                ret = getPosition();
+            } else if(params.length == 1) {
+                ret = Integer.valueOf(postToken(params[0])).toString();
+            } else {
                 ret = null;
             }
             
             return ret;
         }
 
-        private String getPosition(String url) {
+        /**
+         * Gets the position of Jerry from the server *
+         * @return JSON response from server
+         */
+        private String getPosition() {
+            String url = String.format(API_BASEURL + API_GET_POSITION, API_NIM);
+            
             HttpClient client = new DefaultHttpClient();
             InputStream inputStream;
             StringBuilder result = new StringBuilder();
@@ -467,19 +486,18 @@ public class DashboardActivity extends ActionBarActivity
 
         /**
          * Uploads the token to the server
-         * @param token the token
+         * @param token the token code, to be uploaded to the server
          * @return 0 if successful, 1 if the token is incorrect,
          *          2 if (at least) one of the parameters is invalid, -1 if some error occurs
          */
         private int postToken(String token) {
             Resources res = getResources();
-            String baseUrl = res.getString(R.string.api_baseUrl);
-            String fsUrl = baseUrl + res.getString(R.string.api_postToken);
+            String url = API_BASEURL + API_POST_TOKEN;
             int returnVal;
 
             // build the POST request
             HttpClient client = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost(fsUrl);
+            HttpPost httpPost = new HttpPost(url);
 
             try {
                 List<NameValuePair> nameValuePairs = new ArrayList<>(2);
