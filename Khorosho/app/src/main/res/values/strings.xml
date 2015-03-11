@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Khorosho</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="compass">Compass</string>
+    <string name="catchJerry">Catch!</string>
+    <string name="button_askSpike">Ask Spike!!</string>
+    <string name="title_activity_show_map">Map</string>
+    <string name="title_activity_compass">Compass</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_catch_jerry">CatchJerry</string>
+</resources>
