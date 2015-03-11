@@ -19,13 +19,15 @@ public class CompassActivity extends Activity implements SensorEventListener {
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private Sensor mMagnetometer;
+
     private float[] mLastAccelerometer = new float[3];
     private float[] mLastMagnetometer = new float[3];
-    private boolean mLastAccelerometerSet = false;
-    private boolean mLastMagnetometerSet = false;
     private float[] mR = new float[9];
     private float[] mOrientation = new float[3];
     private float mCurrentDegree = 0f;
+
+    private boolean mLastAccelerometerSet = false;
+    private boolean mLastMagnetometerSet = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +64,10 @@ public class CompassActivity extends Activity implements SensorEventListener {
             SensorManager.getRotationMatrix(mR, null, mLastAccelerometer, mLastMagnetometer);
             SensorManager.getOrientation(mR, mOrientation);
             float azimuthInRadians = mOrientation[0];
-            float azimuthInDegress = (float)(Math.toDegrees(azimuthInRadians)+360)%360;
+            float azimuthInDegrees = (float)(Math.toDegrees(azimuthInRadians)+360)%360;
             RotateAnimation ra = new RotateAnimation(
                     mCurrentDegree,
-                    -azimuthInDegress,
+                    -azimuthInDegrees,
                     Animation.RELATIVE_TO_SELF, 0.5f,
                     Animation.RELATIVE_TO_SELF,
                     0.5f);
@@ -75,12 +77,13 @@ public class CompassActivity extends Activity implements SensorEventListener {
             ra.setFillAfter(true);
 
             mPointer.startAnimation(ra);
-            mCurrentDegree = -azimuthInDegress;
+            mCurrentDegree = -azimuthInDegrees;
         }
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        //
     }
 
 }

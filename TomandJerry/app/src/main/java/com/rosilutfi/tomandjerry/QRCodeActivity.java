@@ -63,11 +63,11 @@ public class QRCodeActivity extends Activity {
     public void sendCodeToServer(View v){
         String text = codeResult.getText().toString();
         if (codeResult.getText().equals("")){
-            Toast.makeText(getApplicationContext(),"Please do a qr scan first",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(),"Please do a qr scan",Toast.LENGTH_SHORT).show();
         } else {
             try {
                 JSONObject data = new JSONObject();
-                data.put("nim", "13512014"); data.put("token",text);
+                data.put("NIM", "13512088"); data.put("Token",text);
                 new SendCodeToServerTask().execute(data.toString());
             } catch (JSONException je){
                 je.printStackTrace();
@@ -89,7 +89,7 @@ public class QRCodeActivity extends Activity {
         }
     }
 
-    private static AlertDialog OKDialog(final Activity act, CharSequence title, final CharSequence message) {
+    private static AlertDialog OkDialog(final Activity act, CharSequence title, final CharSequence message) {
         AlertDialog.Builder okDialog = new AlertDialog.Builder(act);
         okDialog.setTitle(title);
         okDialog.setMessage("Send this token to server?" + message);
@@ -112,7 +112,7 @@ public class QRCodeActivity extends Activity {
         @Override
         protected String doInBackground(String... params) {
             String url = SERVER + "/api/catch";
-            Log.d("test","sending "+params[0]+" to server");
+            Log.d("Test","Sending "+params[0]+" to server");
             int responseCode = 0;
             try {
                 URL obj = new URL(url);
@@ -138,6 +138,8 @@ public class QRCodeActivity extends Activity {
             } catch (MalformedURLException mue) {
                 return null;
             } catch (IOException ioe) {
+
+
                 return null;
             }
         }
@@ -147,8 +149,8 @@ public class QRCodeActivity extends Activity {
             try{
                 JSONObject jo = new JSONObject(result);
                 String message;
-                if (jo.has("message")){
-                    message = (String) jo.get("message");
+                if (jo.has("Message")){
+                    message = (String) jo.get("Message");
                 } else {
                     message = result;
                 }

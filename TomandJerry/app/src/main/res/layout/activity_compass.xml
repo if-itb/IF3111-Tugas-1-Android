@@ -12,8 +12,19 @@
         android:scaleType="fitXY"
         android:maxWidth="1000dp"
         android:minHeight="1000dp"
-        android:layout_centerVertical="true"
+        android:padding="50dp"
+        android:layout_below="@+id/textView3"
         android:layout_centerHorizontal="true"
-        android:padding="50dp" />
+        android:layout_marginTop="47dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Compass"
+        android:id="@+id/textView3"
+        android:layout_marginTop="49dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

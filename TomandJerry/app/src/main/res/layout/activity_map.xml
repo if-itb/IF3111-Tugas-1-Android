@@ -21,7 +21,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/moveCameraToTargetButton"
-        android:drawableLeft="@drawable/jerry_small"
         android:nestedScrollingEnabled="false"
         android:onClick="moveCameraToTarget"
         android:padding="10dp"
@@ -29,15 +28,15 @@
         android:layout_alignBottom="@+id/map"
         android:background="@drawable/icon_button"
         android:layout_toRightOf="@+id/imageViewCompass"
+        android:textColor="#ffffffff"
         android:layout_alignRight="@+id/validUntilTextView"
-        android:layout_alignEnd="@+id/validUntilTextView"
-        android:textColor="#ffffffff" />
+        android:layout_alignEnd="@+id/validUntilTextView" />
 
     <ImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:id="@+id/imageViewCompass"
-        android:src="@drawable/compass_small"
+        android:src="@drawable/img_compass"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 

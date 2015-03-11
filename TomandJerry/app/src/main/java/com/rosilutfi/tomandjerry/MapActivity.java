@@ -61,7 +61,6 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
     private Marker marker;
     private LatLng targetPosition = new LatLng(-6.8850447,107.6176397);
     private long validUntil = -1;
-    boolean isLocationUpdated;
     Timer timer;
     TimerTask autoUpdateTask;
 
@@ -71,13 +70,15 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private Sensor mMagnetometer;
+
+    private float[] mR = new float[10];
+    private float[] mOrientation = new float[3];
     private float[] mLastAccelerometer = new float[3];
     private float[] mLastMagnetometer = new float[3];
+    private float mCurrentDegree = 0f;
+
     private boolean mLastAccelerometerSet = false;
     private boolean mLastMagnetometerSet = false;
-    private float[] mR = new float[9];
-    private float[] mOrientation = new float[3];
-    private float mCurrentDegree = 0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +90,6 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         mPointer = (ImageView) findViewById(R.id.imageViewCompass);
-
 
         map = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMap();
         //set default position
@@ -105,18 +105,18 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
     }
 
     @Override
+    protected void onPause(){
+        super.onPause();
+        mSensorManager.unregisterListener(this, mAccelerometer);
+        mSensorManager.unregisterListener(this, mMagnetometer);
+    }
+
+    @Override
     protected void onResume(){
         super.onResume();
         startAutoUpdateTask();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
-    }
-
-    @Override
-    protected void onPause(){
-        super.onPause();
-        mSensorManager.unregisterListener(this, mAccelerometer);
-        mSensorManager.unregisterListener(this, mMagnetometer);
     }
 
     private void updateTargetLocation() {
@@ -148,12 +148,6 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
 
     }
 
-    public void moveCameraToMyLocation(View v){
-        double lat = map.getMyLocation().getLatitude();
-        double lng = map.getMyLocation().getLongitude();
-        map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(lat,lng)));
-    }
-
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor == mAccelerometer) {
@@ -167,46 +161,44 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
             SensorManager.getRotationMatrix(mR, null, mLastAccelerometer, mLastMagnetometer);
             SensorManager.getOrientation(mR, mOrientation);
             float azimuthInRadians = mOrientation[0];
-            float azimuthInDegress = (float)(Math.toDegrees(azimuthInRadians)+360)%360;
+            float azimuthInDegrees = (float)(Math.toDegrees(azimuthInRadians)+360)%360;
             RotateAnimation ra = new RotateAnimation(
                     mCurrentDegree,
-                    -azimuthInDegress,
-                    Animation.RELATIVE_TO_SELF, 0.5f,
+                    -azimuthInDegrees,
+                    Animation.RELATIVE_TO_SELF,
+                    0.5f,
                     Animation.RELATIVE_TO_SELF,
                     0.5f);
-
             ra.setDuration(250);
-
             ra.setFillAfter(true);
-
             mPointer.startAnimation(ra);
-            mCurrentDegree = -azimuthInDegress;
+            mCurrentDegree = -azimuthInDegrees;
         }
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        //
     }
 
     private class UpdateTargetLocationTask extends AsyncTask<String,Void,String> {
 
         @Override
         protected String doInBackground(String... params) {
-            Log.d("ajax","call update location");
-            String url = SERVER+"/api/track?nim=13512014";
+            Log.d("Ajax","Update location");
+            String url = SERVER+"/api/track?nim=13512088";
             try {
                 URL obj = new URL(url);
                 HttpURLConnection con = (HttpURLConnection) obj.openConnection();
                 con.setRequestMethod("GET");
                 con.setRequestProperty("Accept-Charset", "UTF-8");
                 con.connect();
-                int responseCode = con.getResponseCode();
 
                 InputStream is = con.getInputStream();
-                BufferedReader r = new BufferedReader(new InputStreamReader(is,"UTF8"));
+                BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF8"));
                 StringBuffer sb = new StringBuffer();
                 int chr;
-                while ((chr = r.read()) != -1){
+                while ((chr = br.read()) != -1){
                     sb.append(((char) chr));
                 }
                 return sb.toString();
@@ -220,10 +212,10 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
         @Override
         protected void onPostExecute(String result) {
             double lat = targetPosition.latitude;
-            double lng = targetPosition.longitude;
-            double oldLat = lat, oldLng = lng;
+            double lon = targetPosition.longitude;
+            double oldLat = lat, oldLon = lon;
             try {
-                Log.d("test",result);
+                Log.d("Test",result);
                 JSONObject jObject = new JSONObject(result);
                 Iterator<?> keys = jObject.keys();
                 while (keys.hasNext()) {
@@ -232,19 +224,19 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
                     if (key.equals("lat")){
                         lat = Double.parseDouble(value);
                     } else if (key.equals("long")){
-                        lng = Double.parseDouble(value);
+                        lon = Double.parseDouble(value);
                     } else if (key.equals("valid_until")){
                         validUntil = Long.parseLong(value);
                     }
                 }
-                targetPosition = new LatLng(lat,lng);
+                targetPosition = new LatLng(lat,lon);
                 map.moveCamera(CameraUpdateFactory.newLatLng(targetPosition));
                 marker.setPosition(targetPosition);
-//                Log.d("lat","target lattitude = " + Double.toString(targetPosition.latitude));
+//                Log.d("lat","target latitude = " + Double.toString(targetPosition.latitude));
 //                Log.d("lng","target longitude = " + Double.toString(targetPosition.longitude));
-                Log.d("lat","new lattitude = " + Double.toString(marker.getPosition().latitude));
+                Log.d("lat","new latitude = " + Double.toString(marker.getPosition().latitude));
                 Log.d("lng","new longitude = " + Double.toString(marker.getPosition().longitude));
-                if (Math.abs(lat - oldLat) <= 0.0001 && Math.abs(lng - oldLng) <= 0.0001){
+                if (Math.abs(lat - oldLat) <= 0.0001 && Math.abs(lon - oldLon) <= 0.0001){
                     //dont view toast
                 } else {
                     //make notification
@@ -262,12 +254,10 @@ public class MapActivity extends FragmentActivity implements SensorEventListener
                 je.printStackTrace();
                 Toast.makeText(getApplicationContext(), "JSONException:  " + je.getMessage(), Toast.LENGTH_LONG).show();
                 //set to default location
-                targetPosition = new LatLng(oldLat,oldLng);
+                targetPosition = new LatLng(oldLat,oldLon);
             }
         }
     }
-
-
 
 }
 

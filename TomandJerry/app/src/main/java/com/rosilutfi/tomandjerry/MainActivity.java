@@ -87,7 +87,7 @@ public class MainActivity extends Activity {
         AlertDialog.Builder okDialog = new AlertDialog.Builder(act);
         okDialog.setTitle(title);
         okDialog.setMessage("Send this token to server?" + message);
-        okDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        okDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //new MainActivity.SendCodeToServerTask().execute(message.toString());
