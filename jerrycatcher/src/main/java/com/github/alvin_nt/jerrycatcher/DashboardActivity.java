@@ -6,6 +6,7 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -17,6 +18,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -60,7 +62,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class DashboardActivity extends ActionBarActivity 
@@ -72,7 +74,8 @@ public class DashboardActivity extends ActionBarActivity
 
     // elements of the Activity
     private CompassView mPointer;
-    private TextView mStatus;
+    private TextView mTextDistance;
+    private TextView mTextTimer;
     private SupportMapFragment mMap;
     private final DecimalFormat decimalFormat = new DecimalFormat();
     
@@ -91,13 +94,14 @@ public class DashboardActivity extends ActionBarActivity
     // parameters for rotation
     private float[] mR = new float[9]; // rotation matrix
     private float[] mOrientation = new float[3];
-    private float mNorthOffset = 0f;
     
     // jerry's params
     private boolean connected;
     private double latJerry, longJerry;
     private long tJerryExpire;
+    private Location jerryLocation;
     private Marker jerryMarker;
+    private CountDownTimer expiryTimer;
     
     // map parameters
     private GoogleApiClient mGoogleApiClient;
@@ -116,7 +120,8 @@ public class DashboardActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        mStatus = (TextView) findViewById(R.id.status);
+        mTextDistance = (TextView) findViewById(R.id.distance);
+        mTextTimer = (TextView) findViewById(R.id.timer);
         mMap = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         initPointer();
         decimalFormat.setMaximumFractionDigits(2);
@@ -267,7 +272,7 @@ public class DashboardActivity extends ActionBarActivity
         Location.distanceBetween(location.getLatitude(), location.getLongitude(),
                 latJerry, longJerry, results);
         
-        mStatus.setText(getResources().getString(R.string.text_status_distance, decimalFormat.format(results[0])));
+        mTextDistance.setText(getResources().getString(R.string.text_status_distance, decimalFormat.format(results[0])));
         
         // zoom out
         GoogleMap googleMap = mMap.getMap();
@@ -294,9 +299,6 @@ public class DashboardActivity extends ActionBarActivity
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
                 String token = intent.getStringExtra(SCAN_RESULT);
-                //String format = intent.getStringExtra("SCAN_RESULT_FORMAT");
-
-                //Toast.makeText(this, "Content:" + contents + " Format:" + format, Toast.LENGTH_LONG).show();
 
                 // Show some status dialog
                 try {
@@ -307,7 +309,7 @@ public class DashboardActivity extends ActionBarActivity
                         Toast toast = Toast.makeText(this, "Success! Jerry is caught.", Toast.LENGTH_SHORT);
                         toast.show();
                     } else {
-                        Toast.makeText(this, "Whoops! An error occurred. Status code: " + status, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Whoops! Jerry escaped. Status code: " + status, Toast.LENGTH_SHORT).show();
                     }
                 } catch (Exception e) {
                     Toast toast = Toast.makeText(this, "Whoops! An exception occurred: " + e.toString(), Toast.LENGTH_SHORT);
@@ -333,12 +335,37 @@ public class DashboardActivity extends ActionBarActivity
     }
 
     private void refresh() {
-        connected = checkConnection();
-        if(connected) {
-            refreshMap();
-        } else {
-            // update the status, display disconnected..
-        }
+        refreshMap();
+
+        long timeLeft = tJerryExpire * 1000 - System.currentTimeMillis();
+        expiryTimer = new CountDownTimer(timeLeft, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                long seconds = millisUntilFinished / 1000;
+                long minutes = seconds / 60;
+                seconds %= 60;
+
+                mTextTimer.setText(String.format("%02d:%02d", minutes, seconds));
+                if (minutes >= 3) {
+                    mTextTimer.setBackgroundColor(Color.BLUE);
+                    mTextTimer.setTextColor(Color.WHITE);
+                } else if (minutes >= 1 && minutes < 3) {
+                    mTextTimer.setBackgroundColor(Color.YELLOW);
+                    mTextTimer.setTextColor(Color.BLACK);
+                } else {
+                    mTextTimer.setBackgroundColor(Color.RED);
+                    mTextTimer.setTextColor(Color.WHITE);
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                mTextTimer.setText(String.format("%02d:%02d", 0, 0));
+
+                Toast.makeText(DashboardActivity.this, "Time's up! Refreshing...", Toast.LENGTH_SHORT).show();
+                refresh();
+            }
+        }.start();
     }
     
     private void refreshMap() {
@@ -369,9 +396,8 @@ public class DashboardActivity extends ActionBarActivity
             }
 
             // get the time
-            Date expiryTime = new Date(tJerryExpire);
-            DateFormat formatter = new SimpleDateFormat("dd/mm/yyyy HH:mm:ss");
-            formatter.setTimeZone(TimeZone.getTimeZone("UTC+7"));
+            Date expiryTime = new Date(tJerryExpire * 1000);
+            DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.ENGLISH);
 
             // add the marker
             jerryMarker = map.addMarker(new MarkerOptions()

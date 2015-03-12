@@ -24,7 +24,7 @@
     
     <string name="btn_catch">Catch!</string>
     
-    <string name="text_status_distance">You are %s meters away from Jerry.</string>
+    <string name="text_status_distance">%s m</string>
     
     <!-- some about page -->
 
