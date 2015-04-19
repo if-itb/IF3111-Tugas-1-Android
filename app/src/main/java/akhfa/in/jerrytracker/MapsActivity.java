@@ -18,6 +18,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.hardware.Sensor;
@@ -28,6 +29,8 @@ import android.hardware.SensorManager;
 public class MapsActivity extends FragmentActivity implements SensorEventListener{
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+
+    Marker JerryPos;
 
     //Buat json
     private static final String TAG_LATITUDE = "lat";
@@ -123,7 +126,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 //execute parsing json from server
                 mMap.setMyLocationEnabled(true);
                 new JSONParse().execute();
-
             }
         }
     }
@@ -160,8 +162,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     Double lat=Double.parseDouble(latitude.toString());
                     Double longi=Double.parseDouble(longitude.toString());
 
-                    //add marker ke peta
-                    mMap.addMarker(new MarkerOptions().position(new LatLng(lat, longi)).title("location").snippet(""));
+                    //change marker posisition
+                    LatLng posisi = new LatLng(lat, longi);
+                    JerryPos = mMap.addMarker(new MarkerOptions().position(posisi).title("location").snippet(""));
 
                     //Update camera to point the marker
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, longi), 18.0f));
@@ -192,6 +195,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         }
             @Override
             public void onFinish() {
+                JerryPos.remove();
                 new JSONParse().execute();
                 timerTextView.setText("0");
                 }
