@@ -1,0 +1,50 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="rakhmatullahyoga.tomandjerry.MenuActivity">
+
+    <TextView android:text="Tom and Jerry" android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:enabled="true"
+        android:textSize="50dp"
+        android:textStyle="bold|normal|italic"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/textView" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Map"
+        android:onClick="showMap"
+        android:id="@+id/mapButton"
+        android:clickable="true"
+        android:enabled="true"
+        android:layout_above="@+id/catchButton"
+        android:layout_alignEnd="@+id/catchButton"
+        android:layout_alignStart="@+id/catchButton" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Catch Jerry"
+        android:onClick="catchJerry"
+        android:id="@+id/catchButton"
+        android:layout_marginBottom="52dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="56dp"
+        android:src="@drawable/tomandjerry" />
+
+</RelativeLayout>
